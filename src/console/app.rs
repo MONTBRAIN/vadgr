@@ -970,7 +970,7 @@ impl ConsoleApp {
             .movable(false)
             .fixed_pos(screen.min)
             .show(ctx, |ui| {
-                let (rect, response) = ui.allocate_exact_size(screen.size(), Sense::click());
+                let (rect, response) = ui.allocate_exact_size(screen.size(), Sense::CLICK);
                 ui.painter()
                     .rect_filled(rect, 0.0, Color32::from_black_alpha(176));
                 response.clicked()
@@ -1656,7 +1656,14 @@ impl eframe::App for ConsoleApp {
                         theme::danger()
                     };
                     theme::card().show(ui, |ui| {
-                        ui.label(RichText::new(message).color(color));
+                        let response = ui.label(RichText::new(message).color(color));
+                        ui.ctx().accesskit_node_builder(response.id, |node| {
+                            node.set_live(if *success {
+                                egui::accesskit::Live::Polite
+                            } else {
+                                egui::accesskit::Live::Assertive
+                            });
+                        });
                     });
                     ui.add_space(12.0);
                 }
@@ -1692,10 +1699,13 @@ impl eframe::App for ConsoleApp {
                             theme::card().show(ui, |ui| {
                                 ui.horizontal(|ui| {
                                     ui.spinner();
-                                    ui.label(
+                                    let response = ui.label(
                                         RichText::new("Vadgr is completing this action...")
                                             .color(theme::muted()),
                                     );
+                                    ui.ctx().accesskit_node_builder(response.id, |node| {
+                                        node.set_live(egui::accesskit::Live::Polite);
+                                    });
                                 });
                             });
                         }

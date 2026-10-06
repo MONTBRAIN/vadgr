@@ -112,6 +112,89 @@ fn ready_app() -> (egui::Context, ConsoleApp, mpsc::Receiver<&'static str>) {
     (ctx, app, calls)
 }
 
+fn assert_live_status(success: Option<bool>, expected: &str, live: egui::accesskit::Live) {
+    let (ctx, mut app, calls) = ready_app();
+    app.view = View::Settings;
+    let first = draw(&ctx, &mut app, vec![]);
+    let settings = first
+        .platform_output
+        .accesskit_update
+        .as_ref()
+        .unwrap()
+        .nodes
+        .iter()
+        .find(|(_, node)| node.label() == Some("Settings"))
+        .unwrap()
+        .0;
+    draw(
+        &ctx,
+        &mut app,
+        vec![egui::Event::AccessKitActionRequest(ActionRequest {
+            action: Action::Focus,
+            target_tree: TreeId::ROOT,
+            target_node: settings,
+            data: None,
+        })],
+    );
+    let (_send, receive) = mpsc::channel();
+    if let Some(success) = success {
+        app.notice = Some((success, expected.to_owned()));
+    } else {
+        app.pending = Some(receive);
+    }
+    let mut status_id = None;
+    for _ in 0..2 {
+        let output = draw(&ctx, &mut app, vec![]);
+        let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+        let (id, node) = tree
+            .nodes
+            .iter()
+            .find(|(_, node)| node.value() == Some(expected) || node.label() == Some(expected))
+            .expect("the visible status text is exposed");
+        assert_eq!(
+            node.live(),
+            Some(live),
+            "status must be available without moving focus"
+        );
+        assert_eq!(tree.focus, settings, "status must not take keyboard focus");
+        if let Some(previous) = status_id {
+            assert_eq!(
+                *id, previous,
+                "unchanged status keeps its accessible identity"
+            );
+        }
+        status_id = Some(*id);
+    }
+    assert!(calls.try_recv().is_err());
+}
+
+#[test]
+fn dynamic_status_success_is_polite_without_taking_focus() {
+    assert_live_status(
+        Some(true),
+        "The change completed.",
+        egui::accesskit::Live::Polite,
+    );
+}
+
+#[test]
+fn dynamic_status_failure_is_assertive_without_taking_focus() {
+    assert_live_status(
+        Some(false),
+        "The action failed.",
+        egui::accesskit::Live::Assertive,
+    );
+}
+
+#[test]
+fn dynamic_status_pending_is_polite_without_taking_focus() {
+    assert_live_status(
+        None,
+        "Vadgr is completing this action...",
+        egui::accesskit::Live::Polite,
+    );
+}
+
 fn draw_sidebar(
     ctx: &egui::Context,
     app: &mut ConsoleApp,

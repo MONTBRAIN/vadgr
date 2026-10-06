@@ -404,6 +404,90 @@ fn assert_focus(output: &egui::FullOutput, label: &str) {
     );
 }
 
+#[test]
+fn modal_backdrop_is_not_an_anonymous_keyboard_target() {
+    for palette in [egui::Theme::Light, egui::Theme::Dark] {
+        for size in [[1200.0, 720.0], [900.0, 600.0]] {
+            for family in FAMILIES {
+                let (ctx, mut app) = fixture(family, palette);
+                activate(&ctx, &mut app, size, family.opener());
+                let output = settle(&ctx, &mut app, size);
+                let nodes = &output
+                    .platform_output
+                    .accesskit_update
+                    .as_ref()
+                    .unwrap()
+                    .nodes;
+                let anonymous: Vec<_> = nodes
+                    .iter()
+                    .filter(|(_, node)| {
+                        node.supports_action(Action::Focus)
+                            && !node.is_disabled()
+                            && node_text(nodes, node).is_empty()
+                            && node.labelled_by().is_empty()
+                    })
+                    .map(|(id, _)| *id)
+                    .collect();
+                assert!(
+                    anonymous.is_empty(),
+                    "{family:?} has anonymous focus targets: {anonymous:?}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn modal_backdrop_never_enters_empty_password_tab_cycle() {
+    for palette in [egui::Theme::Light, egui::Theme::Dark] {
+        for size in [[1200.0, 720.0], [900.0, 600.0]] {
+            for (provider, name) in [
+                ("openai", "OpenAI"),
+                ("anthropic", "Anthropic"),
+                ("gemini", "Gemini"),
+            ] {
+                let (ctx, mut app) = fixture(Family::Key, palette);
+                let entry = app
+                    .data
+                    .as_mut()
+                    .unwrap()
+                    .providers
+                    .iter_mut()
+                    .find(|entry| entry.id == "openai")
+                    .unwrap();
+                entry.id = provider.to_owned();
+                entry.name = name.to_owned();
+                activate(&ctx, &mut app, size, Family::Key.opener());
+                let opened = settle(&ctx, &mut app, size);
+                let field = format!("Enter the {provider} API key.");
+                assert_focus(&opened, &field);
+                for expected in ["Cancel", &field, "Cancel", &field] {
+                    for pressed in [true, false] {
+                        draw(
+                            &ctx,
+                            &mut app,
+                            size,
+                            vec![egui::Event::Key {
+                                key: egui::Key::Tab,
+                                physical_key: None,
+                                pressed,
+                                repeat: false,
+                                modifiers: egui::Modifiers::NONE,
+                            }],
+                        );
+                    }
+                    let output = draw(&ctx, &mut app, size, vec![]);
+                    assert_focus(&output, expected);
+                    assert!(
+                        app.pending.is_none(),
+                        "Tab must not submit the empty credential"
+                    );
+                }
+            }
+        }
+    }
+}
+
 fn escape() -> egui::Event {
     egui::Event::Key {
         key: egui::Key::Escape,

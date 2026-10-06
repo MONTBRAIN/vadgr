@@ -2669,6 +2669,32 @@ functional passes, six partial cells, one blocked and one not run.
 Three separate concurrent closing agents with their own ports, databases and
 daemons remain owed; serial driver qualification does not substitute for them.
 
+### October 6: status and modal source regression
+
+The source continuation against `3f734b57` reproduced five new regressions:
+three missing live-status annotations and two modal-backdrop focus failures.
+Both groups returned exit 101 before repair and passed after repair. The fix
+marks pending and success text as polite live updates, failure text as assertive,
+and removes keyboard focus from the pointer-clickable modal backdrop. Existing
+dialog dismissal tests remain covered. These are source results, not installed
+application observations.
+
+The repaired native library suite recorded 344 passed, one failed and two
+ignored. The default library suite recorded 266 passed, one failed and one
+ignored; Cargo then stopped before its integration tests. Both failures were
+the same unchanged local-listener test: the restricted session refused its
+socket bind with `Operation not permitted`. Keep these failed attempts and
+rerun the complete gates with that capability available. Do not weaken the test.
+The five targeted regressions passed in the restricted source-test environment.
+
+The current installed subject remains the exact `3fc6883b` AppImage described
+above. A rebuilt package and native status/focus reruns remain owed. Shared
+status semantics and modal traversal also require the affected Windows and
+macOS reruns; unchanged unrelated results keep their original identities.
+No source result closes a Linux cell, changes the current ledger, or establishes
+signed-candidate coverage. The interrupted earlier compilation attempts retain
+their unobserved terminal status rather than an inferred exit code.
+
 ## macOS qualification history
 
 These observations preserve implementation findings and earlier evidence. They
