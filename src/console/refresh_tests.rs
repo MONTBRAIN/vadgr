@@ -2,11 +2,18 @@ use super::*;
 use eframe::App;
 use egui::accesskit::{Action, ActionRequest, Role, TreeId};
 
-struct Controller(mpsc::Sender<&'static str>);
+struct Controller(
+    mpsc::Sender<&'static str>,
+    Option<std::sync::Mutex<mpsc::Receiver<()>>>,
+);
 
 impl ConsoleController for Controller {
     fn install_status(&self) -> Result<crate::install::InstallStatus> {
         self.0.send("refresh").unwrap();
+        // A gated refresh stays pending until its test drops the gate.
+        if let Some(gate) = &self.1 {
+            let _ = gate.lock().unwrap().recv();
+        }
         Err(anyhow!("synthetic refresh result"))
     }
     fn restart_daemon(&self) -> Result<()> {
@@ -93,15 +100,22 @@ fn draw(ctx: &egui::Context, app: &mut ConsoleApp, events: Vec<egui::Event>) -> 
 }
 
 fn ready_app() -> (egui::Context, ConsoleApp, mpsc::Receiver<&'static str>) {
+    ready_app_with_refresh_gate(None)
+}
+
+fn ready_app_with_refresh_gate(
+    gate: Option<mpsc::Receiver<()>>,
+) -> (egui::Context, ConsoleApp, mpsc::Receiver<&'static str>) {
     let ctx = egui::Context::default();
     ctx.enable_accesskit();
     theme::install(&ctx);
     let (send, calls) = mpsc::channel();
     let app = ConsoleApp {
-        controller: Arc::new(Controller(send)),
+        controller: Arc::new(Controller(send, gate.map(std::sync::Mutex::new))),
         view: View::Machine,
         data: Some(ConsoleData::default()),
         pending: None,
+        pending_announced: false,
         uninstalled: false,
         dialog: None,
         dialog_focus: DialogFocus::default(),
@@ -140,7 +154,9 @@ fn assert_live_status(success: Option<bool>, expected: &str, live: egui::accessk
     if let Some(success) = success {
         app.notice = Some((success, expected.to_owned()));
     } else {
+        // A user-started operation; background refresh progress is covered separately.
         app.pending = Some(receive);
+        app.pending_announced = true;
     }
     let mut status_id = None;
     for _ in 0..2 {
@@ -193,6 +209,34 @@ fn dynamic_status_pending_is_polite_without_taking_focus() {
         "Vadgr is completing this action...",
         egui::accesskit::Live::Polite,
     );
+}
+
+#[test]
+fn automatic_refresh_progress_is_not_announced() {
+    let progress = "Vadgr is completing this action...";
+    let (gate, wait) = mpsc::channel::<()>();
+    let (ctx, mut app, calls) = ready_app_with_refresh_gate(Some(wait));
+    app.last_refresh = std::time::Instant::now() - std::time::Duration::from_secs(30);
+    // An idle frame starts the automatic refresh, which the gate holds pending.
+    draw(&ctx, &mut app, vec![]);
+    assert_eq!(
+        calls.recv_timeout(std::time::Duration::from_secs(5)),
+        Ok("refresh")
+    );
+    for _ in 0..2 {
+        let output = draw(&ctx, &mut app, vec![]);
+        let tree = output.platform_output.accesskit_update.as_ref().unwrap();
+        let (_, node) = tree
+            .nodes
+            .iter()
+            .find(|(_, node)| node.value() == Some(progress) || node.label() == Some(progress))
+            .expect("the background progress stays visible");
+        assert!(
+            matches!(node.live(), None | Some(egui::accesskit::Live::Off)),
+            "an automatic refresh the user did not start must not be announced"
+        );
+    }
+    drop(gate);
 }
 
 fn draw_sidebar(

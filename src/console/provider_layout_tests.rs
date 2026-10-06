@@ -229,6 +229,7 @@ fn app(theme: egui::Theme) -> (egui::Context, ConsoleApp) {
             ..Default::default()
         }),
         pending: None,
+        pending_announced: false,
         uninstalled: false,
         dialog: None,
         dialog_focus: DialogFocus::default(),

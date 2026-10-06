@@ -111,6 +111,10 @@ pub struct ConsoleApp {
     view: View,
     data: Option<ConsoleData>,
     pending: Option<mpsc::Receiver<Result<OperationResult>>>,
+    /// Whether the pending work was started by the user. Background refreshes
+    /// also show progress, but announcing them would interrupt a reader user
+    /// every few seconds with work they did not ask for.
+    pending_announced: bool,
     uninstalled: bool,
     dialog: Option<Dialog>,
     dialog_focus: DialogFocus,
@@ -127,6 +131,7 @@ impl ConsoleApp {
             view: View::Machine,
             data: None,
             pending: None,
+            pending_announced: false,
             uninstalled: false,
             dialog: None,
             dialog_focus: DialogFocus::default(),
@@ -142,6 +147,14 @@ impl ConsoleApp {
         &mut self,
         task: impl FnOnce(Arc<dyn ConsoleController>) -> Result<OperationResult> + Send + 'static,
     ) {
+        self.start_with(true, task);
+    }
+
+    fn start_with(
+        &mut self,
+        announced: bool,
+        task: impl FnOnce(Arc<dyn ConsoleController>) -> Result<OperationResult> + Send + 'static,
+    ) {
         if self.pending.is_some() {
             return;
         }
@@ -151,11 +164,12 @@ impl ConsoleApp {
             let _ = send.send(task(controller));
         });
         self.pending = Some(receive);
+        self.pending_announced = announced;
         self.notice = None;
     }
 
     fn reload(&mut self) {
-        self.start(|controller| {
+        self.start_with(false, |controller| {
             let install = controller.install_status()?;
             let daemon = (|| {
                 Ok::<_, anyhow::Error>((
@@ -1703,9 +1717,11 @@ impl eframe::App for ConsoleApp {
                                         RichText::new("Vadgr is completing this action...")
                                             .color(theme::muted()),
                                     );
-                                    ui.ctx().accesskit_node_builder(response.id, |node| {
-                                        node.set_live(egui::accesskit::Live::Polite);
-                                    });
+                                    if self.pending_announced {
+                                        ui.ctx().accesskit_node_builder(response.id, |node| {
+                                            node.set_live(egui::accesskit::Live::Polite);
+                                        });
+                                    }
                                 });
                             });
                         }
@@ -2234,6 +2250,7 @@ mod tests {
                 view: View::Machine,
                 data: None,
                 pending: None,
+                pending_announced: false,
                 uninstalled: false,
                 dialog: Some(dialog),
                 dialog_focus: DialogFocus::default(),
@@ -2442,6 +2459,7 @@ mod tests {
             view: View::Settings,
             data: None,
             pending: Some(receive),
+            pending_announced: true,
             uninstalled: false,
             dialog: None,
             dialog_focus: DialogFocus::default(),
@@ -2488,6 +2506,7 @@ mod tests {
             view: View::Settings,
             data: Some(data.clone()),
             pending: Some(receive),
+            pending_announced: true,
             uninstalled: false,
             dialog: None,
             dialog_focus: DialogFocus::default(),
