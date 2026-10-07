@@ -1,0 +1,32 @@
+{
+  "approval_date": "2026-10-07",
+  "approved_manifest_sha256": "99587e3459fa23ef97edd8ea33ac9807a7535c5c3cd23487fe9fbaa4d44646c8",
+  "approved_review_sha256": "5df1672984fd0ba5df0fed08c7234dc9468bcac4580dcb4ecd3f4c6dbe9b6bda",
+  "authority": "Explicit publisher-owner approval of the exact packet.",
+  "candidate_authorized": false,
+  "derived_changes": [
+    {
+      "before_sha256": "13b34b67dd811667a88ed3765f5cdc97ab31b7a73a85d0dea1f9294d5c7718fe",
+      "operation": "replace",
+      "path": "package-input-review.json",
+      "reason": "Apply owner approval and canonical legal-file membership; inventory is bound separately.",
+      "sha256": "5df1672984fd0ba5df0fed08c7234dc9468bcac4580dcb4ecd3f4c6dbe9b6bda"
+    },
+    {
+      "before_sha256": "70ffea9ba64f86cbf869a8da1aee7899d9a6673d4ec405ce4949ce88637cbeff",
+      "operation": "omit",
+      "path": "REVIEW-PENDING.json",
+      "reason": "Preserve the original pending record only in the unchanged approved draft."
+    }
+  ],
+  "derived_output_separately_owner_reviewed": false,
+  "draft_review_sha256": "13b34b67dd811667a88ed3765f5cdc97ab31b7a73a85d0dea1f9294d5c7718fe",
+  "inventory_sha256": "18cf71beab4b15a2308cc180e23dafa9bfa833562e26264eea03b352d78cee4e",
+  "publishable": false,
+  "schema": 1,
+  "signing_authorized": false,
+  "source_commit": "6f7d01735d73f40c8e5cfa49eccceb82e3b07d6e",
+  "status": "owner-approved-exact-packet",
+  "target": "x86_64-unknown-linux-gnu",
+  "unchanged_terms_inventory_licenses_notices_and_sources": true
+}

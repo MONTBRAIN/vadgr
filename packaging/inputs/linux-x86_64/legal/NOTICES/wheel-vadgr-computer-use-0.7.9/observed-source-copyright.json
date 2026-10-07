@@ -1,5 +1,5 @@
 {
-  "component_sha256": "297c00854dd24b005614e1e3edae7a12f1fbd754339549bab737e8812abdd6fd",
+  "component_sha256": "b0ce5f0cf9e560e148dd16fff6cdf35e8123557d3d9b0516e07c71feef069860",
   "original_statement_files": [
     {
       "path": "computer_use/bridge/deployer.py",
@@ -453,7 +453,7 @@
     },
     {
       "path": "computer_use/platform/backends/xtest.py",
-      "sha256": "551564d96c0f9acfc7f8d70d7827e4bb87c217644e7081c5e985656c213a18bc",
+      "sha256": "5b559d7cfca7541a92b24a7601520379d72791a94d212f8dfa4ef957dcd4eb06",
       "statements": [
         {
           "line": 1,
@@ -483,7 +483,7 @@
     },
     {
       "path": "computer_use/platform/linux.py",
-      "sha256": "d9d9b38fa6a8732c1231a8c92271eeb0ab192c681fad92d34106607d69652f01",
+      "sha256": "6ed523db759fe8a82928423d3f269bb1ad624279a2fa1493038a6be1426f0bd1",
       "statements": [
         {
           "line": 1,
@@ -783,7 +783,7 @@
     },
     {
       "path": "computer_use/tools/ui/atspi.py",
-      "sha256": "17856592114c7800072fdbbb16d2b9b53b7a8e45c6799fe9b8de8ce9ebc7ce6f",
+      "sha256": "6f84b758a8831a8c2fc21519af2def756c45891a11a10bd03f2523afb79e6b90",
       "statements": [
         {
           "line": 1,
@@ -803,7 +803,17 @@
     },
     {
       "path": "computer_use/tools/ui/cache.py",
-      "sha256": "133aa6ee9f5bd9fc132aec352ecdda68083d0ad80cff8fb84eefb399b969f352",
+      "sha256": "448c263b04bbaa981e0fe6121ac1f35d2169c084236f251c628738e12e1e77fd",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2026 Victor Santiago Monta\u00f1o Diaz"
+        }
+      ]
+    },
+    {
+      "path": "computer_use/tools/ui/roles.py",
+      "sha256": "3987219e2a0c3f4b93d6184c325f40145a001b8eeabd63f838c6e2ec067b1c90",
       "statements": [
         {
           "line": 1,

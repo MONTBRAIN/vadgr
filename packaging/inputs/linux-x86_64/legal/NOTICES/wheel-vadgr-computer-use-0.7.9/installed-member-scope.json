@@ -1,636 +1,642 @@
 {
   "members": [
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/__init__.py",
       "member": "computer_use/__init__.py",
       "sha256": "27f53769f929f8437a873de948cd34c6912e0160bab71e5c50de5ac3fb8f5dd4",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/bridge/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/bridge/__init__.py",
       "member": "computer_use/bridge/__init__.py",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/bridge/actions.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/bridge/actions.py",
       "member": "computer_use/bridge/actions.py",
       "sha256": "757318e4d8cc382d5341fd6f303042dde9a431549ad2f651444060740735d63e",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/bridge/capture.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/bridge/capture.py",
       "member": "computer_use/bridge/capture.py",
       "sha256": "d8fa567d262ce78e05ac68b2eccd8ce8b3b7bb4f66c0643a1c7acea50384b1d4",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/bridge/client.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/bridge/client.py",
       "member": "computer_use/bridge/client.py",
       "sha256": "4feede1b01a6d53ca6e33629b164c5cf30078296dc1372f8e8586c646edf76ad",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/bridge/daemon.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/bridge/daemon.py",
       "member": "computer_use/bridge/daemon.py",
       "sha256": "7c2bc9b510ff26c78049d9681e29b3e43ee37dfcdbdbcbafca23b97115b637c8",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/bridge/deployer.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/bridge/deployer.py",
       "member": "computer_use/bridge/deployer.py",
       "sha256": "95f4614868a349b0058683565829d60a79c0baf2012edbce18a8288b2e92f797",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/bridge/protocol.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/bridge/protocol.py",
       "member": "computer_use/bridge/protocol.py",
       "sha256": "009ce1e2f450605acd45240b547f2015cfb59f60f698625d21d96350c27728c1",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/bridge/supervisor.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/bridge/supervisor.py",
       "member": "computer_use/bridge/supervisor.py",
       "sha256": "e82b74fec1e0c4ce521092bf63a7eb6332c0bf824a242d6ca24bd606f5ef4a0c",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/__init__.py",
       "member": "computer_use/browser/__init__.py",
       "sha256": "4b247351409e6d5f57511b9225beb3ab80e08100dcbb450e011be56e19016800",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/_profile_trust.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/_profile_trust.py",
       "member": "computer_use/browser/_profile_trust.py",
-      "sha256": "d89cceecc0db6fb5b6469108d69e002cee03616d88c637f30449da186686ef60",
+      "sha256": "2e4438879436887cefb9a70d847f972ed2a1a93744534fba076ed8d29dfac787",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/adoption.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/adoption.py",
       "member": "computer_use/browser/adoption.py",
       "sha256": "5ecca7330af9db8b5b9e57e90a44a866b9470ad5093b25a5b89bee46cb71dbc3",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/bridge.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/bridge.py",
       "member": "computer_use/browser/bridge.py",
       "sha256": "db97a127d7c53159157c071966240991a2bc233918e84f0895414316c5ca7e7c",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/broker.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/broker.py",
       "member": "computer_use/browser/broker.py",
       "sha256": "7ff2190b4e94dbbd92e26eb259b262b042e8884f2cacb8c8b40c9c6a4f359977",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/broker_client.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/broker_client.py",
       "member": "computer_use/browser/broker_client.py",
       "sha256": "30740a5a57168b70b01e4f8e937af031698f6de1f32ddcb3c58584ab2468b29a",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/managed_authorization.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/managed_authorization.py",
       "member": "computer_use/browser/managed_authorization.py",
       "sha256": "bb5c67649d2c5d746e57c4e41112c72f2ce6e8a31afc90b6a6ed7616d8cc8e24",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/native_host.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/native_host.py",
       "member": "computer_use/browser/native_host.py",
       "sha256": "adea5e7e5d01ac88e20da0dc8df9e91ceb66392e8253c146e24e3773839f3067",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/offline_attestation.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/offline_attestation.py",
       "member": "computer_use/browser/offline_attestation.py",
       "sha256": "a462e2cc8573c9d09256cc770659dd0a11e7d8ae538d9263a3f8553bc42c802a",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/ownership.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/ownership.py",
       "member": "computer_use/browser/ownership.py",
       "sha256": "6e56e8c4c3ea50117a2bb509934a1bb5d2712ac79de521808a73612fc673ff3d",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/private_file.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/private_file.py",
       "member": "computer_use/browser/private_file.py",
       "sha256": "4b80a15dd653d2b70921ea1e973e886772a93319089f4ffa73e9c1912585afc7",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/profile.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/profile.py",
       "member": "computer_use/browser/profile.py",
       "sha256": "6f97411f27da73e93be8448b9f1b24503a655e665844eb87bd18643fbda51361",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/profiles/linux-x86_64/cua-profile-manifest.json",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/profiles/linux-x86_64/cua-profile-manifest.json",
       "member": "computer_use/browser/profiles/linux-x86_64/cua-profile-manifest.json",
-      "sha256": "1a39058e7679d0d4794b14b1d16fc2c396549735b3b0b56e68c2109446ff4077",
+      "sha256": "72b61772a86d838bc909bf01098ec2ab9d1936d4a1a2e213bd2f056136786099",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/protocol.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/protocol.py",
       "member": "computer_use/browser/protocol.py",
       "sha256": "bf09305be145e57406031b226c1962c3f8a17e25637f05144aad07a73d82b20c",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/server.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/server.py",
       "member": "computer_use/browser/server.py",
       "sha256": "a53f3d1492379919b4ee6a13a30d88277d6945da675c3bdcfc64f82f89bc8ddf",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/signed_transitions.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/signed_transitions.py",
       "member": "computer_use/browser/signed_transitions.py",
       "sha256": "2023fe36483391ffaa23f6ec328976e3ca6b195decf7b38bdcf414ecad50ad9c",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/standalone_adoption.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/standalone_adoption.py",
       "member": "computer_use/browser/standalone_adoption.py",
       "sha256": "010493f8ad8f9d4821c8e988dfa79b95aaf2116b4a551f12e3dd87455bbbd6a1",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/tool.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/tool.py",
       "member": "computer_use/browser/tool.py",
       "sha256": "3c1c7d56fd23b65c1a8f212fda5061f96badd82323882134a1384025e2fab447",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/upload.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/upload.py",
       "member": "computer_use/browser/upload.py",
       "sha256": "f5ef3f1a579f7d4ac333643a41aa49c8cd520f20cc4d514635e6e1d46debd642",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/winbroker/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/winbroker/__init__.py",
       "member": "computer_use/browser/winbroker/__init__.py",
       "sha256": "33c47c52eea4aae3bf2c466e6bf487d21d4ec423678ecfddf0b983690c552dc2",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/windows_acl.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/windows_acl.py",
       "member": "computer_use/browser/windows_acl.py",
       "sha256": "362c262e98b61bd078c5ae68d3920667968f5b202b61538f3d25398639432fec",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/windows_broker.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/windows_broker.py",
       "member": "computer_use/browser/windows_broker.py",
       "sha256": "97bc89dc7afd5a0991d4cdd6c4bc8a8cfbc1f3c346ff943785b32d4473e8c321",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/windows_broker_entry.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/windows_broker_entry.py",
       "member": "computer_use/browser/windows_broker_entry.py",
       "sha256": "daf7b702e09ba6188416415b8bf7254fb0fba91ff771076b2c6190c7ca1eccf1",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/windows_process.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/windows_process.py",
       "member": "computer_use/browser/windows_process.py",
       "sha256": "2e2086a52dc2d8e68c7349bec665ac07286c24ce132d87a19c65fa80f9be6d84",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/browser/winhost/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/browser/winhost/__init__.py",
       "member": "computer_use/browser/winhost/__init__.py",
       "sha256": "07483b1b53d6a6e483c4ecef8a41c066a76ffc718496220bbadd6f714eda6024",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/__init__.py",
       "member": "computer_use/core/__init__.py",
       "sha256": "6ef558fc0fa4b3e148eb82094884b918da61a00898c1ce3f65d9472f936d8a99",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/actions.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/actions.py",
       "member": "computer_use/core/actions.py",
       "sha256": "4459bb6bfdc78d9c43b480f4d2611f1ccd1964d0b77a9368a698ffdc68e69ba3",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/decorator.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/decorator.py",
       "member": "computer_use/core/decorator.py",
       "sha256": "590a8479a5fbb170261149f9181a6f0952e830ccbc2dd70ec7181adcaec23a1c",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/engine.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/engine.py",
       "member": "computer_use/core/engine.py",
       "sha256": "4c27f6da929130edae782b634a65c8257b757920cd5e775787d4a4658d6455fc",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/errors.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/errors.py",
       "member": "computer_use/core/errors.py",
       "sha256": "1d1834d119ccb256d4de24f7b30ce5fe7844d7cf505d984711bf21c1a7179cf5",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/middleware/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/middleware/__init__.py",
       "member": "computer_use/core/middleware/__init__.py",
       "sha256": "816d898dace7c5ea39e8acff7509df36996f0093c4fd4c2f0b6412fec3d5e0cc",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/middleware/base.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/middleware/base.py",
       "member": "computer_use/core/middleware/base.py",
       "sha256": "736ee8249d4514a6a7b95ac6ab64339ae24b49496c01629255ffb1068ca882d9",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/middleware/chain.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/middleware/chain.py",
       "member": "computer_use/core/middleware/chain.py",
       "sha256": "9064cbbb02f60281b1fd829ef44bf161d6391d11f3d8663cfa3b459c402adec4",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/middleware/telemetry.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/middleware/telemetry.py",
       "member": "computer_use/core/middleware/telemetry.py",
       "sha256": "ac90bb522823b2f702a60104e979992ef5ae8aeaefd09e431e493882d216267c",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/ops.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/ops.py",
       "member": "computer_use/core/ops.py",
       "sha256": "16bc68923327571e05b014b4142b000cff4fcd6e57bf5ec5c311d3e1bc3758ca",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/registry.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/registry.py",
       "member": "computer_use/core/registry.py",
       "sha256": "a90475611bce137be1cf1def637ee92f81a3b29999dcb64eb4873c1aa0fe173d",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/risk.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/risk.py",
       "member": "computer_use/core/risk.py",
       "sha256": "bf81e1d4f5b182e6a50b174e4bcc964fcf9aa865624465012c9e84137e2ca9e2",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/screenshot.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/screenshot.py",
       "member": "computer_use/core/screenshot.py",
       "sha256": "4b1f90a8b40cd33611fd9d3d7d7080b9095b23444b1d3a8ad79d1a32fe5588e9",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/smooth_move.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/smooth_move.py",
       "member": "computer_use/core/smooth_move.py",
       "sha256": "a0bcdbda4d55f412e73a4913965493d48d87a2006173d184d32773de46fa446d",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/tier.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/tier.py",
       "member": "computer_use/core/tier.py",
       "sha256": "c94282c9ebf94e6a56bdcac51a72903baea6a8172f3e9d771492b22a7c88c476",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/tool.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/tool.py",
       "member": "computer_use/core/tool.py",
       "sha256": "eca32517bfd7c69a8d1847c8d39e2d371ec8b777d015ad44df41f5f731bcccac",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/types.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/types.py",
       "member": "computer_use/core/types.py",
       "sha256": "33d4aa5f7f3143936ec389eff0c35c739361b18c61709c79b004a37df5f002a1",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/typing.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/typing.py",
       "member": "computer_use/core/typing.py",
       "sha256": "e06a3938345401d23cadafe18d4beb434a17efeb9065b31d762e534638ab4fd9",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/typing_boundaries.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/typing_boundaries.py",
       "member": "computer_use/core/typing_boundaries.py",
       "sha256": "4f2532e92fff94d01b7fdb939c5ec1a345ec0d27850002cc352b63eed4fc18f2",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/typing_profile.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/typing_profile.py",
       "member": "computer_use/core/typing_profile.py",
       "sha256": "7d1bac6d25b0ef9ede8751571c9125ddb9f7bfdbf47c9d5284ab8f3f4ff66aab",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/core/typing_profiles/us_adult_transcription_2026.json",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/core/typing_profiles/us_adult_transcription_2026.json",
       "member": "computer_use/core/typing_profiles/us_adult_transcription_2026.json",
       "sha256": "5ed90caf4268319e900e55181c8894c495226a45ca99bc17cbb12e8120ae7f0b",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/mcp_server.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/mcp_server.py",
       "member": "computer_use/mcp_server.py",
       "sha256": "f86b9f9e6884550f00451e0a25d30e3c866b7c57bb4922cfd37a837ee407544a",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/__init__.py",
       "member": "computer_use/platform/__init__.py",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/backends/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/backends/__init__.py",
       "member": "computer_use/platform/backends/__init__.py",
       "sha256": "e7280648fd448438cdb841a0886f44d5472f5c14222b978809e63a7e22a7a4e9",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/backends/linux_providers.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/backends/linux_providers.py",
       "member": "computer_use/platform/backends/linux_providers.py",
       "sha256": "4f747ef9e3d3be8104e5df3852cf055557ac16c63bd87b0bf20913c55eb03b7c",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/backends/portal.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/backends/portal.py",
       "member": "computer_use/platform/backends/portal.py",
       "sha256": "c11ed54e72d6e33e304e0318f5c5b736e95e2f7ee53c1fbfbd34b934d51a302d",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/backends/uinput.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/backends/uinput.py",
       "member": "computer_use/platform/backends/uinput.py",
       "sha256": "64a6b777df76865f0abcd124ea54809b5d2a97513ac6ecc8259c035c46db66d5",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/backends/xtest.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/backends/xtest.py",
       "member": "computer_use/platform/backends/xtest.py",
-      "sha256": "551564d96c0f9acfc7f8d70d7827e4bb87c217644e7081c5e985656c213a18bc",
+      "sha256": "5b559d7cfca7541a92b24a7601520379d72791a94d212f8dfa4ef957dcd4eb06",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/base.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/base.py",
       "member": "computer_use/platform/base.py",
       "sha256": "fa63c3f3db07f1d4f93be7f7a230e0f1d1539af16510d4fbe0f6a730a33d2c8b",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/detect.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/detect.py",
       "member": "computer_use/platform/detect.py",
       "sha256": "8822e528ebb5b9a18f82a275f78ad128818af33422403b8b62b2c1572486ba0b",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/linux.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/linux.py",
       "member": "computer_use/platform/linux.py",
-      "sha256": "d9d9b38fa6a8732c1231a8c92271eeb0ab192c681fad92d34106607d69652f01",
+      "sha256": "6ed523db759fe8a82928423d3f269bb1ad624279a2fa1493038a6be1426f0bd1",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/macos.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/macos.py",
       "member": "computer_use/platform/macos.py",
       "sha256": "f4efe14d39a7ff409a8e48b5a6ace27cbf25f4bf65d96c2a6a899fb614c34913",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/resolver/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/resolver/__init__.py",
       "member": "computer_use/platform/resolver/__init__.py",
       "sha256": "daf0dc7a529557f8f80e8f6991bff97bff4959f561493c64d9acf036a5bd929e",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/resolver/engine.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/resolver/engine.py",
       "member": "computer_use/platform/resolver/engine.py",
       "sha256": "db2b9d1d3c51e601d303481a028cde9932685af6d1a7677d9941e25d475ac04d",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/resolver/providers.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/resolver/providers.py",
       "member": "computer_use/platform/resolver/providers.py",
       "sha256": "8550ad0229c989ef44ffb756fe91d4a1a553cb5ce1fff03bfaf91be74cc097b4",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/resolver/registry.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/resolver/registry.py",
       "member": "computer_use/platform/resolver/registry.py",
       "sha256": "131f59c41007d50208c41e8f8aab151e47224b5147fe1805199afe1566252eb8",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/resolver/session.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/resolver/session.py",
       "member": "computer_use/platform/resolver/session.py",
       "sha256": "3c0166bf1348fc669af7fb5f019b997f313956721089300230f40a424b5b4bb9",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/windows.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/windows.py",
       "member": "computer_use/platform/windows.py",
       "sha256": "2782e0ee85821c3c05ac7667b60efc326c44fc26f409cc4adf72fd3517f4d94d",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/platform/wsl2.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/platform/wsl2.py",
       "member": "computer_use/platform/wsl2.py",
       "sha256": "6bef946978bf5330a7372278b7422a398e1ca1a033d3b6f815cf5791b683f73b",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/setup/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/setup/__init__.py",
       "member": "computer_use/setup/__init__.py",
       "sha256": "6bea457e1c55c0b0bfd6e7b674fbfd0629604bb8ef14b4e351450511e98a79d9",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/setup/deps.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/setup/deps.py",
       "member": "computer_use/setup/deps.py",
       "sha256": "307ab3cbd210cd4e1668abadafd9f12d885dd31cfa71bc6359b0da6089395606",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/setup/extension_setup.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/setup/extension_setup.py",
       "member": "computer_use/setup/extension_setup.py",
       "sha256": "5b0bfb71be2df611870bda224d973149b8a5d3ca8aae18e95d45398c7cc9c043",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/setup/udev/99-vadgr-uinput.rules",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/setup/udev/99-vadgr-uinput.rules",
       "member": "computer_use/setup/udev/99-vadgr-uinput.rules",
       "sha256": "2e3c8d1cb1167bec2f9a069ac4792d7ed9119c34e592e4f17e46b65c3e526d17",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/__init__.py",
       "member": "computer_use/tools/__init__.py",
       "sha256": "9838b385ca7f268281d8dded80dfe238cc78e90c0630962554c78a1200294899",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/apps/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/apps/__init__.py",
       "member": "computer_use/tools/apps/__init__.py",
       "sha256": "d44f6d228b55c80de78319acfa4bcd52cb3ce6bc3f380443c76d0de944facefe",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/apps/backend.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/apps/backend.py",
       "member": "computer_use/tools/apps/backend.py",
       "sha256": "de1ab9f576d518f2a36a3a5c2554c062eca72e00d46cb0a36a59f9fcdfafa2e7",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/apps/desktop_entries.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/apps/desktop_entries.py",
       "member": "computer_use/tools/apps/desktop_entries.py",
       "sha256": "5cc8d70bf7329f727731b55b412226a58c0fb911d9cb81f942f99155476e7593",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/apps/linux.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/apps/linux.py",
       "member": "computer_use/tools/apps/linux.py",
       "sha256": "56333bff2a9ab49dc6b68cef99077b7677e7d73dc65b342b73454917f35b8c7a",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/apps/macos.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/apps/macos.py",
       "member": "computer_use/tools/apps/macos.py",
       "sha256": "f7dec14885d99e9c91234fa0a276f1e6ef61dac6bc36c557b0256081062fa1a0",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/apps/window_confirm.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/apps/window_confirm.py",
       "member": "computer_use/tools/apps/window_confirm.py",
       "sha256": "0b507f91f9caa0c8b2158af4c4204327b13ff62fb1df480af737ee3655753fcf",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/apps/windows.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/apps/windows.py",
       "member": "computer_use/tools/apps/windows.py",
       "sha256": "f0539f2b7337989bbeeff6213d936318cfac593dbc2192cf41a65f9b0d920574",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/__init__.py",
       "member": "computer_use/tools/system/__init__.py",
       "sha256": "8d7f443547982fd88a2a38fe4be6f920f8a85d75169f057283ccf0fafb02f275",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/clipboard.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/clipboard.py",
       "member": "computer_use/tools/system/clipboard.py",
       "sha256": "165bbc9ac72bf1de03049249fe250cae5a168dbfef990feeaf7d6465341c393f",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/data.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/data.py",
       "member": "computer_use/tools/system/data.py",
       "sha256": "3b5172f5d8bddf798e9734a0c78a71ea4de74dac8d1b9ac82a2b523160fddeef",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/env.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/env.py",
       "member": "computer_use/tools/system/env.py",
       "sha256": "e17dc1b7c828bbfc09271917308d2bc3cd3381e6ef7914a38c164140e1048897",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/fs.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/fs.py",
       "member": "computer_use/tools/system/fs.py",
       "sha256": "ec6e74a406e9ba5a8d47e1a46a620f1a1ccd0901836aacc2aace9f80fa714de3",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/http.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/http.py",
       "member": "computer_use/tools/system/http.py",
       "sha256": "ae223553f41b88383d9c8490781aacde8b7b289af0943798454d40f3a4aec66f",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/shell.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/shell.py",
       "member": "computer_use/tools/system/shell.py",
       "sha256": "b2851f363a612c45078b966b6ce1db72e9a91da4dd02e6301b7c71396fa2efcf",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/tempfile.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/tempfile.py",
       "member": "computer_use/tools/system/tempfile.py",
       "sha256": "36e74ac08395aa2371c2a0d636d8c34db74a70b8c430bf7c41dea628bee3bad8",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/system/time.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/system/time.py",
       "member": "computer_use/tools/system/time.py",
       "sha256": "556f7df29b06112130aee43ef3a9a72ffd309657d26bd794fc6c368cfe575a33",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/ui/__init__.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/ui/__init__.py",
       "member": "computer_use/tools/ui/__init__.py",
       "sha256": "d07e762a4923598a6773671599d95d9ca9d0d7315e35ed1d9030e2b171ed52af",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/ui/atspi.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/ui/atspi.py",
       "member": "computer_use/tools/ui/atspi.py",
-      "sha256": "17856592114c7800072fdbbb16d2b9b53b7a8e45c6799fe9b8de8ce9ebc7ce6f",
+      "sha256": "6f84b758a8831a8c2fc21519af2def756c45891a11a10bd03f2523afb79e6b90",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/ui/backend.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/ui/backend.py",
       "member": "computer_use/tools/ui/backend.py",
       "sha256": "4f00f11e11252b0dcc19ce72f86e42c641f4958fcd69de19cd610ced9444dbda",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/ui/cache.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/ui/cache.py",
       "member": "computer_use/tools/ui/cache.py",
-      "sha256": "133aa6ee9f5bd9fc132aec352ecdda68083d0ad80cff8fb84eefb399b969f352",
+      "sha256": "448c263b04bbaa981e0fe6121ac1f35d2169c084236f251c628738e12e1e77fd",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/computer_use/tools/ui/tools.py",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/ui/roles.py",
+      "member": "computer_use/tools/ui/roles.py",
+      "sha256": "3987219e2a0c3f4b93d6184c325f40145a001b8eeabd63f838c6e2ec067b1c90",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/tools/ui/tools.py",
       "member": "computer_use/tools/ui/tools.py",
       "sha256": "db6ae85923a49edbe90f03ab822f6f62e07dc807f132f9e41ed6b695c9cb055f",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/METADATA",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/METADATA",
       "member": "vadgr_computer_use-0.7.9.dist-info/METADATA",
       "sha256": "288e9dc5dab2e4779f5040932bf04edc39e5831f211d2cc36f72b727dad8f1d3",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/RECORD",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/RECORD",
       "member": "vadgr_computer_use-0.7.9.dist-info/RECORD",
-      "sha256": "a0912580da29be8b4b42d144dd8df4c70415646538a823d4b46d3112d3011824",
+      "sha256": "dac89c8759c28b95f2664724a2b7250bd87d0ad73c81cd99d674dd2474c48e68",
       "status": "installer-regenerated-RECORD"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/WHEEL",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/WHEEL",
       "member": "vadgr_computer_use-0.7.9.dist-info/WHEEL",
       "sha256": "17e7f1c3bcc9d4a8141b320513b7ba2fc855be9ffd617e1009d092cca7d16603",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/entry_points.txt",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/entry_points.txt",
       "member": "vadgr_computer_use-0.7.9.dist-info/entry_points.txt",
       "sha256": "08f80ee5176cb0b435bc1945e29889c470a07dd09b160e1b0da96829cf4db5b5",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/licenses/LICENSE",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/licenses/LICENSE",
       "member": "vadgr_computer_use-0.7.9.dist-info/licenses/LICENSE",
       "sha256": "68bc5331a19f6dfbbfd5a2751f73294a8a96f54ca677f675524b52253e1803cf",
       "status": "retained-exact"
     },
     {
-      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/licenses/NOTICE",
+      "installed_path": "lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/vadgr_computer_use-0.7.9.dist-info/licenses/NOTICE",
       "member": "vadgr_computer_use-0.7.9.dist-info/licenses/NOTICE",
       "sha256": "5bb7a2cc18f9a59d628c1e4c3ec1acb2225185334ef230a18203a86505d03174",
       "status": "retained-exact"
     }
   ],
-  "sha256": "297c00854dd24b005614e1e3edae7a12f1fbd754339549bab737e8812abdd6fd",
+  "sha256": "b0ce5f0cf9e560e148dd16fff6cdf35e8123557d3d9b0516e07c71feef069860",
   "wheel": "vadgr_computer_use-0.7.9-1linuxx8664-py3-none-manylinux_2_28_x86_64.whl"
 }
