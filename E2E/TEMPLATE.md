@@ -132,7 +132,11 @@ present in a given runbook, the entry is all there is.
    handle every automatable permission or dialog. The owner's row contains only
    the physical camera aim and its exact visible stop condition. Never ask the
    owner to open the app, navigate, choose a transport, type a code, inspect the
-   result, or report an oracle the agent can read.
+   result, or report an oracle the agent can read. A pass uses that physical
+   scan once. Every later pairing, including revoke and re-pair, is driven by
+   the agent through ADB and the `vadgr://pair` operating-system link. A cell
+   that would need any other owner action on the handset is `not run` with
+   that reason.
 
    A VM-hosted phone is checked through the host ADB server before it is called
    unavailable. Detect the current hypervisor and network mode first; never
