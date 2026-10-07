@@ -1,5 +1,5 @@
 {
-  "component_sha256": "b0ce5f0cf9e560e148dd16fff6cdf35e8123557d3d9b0516e07c71feef069860",
+  "component_sha256": "9379a4cbc0fc4e9584fe0917448fe557427dfc11b3038a6e1c1fbc6aa6951ad2",
   "original_statement_files": [
     {
       "path": "computer_use/bridge/deployer.py",
@@ -433,7 +433,7 @@
     },
     {
       "path": "computer_use/platform/backends/portal.py",
-      "sha256": "c11ed54e72d6e33e304e0318f5c5b736e95e2f7ee53c1fbfbd34b934d51a302d",
+      "sha256": "13bf9f09d77d3721594ac3cd20b9b6cef6e0f5cba01d54228f3dca1b20621f63",
       "statements": [
         {
           "line": 1,

@@ -17,7 +17,7 @@ they are not represented as the compiled modified source identity.
 
 The interpreted CUA runtime is also delivered in its preferred source form.
 Relative to the prepared payload root, its 96 readable Python modules are in:
-lib/cua/environments/0.7.9-14f1e5cbae94-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/
+lib/cua/environments/0.7.9-6d0c4579af88-linux-reproducible-v2/lib/python3.12/site-packages/computer_use/
 Its original LICENSE and NOTICE are in the adjacent
 vadgr_computer_use-0.7.9.dist-info/licenses/ directory. No first-party compiled
 helper or bytecode-only module is present in this exact Linux CUA wheel.

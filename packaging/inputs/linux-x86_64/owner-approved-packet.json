@@ -1,31 +1,31 @@
 {
   "approval_date": "2026-10-07",
-  "approved_manifest_sha256": "99587e3459fa23ef97edd8ea33ac9807a7535c5c3cd23487fe9fbaa4d44646c8",
-  "approved_review_sha256": "5df1672984fd0ba5df0fed08c7234dc9468bcac4580dcb4ecd3f4c6dbe9b6bda",
+  "approved_manifest_sha256": "6b8bd4acfcde61471f02c4f4ddf500f7565994b5d23b7e020b4b47ec96c845de",
+  "approved_review_sha256": "7ed8c6ec5aa27b6cf314d8fae04dd40955ee53a4c551cbfc1cbb3ee39d72d0ee",
   "authority": "Explicit publisher-owner approval of the exact packet.",
   "candidate_authorized": false,
   "derived_changes": [
     {
-      "before_sha256": "13b34b67dd811667a88ed3765f5cdc97ab31b7a73a85d0dea1f9294d5c7718fe",
+      "before_sha256": "65a3b09ebb9fdee3abd687d4d7a719cb5644cedd85bba5085d03338e46db0b8d",
       "operation": "replace",
       "path": "package-input-review.json",
       "reason": "Apply owner approval and canonical legal-file membership; inventory is bound separately.",
-      "sha256": "5df1672984fd0ba5df0fed08c7234dc9468bcac4580dcb4ecd3f4c6dbe9b6bda"
+      "sha256": "7ed8c6ec5aa27b6cf314d8fae04dd40955ee53a4c551cbfc1cbb3ee39d72d0ee"
     },
     {
-      "before_sha256": "70ffea9ba64f86cbf869a8da1aee7899d9a6673d4ec405ce4949ce88637cbeff",
+      "before_sha256": "9a84b65bf2301580fe482cf6908e10d249c92fd8b09c9277cfef7a194d21b57b",
       "operation": "omit",
       "path": "REVIEW-PENDING.json",
       "reason": "Preserve the original pending record only in the unchanged approved draft."
     }
   ],
   "derived_output_separately_owner_reviewed": false,
-  "draft_review_sha256": "13b34b67dd811667a88ed3765f5cdc97ab31b7a73a85d0dea1f9294d5c7718fe",
-  "inventory_sha256": "18cf71beab4b15a2308cc180e23dafa9bfa833562e26264eea03b352d78cee4e",
+  "draft_review_sha256": "65a3b09ebb9fdee3abd687d4d7a719cb5644cedd85bba5085d03338e46db0b8d",
+  "inventory_sha256": "2ebe4d9b486afbeec1518d4bf901482125781b59ace0cdffb39bedbc9668fc18",
   "publishable": false,
   "schema": 1,
   "signing_authorized": false,
-  "source_commit": "6f7d01735d73f40c8e5cfa49eccceb82e3b07d6e",
+  "source_commit": "8bb38c4b7d720298a5b931ab59e026bf0a5dcaa9",
   "status": "owner-approved-exact-packet",
   "target": "x86_64-unknown-linux-gnu",
   "unchanged_terms_inventory_licenses_notices_and_sources": true
