@@ -952,15 +952,16 @@ combinations actually observed. A partial combination matrix is not a cell pass.
 
 | cell | operating system and architecture | owner/environment requirements | precondition | setup | exact action | oracle | expected result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| O1 | every installed target | isolated offline test snapshot | target functional cells pass; signed-only assertions may remain owed | start from a test snapshot whose external network is already unavailable; do not change host firewall, DNS, routing or VPN state | agent launches CLI/console, opens bundled legal notices, restarts, repairs, rolls back and uninstalls | process/health, offline files and package receipts | installed product lifecycle works without repository infrastructure | each private host boundary | discard only the isolated snapshot after evidence is filed | no host network mutation or administrator action | Windows x64 development passed at `eeb06d3`: with the prepared account's external networking already blocked, local install and terms, bundled legal availability, CLI/console launch, repair, two restart-to-one-healthy-daemon checks, truthful unavailable rollback, and accessible uninstall/purge completed. Package and isolated state ended absent; no firewall, DNS, route or VPN setting changed. Other hosts retain their own result. Linux current scope: not run; no existing isolated offline snapshot is available and host networking was not changed. |
+| O1 | every installed target | isolated offline test snapshot | target functional cells pass; signed-only assertions may remain owed | start from a test snapshot whose external network is already unavailable; do not change host firewall, DNS, routing or VPN state | agent launches CLI/console, opens bundled legal notices, restarts, repairs, rolls back and uninstalls | process/health, offline files and package receipts | installed product lifecycle works without repository infrastructure | each private host boundary | discard only the isolated snapshot after evidence is filed | no host network mutation or administrator action | Windows x64 development passed at `eeb06d3`: with the prepared account's external networking already blocked, local install and terms, bundled legal availability, CLI/console launch, repair, two restart-to-one-healthy-daemon checks, truthful unavailable rollback, and accessible uninstall/purge completed. Package and isolated state ended absent; no firewall, DNS, route or VPN setting changed. Other hosts retain their own result. Linux x86_64 development passed at exact H (`4457a42c`): in an isolated loopback-only network and mount namespace, with host networking unchanged, installation with terms, CLI launch, bundled legal notices, two restart-to-one-healthy-daemon checks, Repair, the truthful unavailable rollback and uninstall with owner-data deletion completed. Two earlier offline installs stopped because that first snapshot still saw the host's running Tailscale through its local socket; the corrected snapshot hides it. The service log under `VADGR_HOME` survived owner-data deletion and is an open finding. |
 | O2 | every native GUI target | native accessibility API and screen reader available | GUI installed | agent resets to empty/no-provider and populated states | agent drives all focus, names, roles, loading, empty, failure, destructive confirmation and success states without pointer | AccessKit plus Narrator, VoiceOver or Orca output, app-only capture and backend oracle | complete operation is understandable and actionable; every control works or has a truthful disabled reason | private accessibility capture; no secret entry recorded | agent restores screen reader state | no owner action | Windows x64 historical pre-merge pass: the Narrator state matrix at `ec66315` retains its unaffected assertions, with later UIA observations scoped to their tested subject. The new shared sidebar focus repair requires rebuilt Windows and macOS keyboard/focus/accessibility reruns; those affected assertions are not inherited as current passes. At `24ae14a`, isolated OBS `window_capture` using Windows Graphics Capture produced the precise Vadgr-only client while Vadgr was unfocused; visual inspection and backend state agreed, and the private transport-bearing image was withheld. macOS Apple Silicon development at `5302082` verified named native focus, actual VoiceOver speech, secure input, destructive confirmation, minimum window, empty state and daemon failure/recovery. VoiceOver is off. The exact temporary AppleScript-control setting was restored to disabled and persisted after Utility restart on 2026-09-15; no privacy grant changed. Linux: partial native-action and focused-image observations at exact `f59db654` now include machine edits/restart, populated provider/picker and unavailable rollback, alongside unchanged exact `69b10704` terms, installer, authentication and purge/cancellation states. The first three current bounded owner-Orca subsets retained fresh allowlisted speech for named controls, toggle/confirmation states, the Anthropic password role, four autonomy states and authentication methods. Each restored the speech-monitor setting to its prior disabled value and preserved the owner reader process; independent cancellation oracles preserved product state. One test observer ended by explicit SIGINT with exit 130 and its finally record retained, not by duration completion. Later bounded sessions retained actual OpenAI password-role speech and the selected current-model name, pressed state and Current default description. Earlier filtered insertions remain unretained and are not silence findings. Each later session restored the monitor setting and preserved owner Orca. Native Settings focus survived actual Repair completion and HTTP 404 results; a real pending Repair disabled dialog submission with a truthful wait reason and cancellation preceded completion. Other unobserved reader combinations and unfocused capture remain owed; no complete reader pass is inferred. The installed-B anonymous sidebar stop remains a retained failure. Exact `3fc6883b` closes its observed Linux rerun: four full/minimum light/dark named keyboard cycles reached Launch at login directly after Settings, and minimum-dark Orca speech named the checked checkbox. New review navigation produced both required-grant names with read-only checked/grayed semantics, the exact Gemini field name with password-text role, and the disabled Roll back button with its unavailable reason. These are actual scoped speech results, not automatic first-focus announcements, complete reading order or whole O2. The Gemini success retains 21 nonidentity observer errors; all earlier inconclusive attempts remain filed. Historical focus failures are preserved, not treated as current whole-cell verdicts. A subsequent exact `3fc6883b` empty-Gemini Tab cycle reproducibly focused an unnamed full-client modal backdrop between Cancel and the key field. This focus failure is repaired: on exact E the empty Gemini key dialog and eight more dialog families showed no anonymous or unknown focus stop and returned focus to their openers. On exact F the idle console made no announcements, and Orca spoke the pending, completion and failure notices. Images and other reader combinations remain owed. Development-driver use is not released-driver closure. |
-| C1 | each host after all its cells | none | every host cell has terminal result and evidence | agent enumerates Vadgr processes, temporary artifacts, devices, test credentials and isolated test state | agent stops only Vadgr test processes and removes only validated test artifacts, devices and credentials | final process/path/network/device inventory | no test process or artifact remains; source, evidence, configuration, normal owner state and unrelated files remain | private host cleanup record | none beyond this row | no owner action; scope is limited to runbook-created test items | Windows x64 pre-merge cleanup passed at `24ae14a`: the test daemon and console stopped, port 8000 is free, the unsigned test package and isolated state were removed, the held owner state was restored byte-for-byte, phone scratch files were deleted, and Tailscale returned to its initial off state. Standard Cargo cleanup plus validated test-root removal reclaimed 4,568,530,944 bytes. Source, evidence, credentials, owner configuration, unrelated processes and `.tmp-cert-research` remain. macOS partial: September 13 cleanup is historical. Resumed pass console, daemon and isolated broker are now absent; port8000 is free on IPv4/IPv6 and no installed private payload process remains. Original owner API log body is restored. The separate empty-state root is in recoverable Trash and port8011 is free. Main install/state and rebuilt artifact remain preserved for protected continuation; exact phone-created files, final artifact removal, snapshot equality are owed. VoiceOver and its temporary AppleScript-control setting are restored. Linux: partial scoped cleanup, not final C1. Exact `69b10704` isolated-profile purge and preserve-data uninstall remain recorded. Exact `3fc6883b` now occupies the preserved and fresh test profiles; their test processes, credentials/state and retained artifacts still require final scoped cleanup. Its B01 fixture closed normally. A separately guarded removal of the obsolete external `f59db654` vehicle reclaimed 578,113,536 bytes while preserving current installations, source and evidence. A later inventory-bound cleanup of eleven approved generated/cache/download targets reclaimed 3,073,646,592 bytes while preserving source, evidence, recovery inputs and installed state. On October 6, audited removals of superseded expanded source copies, E transport files, the F derived packet copy and finished build targets preserved sealed archives, installed vehicles and the staged source. F now occupies the preserved profile and E the fresh profile; this is not final C1. |
+| C1 | each host after all its cells | none | every host cell has terminal result and evidence | agent enumerates Vadgr processes, temporary artifacts, devices, test credentials and isolated test state | agent stops only Vadgr test processes and removes only validated test artifacts, devices and credentials | final process/path/network/device inventory | no test process or artifact remains; source, evidence, configuration, normal owner state and unrelated files remain | private host cleanup record | none beyond this row | no owner action; scope is limited to runbook-created test items | Windows x64 pre-merge cleanup passed at `24ae14a`: the test daemon and console stopped, port 8000 is free, the unsigned test package and isolated state were removed, the held owner state was restored byte-for-byte, phone scratch files were deleted, and Tailscale returned to its initial off state. Standard Cargo cleanup plus validated test-root removal reclaimed 4,568,530,944 bytes. Source, evidence, credentials, owner configuration, unrelated processes and `.tmp-cert-research` remain. macOS partial: September 13 cleanup is historical. Resumed pass console, daemon and isolated broker are now absent; port8000 is free on IPv4/IPv6 and no installed private payload process remains. Original owner API log body is restored. The separate empty-state root is in recoverable Trash and port8011 is free. Main install/state and rebuilt artifact remain preserved for protected continuation; exact phone-created files, final artifact removal, snapshot equality are owed. VoiceOver and its temporary AppleScript-control setting are restored. Linux: partial scoped cleanup, not final C1. Exact `69b10704` isolated-profile purge and preserve-data uninstall remain recorded. Exact `3fc6883b` now occupies the preserved and fresh test profiles; their test processes, credentials/state and retained artifacts still require final scoped cleanup. Its B01 fixture closed normally. A separately guarded removal of the obsolete external `f59db654` vehicle reclaimed 578,113,536 bytes while preserving current installations, source and evidence. A later inventory-bound cleanup of eleven approved generated/cache/download targets reclaimed 3,073,646,592 bytes while preserving source, evidence, recovery inputs and installed state. On October 6 and 7, audited removals of superseded expanded source copies, proof working copies, preparation copies, transport files, superseded subject AppImages and finished build targets preserved sealed archives, installed vehicles and the staged source. Each removal followed a pushed audit and a fresh process census. H now occupies both test profiles; the O1 profile was purged. This is not final C1. |
 
 ## Per-OS results
 
-Current installed Linux subject is F: packet `3a5ee70a`, runtime source
-`a90bcaf0`, in the preserved test profile. E and F add installed modal-focus,
-announcement and reader results, described in the October 6 history below.
+Current installed Linux subject is H: packet `4457a42c`, runtime source
+`8bb38c4b`, CUA `cdc3adea`, in both test profiles. E through H add installed
+modal-focus, announcement, reader, mount-leak, computer-use, closing-pass and
+offline results, described in the October 6 and 7 history below.
 The results that follow remain bound to the retained `3fc6883b` AppImage on
 VMware x86_64 GNOME Wayland, with runtime source `65291059`. Closed evidence through
 `cad294b508f51873ed2f949141b0e706b2785a98` in private PR 176 includes its
@@ -973,17 +974,17 @@ not a proven cause of that attempt. Other architectures, sessions and operating
 systems do not inherit these observations.
 
 For the **available VMware x86_64 GNOME Wayland unsigned functional scope**,
-the 14 applicable cells account for **6 passes, 6 partial, 1 blocked and 1 not
-run**. L01, L02, L03, L05, L06 and B01 pass their applicable host-functional assertions,
-with unchanged exact `69b10704` evidence and the new exact-subject observations
-kept distinct. L04, VL01 through VL03, O2 and C1 remain partial. F01 is blocked
-on current physical-phone/bridge qualification; O1 is not run because no
-isolated offline snapshot is available. FUSE is present, so L02 has no protected
+the 14 applicable cells account for **7 passes, 6 partial, 1 blocked and 0 not
+run**. L01, L02, L03, L05, L06, B01 and O1 pass their applicable host-functional
+assertions, with unchanged exact `69b10704` evidence and the new exact-subject
+observations kept distinct. L04, VL01 through VL03, O2 and C1 remain partial. F01
+is blocked on current physical-phone/bridge qualification. O1 passed on exact H in
+an isolated offline namespace. FUSE is present, so L02 has no protected
 dependency prompt to exercise on this host. Complete visual/reader matrices
 remain in their dedicated cells rather than invalidating functional startup.
 
 The separate **entire cross-variant and trust-inclusive scope** has **0 complete,
-12 partial, 1 blocked and 1 not run**. Its additional aarch64, X11, bare-metal,
+13 partial, 1 blocked and 0 not run**. Its additional aarch64, X11, bare-metal,
 missing-FUSE and post-merge trust obligations do not invalidate the six
 available-host functional passes or prevent that host's eventual completion.
 No unobserved variant inherits an available-host result.
@@ -996,8 +997,8 @@ sidebar keyboard cycles exercise the changed paths. Unaffected terms,
 development-integrity negatives, lifecycle and recorded visual observations
 remain bound to exact `69b10704` or `f59db654`; they are not renamed as new
 artifact executions. Shared sidebar changes still require affected Windows
-and macOS reruns. Missing variants, phone, offline, complete accessibility,
-three concurrent independent closing passes and final cleanup remain owed.
+and macOS reruns. Missing variants, phone, complete accessibility and final
+cleanup remain owed. Three concurrent independent closing passes passed on H.
 
 | Part | Windows native | macOS | native Linux | WSL |
 |---|---|---|---|---|
@@ -1008,7 +1009,7 @@ three concurrent independent closing passes and final cleanup remain owed.
 | M: macOS cells | Not-Needed: macOS-only cells | partial functional: Apple Silicon installation, native configuration, phone watch and restart observations are filed; the host must build the exact current release-equivalent unsigned PKG and complete affected lifecycle and cleanup before merge. Intel hardware remains unavailable. Signed identity assertions are tracked separately | Not-Needed: macOS-only cells | Not-Needed: macOS-only cells |
 | L: native Linux cells | Not-Needed: native-Linux-only cells | Not-Needed: native-Linux-only cells | L01-L03, L05 and L06 available-host unsigned PASS using explicitly scoped exact `69b10704` evidence plus exact `f59db654` reinstall, machine/restart and unavailable-rollback observations. Exact `3fc6883b` adds preserved-profile reinstall, healthy fresh installation and B01. L04 remains partial for phone and remaining shared assertions; the historical intermittent startup cause remains unproved. Complete visuals, final cleanup, aarch64, X11, bare-metal and trust obligations remain separate | Not-Needed: native-Linux-only cells |
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: release-equivalent unsigned WSL assets have not completed functional qualification; signing is not the blocker |
-| O: shared offline, accessibility and cleanup cells | prior O1 and historical `24ae14a` cleanup remain filed; shared update and console action/refresh changes require current-package O2 reruns. Earlier Narrator, UIA and unfocused capture observations do not qualify changed behavior | partial functional: earlier native focus, VoiceOver speech, state matrix and restoration remain filed; current update and action/refresh controls, exact final offline lifecycle and cleanup remain owed | partial: exact `f59db654` machine/restart, picker and Settings observations extend unchanged exact `69b10704` states. Exact `3fc6883b` adds repaired sidebar traversal, fresh-provider/Machine images and scoped grant, Gemini password-role and unavailable-rollback speech. Complete O2/visual and reader coverage remains owed. O1 has no isolated offline snapshot. C1 remains open while the installed test subjects and retained artifacts remain | not run: host functional qualification is incomplete |
+| O: shared offline, accessibility and cleanup cells | prior O1 and historical `24ae14a` cleanup remain filed; shared update and console action/refresh changes require current-package O2 reruns. Earlier Narrator, UIA and unfocused capture observations do not qualify changed behavior | partial functional: earlier native focus, VoiceOver speech, state matrix and restoration remain filed; current update and action/refresh controls, exact final offline lifecycle and cleanup remain owed | partial: exact `f59db654` machine/restart, picker and Settings observations extend unchanged exact `69b10704` states. Exact `3fc6883b` adds repaired sidebar traversal, fresh-provider/Machine images and scoped grant, Gemini password-role and unavailable-rollback speech. Complete O2/visual and reader coverage remains owed. O1 passed on exact H in an isolated offline namespace, with the surviving service log recorded as an open finding. C1 remains open while the installed test subjects and retained artifacts remain | not run: host functional qualification is incomplete |
 
 The dedicated Part V rows above are new obligations, not retroactive passes
 from earlier accessibility observations. A shared provider/model picker repair
@@ -1022,7 +1023,7 @@ its group 2 or 3 combinations. Preserve prior images and results as historical.
 |---|---:|---|
 | Windows x64/arm64 | W01, W02, F01, W03 through W11, VW01 through VW03, O1, O2, C1 | historical qualification at `24ae14a` is not a current-source pass for shared update changes or the `bb8fb0a8` console action/refresh fix. Rebuild and rerun affected W07, failed-update W09, W06 restart/action and O2 controls. Preserve unchanged observations, including prior O1, separately. W11 producer results do not establish unavailable ARM64 installed-product behavior. W02 and held-candidate assertions remain post-merge work |
 | macOS Intel/Apple Silicon | M01, M02, F01, M03 through M06, VM01 through VM03, O1, O2, C1 | partial functional: earlier Apple Silicon configuration, phone watch, accessibility and restoration remain filed. The exact current unsigned PKG must rerun affected lifecycle/update and shared action/refresh behavior, with Tailscale pairing and cleanup still owed. Intel hardware remains unavailable. M02 and named signed-identity assertions remain post-merge trust work |
-| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, B01, VL01 through VL03, O1, O2, C1 | Available VMware x86_64 GNOME Wayland unsigned scope: 6 passes (L01-L03, L05, L06, B01), 6 partial (L04, VL01-VL03, O2, C1), 1 blocked (F01), 1 not run (O1). Entire cross-variant and trust-inclusive scope: 0 complete, 12 partial, 1 blocked, 1 not run. Current `3fc6883b` B01 and the four sidebar reruns pass their scoped oracles; the earlier intermittent startup cause remains unproved. Exact E and F add modal focus without anonymous stops in nine dialog families, the closed background-announcement defect with Orca completion speech, and the installer mount-leak finding repaired in source at `72f5347f`. The CUA `1e5f3ebf` pin awaits owner signing and packet approval. Three concurrent independent closing passes passed on F after two failed rounds; a subject that changes the computer-use payload repeats them. Complete visual/accessibility coverage and cleanup remain open. Unavailable aarch64/X11/bare-metal and post-merge trust obligations stay separate |
+| Linux x86_64/aarch64 X11/Wayland | L01, L02, F01, L03 through L06, B01, VL01 through VL03, O1, O2, C1 | Available VMware x86_64 GNOME Wayland unsigned scope: 7 passes (L01-L03, L05, L06, B01, O1), 6 partial (L04, VL01-VL03, O2, C1), 1 blocked (F01), 0 not run. Entire cross-variant and trust-inclusive scope: 0 complete, 13 partial, 1 blocked, 0 not run. Current `3fc6883b` B01 and the four sidebar reruns pass their scoped oracles; the earlier intermittent startup cause remains unproved. Exact E and F add modal focus without anonymous stops in nine dialog families, the closed background-announcement defect with Orca completion speech, and the installer mount-leak repair confirmed installed on G and H. Subject H bundles CUA `cdc3adea`, which carries the Linux accessibility repairs and serializes screenshot portal requests. Three concurrent independent closing passes passed on F and again on H; round 4 on G exposed the portal concurrency defect. O1 passed on H. Complete visual/accessibility coverage and cleanup remain open. Unavailable aarch64/X11/bare-metal and post-merge trust obligations stay separate |
 | WSL x64/arm64 | S01 through S06, O1, C1 | pre-merge functional qualification is not run: release-equivalent unsigned assets are required. Production attestation is a separate post-merge trust lane |
 
 The shared update-source repair still requires affected Windows W07,
@@ -2779,6 +2780,7 @@ on both architectures, because it bundles the changed Linux platform modules.
 Its new bytes need owner legal approval and protected signing before the
 profile catalog can be built. The Linux package-input packet then needs owner
 approval of its new exact manifest. Until then, F carries CUA `c7b25b66`.
+Subject G later carried `1e5f3ebf` and subject H carries `cdc3adea`.
 
 ### October 6: closing-pass round 1
 
@@ -2813,6 +2815,71 @@ counts are identical too, but the reply texts differ, which shows three real
 calls. All three agents noted that run sockets stay open after the terminal
 frame, which no cell defines. These passes bind to F; a subject that changes
 the computer-use payload or daemon repeats them.
+
+### October 7: installed subject G with the computer-use pin
+
+Subject G is the retained AppImage from producer run `37562263613` for packet
+commit `0e312145`, with runtime source `6f7d0173` and CUA `1e5f3ebf`. Its
+AppImage SHA-256 is
+`6bd703791fb527fdb5dc6101e0c8e328734b5cb4a93aa376dfe32e39ba78259b`. The owner
+delegated the remaining approvals for this pass. Under that delegation the
+renewed browser broker records, the CUA profile catalog and the exact Linux
+package-input packet were approved. Nothing was signed, tagged or published.
+The complete source gates, the source proof and seal, and all ten product
+gates passed. A fixture race in two install tests, where a script could still
+be open for writing when it ran, was repaired at `6f7d0173`.
+
+A preserve-data uninstall and a G installation ran in both test profiles.
+Only the installed vehicle changed. After both installers closed, no installer
+runtime or FUSE mount remained, so the `72f5347f` mount-leak repair is
+confirmed on the installed subject. B01 passed again with one zero-cost run.
+A bundled computer-use `ui_find` for Settings in the console returned the
+Settings toggle button, using the role names added by CUA #124.
+
+Closing round 4 on G did not close the three-pass requirement. In pass 2 the
+first `get_platform_info` call returned "Error executing tool
+get_platform_info". A replay found the cause. GNOME answers only one of
+several overlapping Screenshot portal requests, so two of three computer-use
+servers started at once never received a reply. The same servers started
+three seconds apart all answered. Concurrent runs on one daemon are affected
+as well as concurrent daemons. CUA PR #129 serializes portal requests with a
+per-user lock and merged as `cdc3adea`. Three concurrent processes on this
+desktop then all succeeded, where the unfixed build failed two of three.
+
+### October 7: final subject H and the offline lifecycle
+
+Subject H is the retained AppImage from producer run `37661332191` for packet
+commit `4457a42c`, with runtime source `8bb38c4b` and CUA `cdc3adea`. Its
+AppImage SHA-256 is
+`55ae93a6f2986b0fb1128f31994c946081570be797ee8c536602c0079271ba4b`. H changes
+only computer-use pin material against G: the renewed browser broker records
+and the `cdc3adea` profile catalog, attestation bundle, profile inputs and
+locks. The complete source gates, the source proof and seal, the delegated
+exact-packet approval and all ten product gates passed. A preserve-data
+uninstall of G and an H installation ran in both test profiles. Only the
+installed vehicle changed, and no installer mount remained. B01 passed again,
+and the installed screenshot portal module is byte-identical to `cdc3adea`.
+
+Closing round 5 on H showed the repair working: all three concurrent
+`get_platform_info` calls succeeded. It is not counted, because one model made
+an extra tool call. Closing round 6 passed with three concurrent independent
+agents. CLI entries, frame counts, journal phases and token counts agree, and
+two `get_platform_info` calls started 90 ms apart both succeeded. One agent
+also listed the two WebSocket upgrades as HTTP entries. Each pass's own socket
+recorder shows both upgrades, so the required entries agree.
+
+O1 passed on H. The offline snapshot is a private network namespace with only
+loopback up, entered as the test user, so host networking never changed.
+Installation, CLI launch, the bundled legal notices, two restarts to one
+healthy daemon, Repair, the unavailable rollback reason and uninstall with
+owner-data deletion completed without network. Two earlier offline installs
+stopped with "the installed Vadgr daemon is not ready". That first snapshot
+still saw the host's running Tailscale through its local socket but had no
+Tailscale interface, so the daemon's port search failed on every port. A real
+offline host keeps that interface, so the snapshot was corrected to hide the
+socket as well. One finding stays open: owner-data deletion leaves the service
+log under `VADGR_HOME`, which is `~/.vadgr` by default. The bundled uninstall
+notice does not mention that log.
 
 ## macOS qualification history
 
