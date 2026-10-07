@@ -785,6 +785,33 @@ mod failed_install_tests {
     use super::*;
     use std::cell::Cell;
 
+    /// Writes a script that the test then executes. Another test thread can
+    /// fork while this process holds the file open for writing; the child
+    /// keeps that descriptor until it execs, and running the script then fails
+    /// with ETXTBSY. A short-lived writer process means this process never
+    /// holds a write descriptor on a fixture it executes.
+    fn write_executable_fixture(path: &Path, contents: impl AsRef<[u8]>) -> std::io::Result<()> {
+        use std::io::Write;
+        let mut writer = std::process::Command::new("/bin/sh")
+            .arg("-c")
+            .arg("cat > \"$1\"")
+            .arg("fixture-writer")
+            .arg(path)
+            .stdin(std::process::Stdio::piped())
+            .spawn()?;
+        writer
+            .stdin
+            .take()
+            .expect("fixture writer stdin is piped")
+            .write_all(contents.as_ref())?;
+        let status = writer.wait()?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err(std::io::Error::other("fixture writer failed"))
+        }
+    }
+
     #[test]
     fn uninstall_refuses_failed_or_unavailable_stop_before_any_mutation() {
         use std::os::unix::fs::PermissionsExt;
@@ -818,7 +845,7 @@ mod failed_install_tests {
                     b"#!/bin/sh\n[ \"$1\" = stop ] || exit 97\nexit 9\n"
                 };
                 if failure != "missing" {
-                    std::fs::write(&active, script).unwrap();
+                    write_executable_fixture(&active, script).unwrap();
                     let mode = if failure == "not-executable" {
                         0o644
                     } else {
@@ -873,7 +900,7 @@ mod failed_install_tests {
             let current = root.join("current");
             std::fs::create_dir_all(&current).unwrap();
             let active = current.join("Vadgr.AppImage");
-            std::fs::write(&active, "#!/bin/sh\n[ \"$1\" = stop ] || exit 97\nprintf stopped > \"$0.stopped\" || exit 98\nexit 0\n").unwrap();
+            write_executable_fixture(&active, "#!/bin/sh\n[ \"$1\" = stop ] || exit 97\nprintf stopped > \"$0.stopped\" || exit 98\nexit 0\n").unwrap();
             executable(&active).unwrap();
             let registration = temp.path().join("registration");
             let state = temp.path().join("owner-state");
@@ -951,7 +978,7 @@ mod failed_install_tests {
         let current = temp.path().join("current");
         std::fs::create_dir(&current).unwrap();
         let command = current.join("Vadgr.AppImage");
-        std::fs::write(
+        write_executable_fixture(
             &command,
             "#!/bin/sh\ncase \"$1\" in start) exit 1;; health) exit 0;; *) exit 2;; esac\n",
         )
@@ -966,7 +993,7 @@ mod failed_install_tests {
         let current = temp.path().join("current");
         std::fs::create_dir(&current).unwrap();
         let command = current.join("Vadgr.AppImage");
-        std::fs::write(&command, "#!/bin/sh\nprintf '%s\\n' 'Startup records were retained because descendant cleanup is unproved. Verified cleanup is required; Repair alone does not prove it.' >&2\nexit 1\n").unwrap();
+        write_executable_fixture(&command, "#!/bin/sh\nprintf '%s\\n' 'Startup records were retained because descendant cleanup is unproved. Verified cleanup is required; Repair alone does not prove it.' >&2\nexit 1\n").unwrap();
         executable(&command).unwrap();
         let error = start_and_probe(temp.path()).unwrap_err().to_string();
         assert!(error.contains("descendant cleanup is unproved"));
@@ -981,7 +1008,7 @@ mod failed_install_tests {
         let current = temp.path().join("current");
         std::fs::create_dir(&current).unwrap();
         let command = current.join("Vadgr.AppImage");
-        std::fs::write(&command, "#!/bin/sh\nprintf 'private-test-secret /private/owner/path \\033[31m\\n' >&2\ni=0\nwhile [ $i -lt 2000 ]; do printf 'oversized diagnostic\\n' >&2; i=$((i+1)); done\nexit 1\n").unwrap();
+        write_executable_fixture(&command, "#!/bin/sh\nprintf 'private-test-secret /private/owner/path \\033[31m\\n' >&2\ni=0\nwhile [ $i -lt 2000 ]; do printf 'oversized diagnostic\\n' >&2; i=$((i+1)); done\nexit 1\n").unwrap();
         executable(&command).unwrap();
         assert_eq!(
             start_and_probe(temp.path()).unwrap_err().to_string(),
@@ -1049,7 +1076,7 @@ mod failed_install_tests {
         let staging = root.join("stage");
         std::fs::create_dir_all(&generation).unwrap();
         let command = generation.join("Vadgr.AppImage");
-        std::fs::write(&command, "#!/bin/sh\nexit 1\n").unwrap();
+        write_executable_fixture(&command, "#!/bin/sh\nexit 1\n").unwrap();
         executable(&command).unwrap();
         switch_current(root, "new").unwrap();
         let result = rollback_failed_installation_with(
