@@ -15,14 +15,20 @@ PREDECESSOR = {
         "x86_64": "67025e4350428247974c611fcc5a05a4fd7d2bfd65cb707a6f828f159db554c0",
         "aarch64": "87e969fa5d5d1b0e41e43dd8ce08759f4aa0f50aef424ee5cf3a56bbf727fb07",
     },
+    "review_date": "2026-09-27",
+    "notes": "README.md",
 }
+# The replacement moved to the Linux accessibility repair at 1e5f3eb. Only the
+# browser broker input changed; the decision note records the delegation.
 REPLACEMENT = {
-    "source": "e4496d006b0965c0b55710af608723344154ed46",
-    "run": 36347342928,
+    "source": "1e5f3ebf3c3f338657f6522e60f3ad56620c25c6",
+    "run": 37546749658,
     "receipts": {
-        "x86_64": "222723fc5b9118db46206a953f1fe6de4cecbe4ec4fa6546a01845f442f6dac5",
-        "aarch64": "6964b41b158be42ee8374e828fae003a33c9345acc3f6cb629ec94bc9718e5a8",
+        "x86_64": "f6e6b02336ba5920349aef52dae9950608887b18dae166bd5ffb5c505a131c2c",
+        "aarch64": "bfcd90857ec4387edb517daa748af1113a33a86251fdf37aa5990a7d33788ef6",
     },
+    "review_date": "2026-10-06",
+    "notes": "replacement-1e5f3eb-review.md",
 }
 
 
@@ -36,13 +42,13 @@ def assert_binding(value: dict, architecture: str, expected: dict) -> None:
     assert value["version"] == "0.7.9"
     assert value["architecture"] == architecture
     assert value["source_commit"] == expected["source"]
-    assert value["review_date"] == "2026-09-27"
+    assert value["review_date"] == expected["review_date"]
     assert value["review_input"]["repository"] == "MONTBRAIN/vadgr-computer-use"
     assert value["review_input"]["run_id"] == expected["run"]
     assert value["review_input"]["attempt"] == 1
     assert value["review_input"]["receipt_sha256"] == expected["receipts"][architecture]
     assert value["source_offer_required"] is False
-    assert value["review_notes_sha256"] == sha256_bytes((BASE / "README.md").read_bytes())
+    assert value["review_notes_sha256"] == sha256_bytes((BASE / expected["notes"]).read_bytes())
     files = {row["path"]: row for row in value["review_input"]["files"]}
     assert len(files) == len(value["review_input"]["files"])
     manifest = value["input_closure"]["member_manifest"]
