@@ -453,8 +453,35 @@ guest runs the product directly.** Record the hypervisor, guest OS, virtual
 hardware, architecture, desktop and display protocol. Call the result
 virtualized native coverage, never bare-metal coverage. Leave hardware-specific
 behavior and unavailable architectures or desktop sessions `not run` with the
-exact reason. A VirtualBox guest is not WSL, a container or a remote
+exact reason. A virtual machine guest is not WSL, a container or a remote
 Windows-mounted checkout.
+
+**Never assume a phone is connected or that its app is current.** Discover the
+device at the start of every session and after every resumption, before
+planning any phone cell:
+
+1. Read what local device automation and the USB bus see, for example
+   `adb devices -l`, `flutter devices` or the iOS equivalent. A probe must not
+   leave behind a device server the session did not already have.
+2. In a virtual machine, check whether the hypervisor passes the handset
+   through to the guest; the guest then sees it on its own USB bus with no
+   network change. Only then check the host ADB bridge described next.
+3. Require exactly the intended device in `device` state, never `offline` or
+   `unauthorized`. Never record its serial or other private identifiers.
+4. Compare the installed package identity and version with the build under
+   test, and install the exact build when they differ. Platform and vendor
+   settings can block installation or automated input. On MIUI and HyperOS,
+   for example, these are **Install via USB** and **USB debugging (Security
+   settings)**.
+
+When the device is absent or unauthorized, lacks the build or is blocked by
+such a setting, its cells are `blocked` with that exact reason, never failed
+and never skipped silently. Finish every cell that needs no phone first. Then
+ask the owner once for the complete set of physical or protected steps, such
+as connecting the handset or passing it through to the guest, accepting the
+trust prompt and enabling the vendor setting, with the visible signal that
+each is done. Repeat this discovery before the first phone cell. The runbook
+records the exact commands and security boundary.
 
 **A phone attached to a VM host is not absent until the host ADB bridge is
 checked.** Stop the guest-local ADB server before selecting a remote socket.

@@ -555,11 +555,17 @@ specific behavior, another architecture and an unavailable X11 or Wayland
 session remain `not run` with their exact reasons. WSL, a container and a
 Windows-mounted checkout do not qualify under this rule.
 
-Probe the current hypervisor and network mode before choosing a host ADB socket.
-Do not inherit a historical VM label or assume its gateway address. When
-Android USB is attached to a verified VirtualBox host instead of the guest, use
-the host ADB server before declaring the phone unavailable. The host operator
-runs these commands in a dedicated terminal from Android Platform Tools:
+Do not assume the phone is connected. Before planning a phone cell, check in
+this order: the guest's own USB bus and local ADB, then hypervisor USB
+passthrough, then a host ADB server. Probe the current hypervisor and network
+mode each time; do not inherit a historical VM label or gateway address. A
+probe that starts a guest-local ADB server stops it again before the
+remote-socket path is tried. Passthrough is the simpler path: in VMware the
+owner connects the phone under **VM > Removable Devices**, and the guest then
+lists it on its own USB bus with no network change. When Android USB stays on
+a verified VirtualBox host instead, use the host ADB server before declaring
+the phone unavailable. The host operator runs these commands in a dedicated
+terminal from Android Platform Tools:
 
 ```bash
 adb kill-server
@@ -586,11 +592,18 @@ adb devices -l
 Use the observed gateway only for the verified network mode. Other hypervisors
 need their own verified host-reachability configuration, not this assumption.
 Require exactly the intended
-phone to appear in `device` state, not `offline` or `unauthorized`. Keep
-`ADB_SERVER_SOCKET` set for every ADB command in the pass. Do not start a local
+phone to appear in `device` state, not `offline` or `unauthorized`. With a host
+socket, keep `ADB_SERVER_SOCKET` set for every ADB command in the pass. Do not start a local
 guest server afterward, and do not run `adb kill-server` while the variable
 points at the host. Evidence records that the authorized physical device was
 present but omits its serial and other private identifiers.
+
+With either path, check that `com.vadgr.vadgr_mobile` is installed at the build
+under test, and install the exact build when it is absent or differs. MIUI and
+HyperOS refuse a USB install with `INSTALL_FAILED_USER_RESTRICTED` until
+**Install via USB** is on, and ignore injected input until **USB debugging
+(Security settings)** is on. Both are protected owner settings, so request them
+in the same single owner step as the connection.
 
 After the phone cells, the host operator restores the host's previous ADB mode:
 
@@ -713,7 +726,7 @@ oracles. Windows executes only the Windows rows in this session.
 | cell | operating system and architecture | owner/environment requirements | precondition | agent setup | exact owner action | visible completion result | evidence boundary | cleanup | cost, accounts, devices and permissions | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | W02 | Windows x64 and arm64 where supported | owner is present only if Windows presents a protected UAC prompt | W01 and the pre-install part of W03 pass | start the verified setup, accept terms and continue until the protected prompt appears | Confirm that the prompt names the expected Vadgr publisher, then choose **Yes**. Do nothing if no prompt appears. | setup resumes and shows truthful installation progress | private Windows boundary; capture no protected desktop image | keep installation for Windows cells | one administrator approval if requested; no provider cost | not run: final signed setup is unavailable; no protected prompt may be trusted yet |
-| F01 | each native GUI host | owner holds the physical phone with camera permission | installed console and default provider are healthy; agent has opened the prepared QR screen | agent confirms ADB, launches Vadgr Mobile, selects the intended Built-in pairing flow, grants automatable permissions, leaves its live scanner open, enters any provider secret through masked UI without capture, and leaves the desktop QR fully visible | Aim the already-open Vadgr Mobile scanner at the visible desktop QR. Stop when the prepared mobile app shows the machine name. | agent reads the mobile result directly, verifies the console device, provider API, daemon lines and transport rows, then drives revoke and typed-code pairing through ADB | matching private host boundary | keep the typed-code device paired for transport cells | phone and camera permission; provider API use may be billed | Windows x64 pre-merge functional pass at `24ae14a`: QR/Built-in direct pairing succeeded after the owner only aimed the prepared scanner. The agent then enabled the phone's existing Tailscale connection and completed the typed-code/Tailscale fallback through ADB. Mobile named the selected transport and the alternate Built-in route; no provider call, host-network mutation, pairing secret or private endpoint was retained. Linux `16cd0c47`: pending current authorized physical-device and host-bridge verification; no current enumeration, QR scan, typed-code pairing, device or transport result is claimed. |
+| F01 | each native GUI host | owner holds the physical phone with camera permission | installed console and default provider are healthy; agent has opened the prepared QR screen | agent discovers the device without assuming it is connected, confirms ADB, installs the exact Vadgr Mobile build when it is absent, launches Vadgr Mobile, selects the intended Built-in pairing flow, grants automatable permissions, leaves its live scanner open, enters any provider secret through masked UI without capture, and leaves the desktop QR fully visible | Aim the already-open Vadgr Mobile scanner at the visible desktop QR. Stop when the prepared mobile app shows the machine name. | agent reads the mobile result directly, verifies the console device, provider API, daemon lines and transport rows, then drives revoke and typed-code pairing through ADB | matching private host boundary | keep the typed-code device paired for transport cells | phone and camera permission; provider API use may be billed | Windows x64 pre-merge functional pass at `24ae14a`: QR/Built-in direct pairing succeeded after the owner only aimed the prepared scanner. The agent then enabled the phone's existing Tailscale connection and completed the typed-code/Tailscale fallback through ADB. Mobile named the selected transport and the alternate Built-in route; no provider call, host-network mutation, pairing secret or private endpoint was retained. Linux `16cd0c47`: pending current authorized physical-device and host-bridge verification; no current enumeration, QR scan, typed-code pairing, device or transport result is claimed. |
 | M02 | both macOS architectures | owner controls Login Items, Accessibility and Screen Recording | signed package is ready; Terminal and Python grants remain absent | drive installer and console until each protected system prompt or Settings row appears | Approve the Vadgr login item. Deny, then grant, Accessibility and Screen Recording only to the displayed Vadgr Computer Use identity. Stop when System Settings shows both grants enabled. | grants attach to `com.montbrain.vadgr.cua`, not Terminal or Python | private macOS boundary; never export the TCC database | leave grants for M06 | Apple membership, administrator and privacy permissions | not run: signed and notarized macOS package is unavailable |
 | L02 | native Linux x86_64/aarch64, X11 and Wayland | owner can approve a package-manager prompt if it appears | release-equivalent AppImage is ready and FUSE dependency is absent | drive install until the protected package prompt appears | Verify the prompt names only the documented FUSE dependency, then approve it. Do nothing if no prompt appears. | installer resumes its visible phases | private Linux boundary | keep installation | separate package-manager approval | PASS for available-host unsigned functionality at exact `69b10704` on the available FUSE-equipped VMware x86_64 GNOME Wayland host: isolated and preserved-profile installations reached healthy bundled-CUA availability. Open Vadgr and installer Close completed with console and daemon surviving. FUSE is present, so no protected dependency prompt is applicable on this host. The missing-FUSE host variant is untested, not a failure of this host; complete visual variants remain separately owed |
 
