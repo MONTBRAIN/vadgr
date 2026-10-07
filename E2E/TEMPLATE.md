@@ -241,7 +241,11 @@ the visible result that returns control to the driver. Camera scans, device
 unlocks, private credential entry, elevation, and protected operating-system
 prompts can qualify. Routine clicks, key entry, navigation, captures,
 application launches, and screen reports do not qualify when the interface can
-perform or inspect them.
+perform or inspect them. On a phone, the owner's only action in a pass is one
+QR scan with the scanner the agent already opened. Every later pairing,
+including revoke and re-pair, is driven through ADB and the `vadgr://pair`
+link, and a cell that would need any other owner action on the handset is
+`not run` with that reason.
 
 **2. Do not stop the pass to report.** The pass runs to completion for the
 operating system it is on. Findings, blocked cells, corrections and questions
