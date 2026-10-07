@@ -18,17 +18,17 @@ PREDECESSOR = {
     "review_date": "2026-09-27",
     "notes": "README.md",
 }
-# The replacement moved to the Linux accessibility repair at 1e5f3eb. Only the
+# The replacement moved to the portal screenshot serialization at cdc3adea. Only the
 # browser broker input changed; the decision note records the delegation.
 REPLACEMENT = {
-    "source": "1e5f3ebf3c3f338657f6522e60f3ad56620c25c6",
-    "run": 37546749658,
+    "source": "cdc3adea617ed83e95782fe61d67ebf384dabd50",
+    "run": 37646384660,
     "receipts": {
-        "x86_64": "f6e6b02336ba5920349aef52dae9950608887b18dae166bd5ffb5c505a131c2c",
-        "aarch64": "bfcd90857ec4387edb517daa748af1113a33a86251fdf37aa5990a7d33788ef6",
+        "x86_64": "b236544104ae03b677d1c4f78a7dd438db1499025905a2c6a7bb7ac8b5581069",
+        "aarch64": "322c9432af0fb02b4d039a57fe6dc83cba5c5949b1a18e8cea29e695f20f34a3",
     },
-    "review_date": "2026-10-06",
-    "notes": "replacement-1e5f3eb-review.md",
+    "review_date": "2026-10-07",
+    "notes": "replacement-cdc3adea-review.md",
 }
 
 
