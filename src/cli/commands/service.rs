@@ -2648,11 +2648,11 @@ mod startup_tests {
                 .spawn()
                 .unwrap()
         });
-        std::fs::write(
-            root.join(format!("pid-{depth}")),
-            std::process::id().to_string(),
-        )
-        .unwrap();
+        // Publish the record by rename: the parent test reads it as soon as
+        // the name exists, and a plain write let it read an empty file.
+        let staged = root.join(format!(".pid-{depth}"));
+        std::fs::write(&staged, std::process::id().to_string()).unwrap();
+        std::fs::rename(&staged, root.join(format!("pid-{depth}"))).unwrap();
         std::thread::sleep(Duration::from_secs(10));
         if let Some(child) = child.as_mut() {
             let _ = child.kill();
