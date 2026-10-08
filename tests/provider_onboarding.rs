@@ -34,6 +34,35 @@ struct FakeState {
     openai_catalog_failures: Arc<AtomicUsize>,
 }
 
+fn consume_catalog_failure(remaining: &AtomicUsize) -> bool {
+    let mut count = remaining.load(Ordering::SeqCst);
+    while count != 0 {
+        match remaining.compare_exchange_weak(count, count - 1, Ordering::SeqCst, Ordering::SeqCst)
+        {
+            Ok(_) => return true,
+            Err(actual) => count = actual,
+        }
+    }
+    false
+}
+
+#[test]
+fn catalog_failure_budget_is_consumed_once_without_underflow() {
+    let remaining = AtomicUsize::new(7);
+    let consumed = std::thread::scope(|scope| {
+        let attempts = (0..16)
+            .map(|_| scope.spawn(|| usize::from(consume_catalog_failure(&remaining))))
+            .collect::<Vec<_>>();
+        attempts
+            .into_iter()
+            .map(|attempt| attempt.join().unwrap())
+            .sum::<usize>()
+    });
+    assert_eq!(consumed, 7);
+    assert_eq!(remaining.load(Ordering::SeqCst), 0);
+    assert!(!consume_catalog_failure(&remaining));
+}
+
 #[tokio::test]
 async fn provider_connections_coexist_and_database_never_stores_secrets() {
     let (base_url, fake, task) = fake_provider().await;
@@ -405,14 +434,7 @@ async fn fake_response(State(state): State<FakeState>, request: Request) -> Resp
         body: body.clone(),
     });
 
-    if path == "/openai/models"
-        && state
-            .openai_catalog_failures
-            .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |remaining| {
-                remaining.checked_sub(1)
-            })
-            .is_ok()
-    {
+    if path == "/openai/models" && consume_catalog_failure(&state.openai_catalog_failures) {
         // The advertised zero-second wait keeps the retry path fast and proves
         // the client honours the service's own retry-after value.
         return (StatusCode::SERVICE_UNAVAILABLE, [("retry-after", "0")]).into_response();
