@@ -307,6 +307,46 @@ fn model_label(index: usize) -> String {
 }
 
 #[test]
+fn a_selection_the_search_hides_cannot_be_saved() {
+    let (ctx, mut app) = app(egui::Theme::Light);
+    let (send, calls) = mpsc::channel();
+    app.controller = Arc::new(RecordingController(send));
+    let size = [900.0, 600.0];
+    let output = open_models(&ctx, &mut app, size);
+    let output = draw(&ctx, &mut app, size, vec![value(&output, "MODEL 39")]);
+    let output = draw(
+        &ctx,
+        &mut app,
+        size,
+        vec![click(named(&output, &model_label(39)).0)],
+    );
+    assert!(!named(&output, "Use as default").1.is_disabled());
+
+    draw(
+        &ctx,
+        &mut app,
+        size,
+        vec![value(&output, "zzzz-no-such-model")],
+    );
+    let output = draw(&ctx, &mut app, size, vec![]);
+    assert!(
+        named(&output, "Use as default").1.is_disabled(),
+        "a filter that hides the selection must not leave it saveable"
+    );
+    draw(
+        &ctx,
+        &mut app,
+        size,
+        vec![click(named(&output, "Use as default").0)],
+    );
+    assert!(app.pending.is_none() && calls.try_recv().is_err());
+
+    draw(&ctx, &mut app, size, vec![value(&output, "MODEL 39")]);
+    let output = draw(&ctx, &mut app, size, vec![]);
+    assert!(!named(&output, "Use as default").1.is_disabled());
+}
+
+#[test]
 fn native_search_and_draft_selection_do_not_mutate_until_confirmation() {
     let (ctx, mut app) = app(egui::Theme::Light);
     let (send, calls) = mpsc::channel();

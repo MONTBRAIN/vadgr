@@ -6,6 +6,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Fixed
 
+- Linux uninstall removes the browser native-messaging registration that the
+  bundled computer-use runtime writes for Chrome, Chromium and Edge. A
+  separately installed computer-use registration is left in place. Deleting
+  owner data also removes the daemon's service log and startup records.
+- The default-model picker no longer offers to save a selection that the
+  current search hides.
 - Installed updates accept an explicit HTTPS or absolute local source without
   changing the installation receipt or its trust requirements. Linux AppImages
   use the existing release download location when no origin is configured.

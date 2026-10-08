@@ -146,6 +146,11 @@ where
 }
 
 fn startup_record_path() -> Result<PathBuf> {
+    Ok(service_home()?.join("pids/api.pid"))
+}
+
+/// The daemon's service directory: `VADGR_HOME`, or `~/.vadgr`.
+fn service_home() -> Result<PathBuf> {
     let home = std::env::var_os("VADGR_HOME")
         .map(PathBuf::from)
         .or_else(|| std::env::var_os("HOME").map(|home| PathBuf::from(home).join(".vadgr")))
@@ -154,7 +159,7 @@ fn startup_record_path() -> Result<PathBuf> {
         home.is_absolute(),
         "the daemon service directory is not absolute"
     );
-    Ok(home.join("pids/api.pid"))
+    Ok(home)
 }
 
 #[derive(PartialEq, Eq)]
@@ -456,12 +461,10 @@ pub fn uninstall(receipt: &InstallReceipt, purge: bool) -> Result<()> {
     );
     let root = install_root()?;
     ensure_generation_modes(&root)?;
-    uninstall_with(
-        &root,
-        purge,
-        unregister_launch_entries,
-        super::purge_owner_state,
-    )
+    uninstall_with(&root, purge, unregister_launch_entries, || {
+        super::purge_owner_state()?;
+        purge_service_files(&service_home()?)
+    })
 }
 
 fn uninstall_with(
@@ -687,6 +690,7 @@ fn unregister_launch_entries(root: &Path) -> Result<()> {
         .filter(|path| path.is_absolute())
     {
         remove_if_points_to(&home.join(".local/bin/vadgr"), root)?;
+        unregister_bundled_browser_host(&home)?;
         let data = std::env::var_os("XDG_DATA_HOME")
             .map(PathBuf::from)
             .filter(|path| path.is_absolute())
@@ -728,6 +732,98 @@ fn desktop_quote(path: &Path) -> Result<String> {
             .replace('`', "\\`")
             .replace('$', "\\$")
     ))
+}
+
+/// The browsers whose native-messaging manifests the bundled computer-use
+/// runtime writes under `~/.config`.
+const BROWSER_CONFIG_DIRS: [&str; 3] = ["google-chrome", "chromium", "microsoft-edge"];
+
+/// Remove the browser native-messaging registration the bundled computer-use
+/// runtime writes whenever it starts.
+///
+/// It leaves a launcher and discovery file under `~/.vadgr-cua` and one
+/// manifest per Chromium-family browser. A separately installed vadgr-cua uses
+/// the same names, so this acts only when the launcher runs the payload bundled
+/// inside Vadgr, and removes only manifests that name that launcher.
+fn unregister_bundled_browser_host(home: &Path) -> Result<()> {
+    let base = home.join(".vadgr-cua");
+    let launcher = base.join("host.sh");
+    let Ok(script) = std::fs::read_to_string(&launcher) else {
+        return Ok(());
+    };
+    if !runs_bundled_payload(&script) {
+        return Ok(());
+    }
+    for browser in BROWSER_CONFIG_DIRS {
+        let manifest = home
+            .join(".config")
+            .join(browser)
+            .join("NativeMessagingHosts/com.vadgr.cua.json");
+        let Ok(raw) = std::fs::read(&manifest) else {
+            continue;
+        };
+        let names_launcher = serde_json::from_slice::<serde_json::Value>(&raw)
+            .ok()
+            .and_then(|value| {
+                value
+                    .get("path")
+                    .and_then(|path| path.as_str())
+                    .map(PathBuf::from)
+            })
+            .is_some_and(|path| path == launcher);
+        if names_launcher {
+            std::fs::remove_file(&manifest)
+                .context("removing the bundled computer-use browser registration")?;
+        }
+    }
+    for name in ["host.sh", "browser.port"] {
+        let path = base.join(name);
+        if path.symlink_metadata().is_ok_and(|meta| meta.is_file()) {
+            std::fs::remove_file(&path)
+                .context("removing the bundled computer-use browser host files")?;
+        }
+    }
+    // Only an emptied directory goes; anything else in it stays.
+    let _ = std::fs::remove_dir(&base);
+    Ok(())
+}
+
+/// Whether a native-host launcher runs the computer-use payload bundled in Vadgr.
+fn runs_bundled_payload(script: &str) -> bool {
+    script.lines().any(|line| {
+        line.starts_with("exec ")
+            && line.contains("/usr/lib/cua/environments/")
+            && line.contains("computer_use.browser.native_host")
+    })
+}
+
+/// Remove the service files the daemon writes into its service home: the log
+/// and the startup records. Nothing else there is touched, because a
+/// development checkout can live in the same directory.
+fn purge_service_files(service_home: &Path) -> Result<()> {
+    if !service_home.is_absolute()
+        || service_home
+            .symlink_metadata()
+            .map_or(true, |meta| !meta.is_dir())
+    {
+        return Ok(());
+    }
+    let log = service_home.join("api.log");
+    if log.symlink_metadata().is_ok_and(|meta| meta.is_file()) {
+        std::fs::remove_file(&log).context("removing the Vadgr service log")?;
+    }
+    let pids = service_home.join("pids");
+    if pids.symlink_metadata().is_ok_and(|meta| meta.is_dir()) {
+        for name in ["api.pid", "api.port", "api.startup-boot.json"] {
+            let path = pids.join(name);
+            if path.symlink_metadata().is_ok_and(|meta| meta.is_file()) {
+                std::fs::remove_file(&path).context("removing a Vadgr startup record")?;
+            }
+        }
+        let _ = std::fs::remove_dir(&pids);
+    }
+    let _ = std::fs::remove_dir(service_home);
+    Ok(())
 }
 
 fn remove_if_points_to(path: &Path, root: &Path) -> Result<()> {
@@ -890,6 +986,103 @@ mod failed_install_tests {
                 }
             }
         }
+    }
+
+    fn register_browser_host(home: &Path, exec_line: &str) -> PathBuf {
+        let base = home.join(".vadgr-cua");
+        std::fs::create_dir_all(&base).unwrap();
+        let launcher = base.join("host.sh");
+        std::fs::write(&launcher, format!("#!/bin/sh\n{exec_line}\n")).unwrap();
+        std::fs::write(
+            base.join("browser.port"),
+            b"{\"port\": 1, \"token\": \"t\"}",
+        )
+        .unwrap();
+        for browser in BROWSER_CONFIG_DIRS {
+            let dir = home
+                .join(".config")
+                .join(browser)
+                .join("NativeMessagingHosts");
+            std::fs::create_dir_all(&dir).unwrap();
+            std::fs::write(
+                dir.join("com.vadgr.cua.json"),
+                serde_json::to_vec(&serde_json::json!({"name": "com.vadgr.cua", "path": launcher}))
+                    .unwrap(),
+            )
+            .unwrap();
+        }
+        launcher
+    }
+
+    #[test]
+    fn uninstall_removes_the_bundled_browser_host_registration() {
+        let temp = tempfile::tempdir().unwrap();
+        let home = temp.path();
+        register_browser_host(
+            home,
+            "exec \"/tmp/.mount_Vadgr.abc/usr/lib/cua/environments/0.7.9-x/bin/python\" -m computer_use.browser.native_host \"$@\"",
+        );
+        let other = home.join(".config/google-chrome/NativeMessagingHosts/org.example.other.json");
+        std::fs::write(&other, b"{}").unwrap();
+        unregister_bundled_browser_host(home).unwrap();
+        for browser in BROWSER_CONFIG_DIRS {
+            assert!(
+                !home
+                    .join(".config")
+                    .join(browser)
+                    .join("NativeMessagingHosts/com.vadgr.cua.json")
+                    .exists()
+            );
+        }
+        assert!(!home.join(".vadgr-cua").exists());
+        assert!(other.is_file(), "another program's registration must stay");
+    }
+
+    #[test]
+    fn uninstall_keeps_a_standalone_computer_use_registration() {
+        let temp = tempfile::tempdir().unwrap();
+        let home = temp.path();
+        let launcher = register_browser_host(
+            home,
+            "exec \"/home/user/.local/pipx/venvs/vadgr-cua/bin/python\" -m computer_use.browser.native_host \"$@\"",
+        );
+        unregister_bundled_browser_host(home).unwrap();
+        assert!(launcher.is_file());
+        assert!(home.join(".vadgr-cua/browser.port").is_file());
+        for browser in BROWSER_CONFIG_DIRS {
+            assert!(
+                home.join(".config")
+                    .join(browser)
+                    .join("NativeMessagingHosts/com.vadgr.cua.json")
+                    .is_file()
+            );
+        }
+    }
+
+    #[test]
+    fn purge_removes_only_the_service_log_and_startup_records() {
+        let temp = tempfile::tempdir().unwrap();
+        let service = temp.path().join(".vadgr");
+        std::fs::create_dir_all(service.join("pids")).unwrap();
+        std::fs::create_dir_all(service.join("src")).unwrap();
+        std::fs::write(service.join("api.log"), b"log").unwrap();
+        std::fs::write(service.join("src/keep.rs"), b"checkout").unwrap();
+        for name in ["api.pid", "api.port", "api.startup-boot.json"] {
+            std::fs::write(service.join("pids").join(name), b"record").unwrap();
+        }
+        purge_service_files(&service).unwrap();
+        assert!(!service.join("api.log").exists());
+        assert!(!service.join("pids").exists());
+        assert_eq!(
+            std::fs::read(service.join("src/keep.rs")).unwrap(),
+            b"checkout"
+        );
+
+        let only = temp.path().join("only-service");
+        std::fs::create_dir_all(only.join("pids")).unwrap();
+        std::fs::write(only.join("api.log"), b"log").unwrap();
+        purge_service_files(&only).unwrap();
+        assert!(!only.exists(), "an emptied service directory goes too");
     }
 
     #[test]

@@ -1253,7 +1253,7 @@ impl ConsoleApp {
                                     else { "No matching models. Try a different name or model ID." });
                                 ui.add_space(12.0);
                             }
-                            for model in matches {
+                            for model in &matches {
                                 let is_current = current.as_deref() == Some(model.id.as_str());
                                 let chosen = selected.as_deref() == Some(model.id.as_str());
                                 let label = if model.name.is_empty() { &model.id } else { &model.name };
@@ -1289,10 +1289,14 @@ impl ConsoleApp {
                                 if response.clicked() { *selected = Some(model.id.clone()); }
                             }
                         });
+                    // A selection the search hides is not offered for saving: the
+                    // button would otherwise apply a model the list no longer shows.
+                    let selection_shown = selected.as_ref()
+                        .is_some_and(|id| matches.iter().any(|model| &model.id == id));
                     ui.add_space(16.0);
                     ui.separator();
                     ui.allocate_ui_with_layout(Vec2::new(ui.available_width(), ui.spacing().interact_size.y), Layout::right_to_left(Align::Center), |ui| {
-                        let changed = selected.is_some() && *selected != *current;
+                        let changed = selection_shown && *selected != *current;
                         if primary_button(ui, "Use as default", changed && self.pending.is_none()) {
                             let provider_id = provider.id.clone();
                             let model_id = selected.clone().expect("enabled selected model");
