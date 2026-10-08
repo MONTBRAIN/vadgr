@@ -19,6 +19,8 @@ const CLOSE_TIMEOUT: Duration = Duration::from_secs(3);
 pub struct CuaServer {
     command: CuaCommand,
     environment: Vec<(OsString, OsString)>,
+    /// Whether the installed runtime was re-verified for the next spawn.
+    revalidated: bool,
     client: Option<RunningService<RoleClient, ()>>,
     stderr_task: Option<JoinHandle<()>>,
 }
@@ -28,6 +30,7 @@ impl CuaServer {
         Self {
             command,
             environment: Vec::new(),
+            revalidated: false,
             client: None,
             stderr_task: None,
         }
@@ -40,15 +43,33 @@ impl CuaServer {
         Self {
             command,
             environment,
+            revalidated: false,
             client: None,
             stderr_task: None,
         }
+    }
+
+    /// Re-verify the installed runtime on a blocking thread. It reads the whole
+    /// installed package, which held an async worker for tens of seconds.
+    async fn revalidate(&mut self) -> Result<(), McpError> {
+        let command = self.command.clone();
+        tokio::task::spawn_blocking(move || command.revalidate())
+            .await
+            .map_err(|error| McpError::Server(error.to_string()))?
+            .map_err(|error| McpError::Server(error.to_string()))?;
+        self.revalidated = true;
+        Ok(())
     }
 
     async fn connect(&mut self) -> Result<(), McpError> {
         if self.client.is_some() {
             return Ok(());
         }
+        if !self.revalidated {
+            self.revalidate().await?;
+        }
+        // Every spawn is preceded by its own check.
+        self.revalidated = false;
         let child = self.command.clone();
         let environment = self.environment.clone();
         let mut command = tokio::process::Command::new(&child.program).configure(|command| {
@@ -59,7 +80,7 @@ impl CuaServer {
             configure_windows_process(command);
         });
         let authorization = child
-            .authorize_process(command.as_std_mut())
+            .prepare_process(command.as_std_mut())
             .map_err(|error| McpError::Server(error.to_string()))?;
         let (transport, stderr) = TokioChildProcess::builder(command)
             .stderr(Stdio::piped())
@@ -103,6 +124,13 @@ impl CuaServer {
 impl ToolServer for CuaServer {
     fn namespace(&self) -> &str {
         "computer-use"
+    }
+
+    async fn prepare(&mut self) -> Result<(), McpError> {
+        if self.client.is_some() {
+            return Ok(());
+        }
+        self.revalidate().await
     }
 
     async fn list_tools(&mut self) -> Result<Vec<ToolSpec>, McpError> {

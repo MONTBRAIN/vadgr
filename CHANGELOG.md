@@ -12,6 +12,13 @@ All notable changes to this project are documented here. Format follows [Keep a 
   owner data also removes the daemon's service log and startup records.
 - The default-model picker no longer offers to save a selection that the
   current search hides.
+- Linux uninstall also stops the browser helper that the bundled computer-use
+  runtime shares between its servers, and removes its record and lock. A
+  helper started by a separately installed computer-use runtime keeps running.
+- `GET /api/computer-use/status` reports a working computer-use host as
+  available. The check of the installed runtime before each start no longer
+  counts against the status request's handshake limit, and it no longer holds
+  a daemon worker while a run starts.
 - Installed updates accept an explicit HTTPS or absolute local source without
   changing the installation receipt or its trust requirements. Linux AppImages
   use the existing release download location when no origin is configured.

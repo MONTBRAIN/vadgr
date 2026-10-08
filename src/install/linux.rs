@@ -4,6 +4,7 @@ use super::{InstallReceipt, VerifiedLinuxPackage, record_terms_acceptance};
 use anyhow::{Context, Result, anyhow, ensure};
 use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 const DESKTOP_FILE: &str = "com.montbrain.vadgr.desktop";
 
@@ -747,6 +748,7 @@ const BROWSER_CONFIG_DIRS: [&str; 3] = ["google-chrome", "chromium", "microsoft-
 /// inside Vadgr, and removes only manifests that name that launcher.
 fn unregister_bundled_browser_host(home: &Path) -> Result<()> {
     let base = home.join(".vadgr-cua");
+    stop_bundled_broker(&base)?;
     let launcher = base.join("host.sh");
     let Ok(script) = std::fs::read_to_string(&launcher) else {
         return Ok(());
@@ -786,6 +788,63 @@ fn unregister_bundled_browser_host(home: &Path) -> Result<()> {
     // Only an emptied directory goes; anything else in it stays.
     let _ = std::fs::remove_dir(&base);
     Ok(())
+}
+
+const BROKER_STOP_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// Stop the browser broker the bundled computer-use runtime shares between its
+/// servers, and remove its discovery record and lock.
+///
+/// The broker is detached from the daemon and exits only after five idle
+/// minutes, so it would otherwise keep running from the removed package. It
+/// removes its files only on that idle exit, not on a signal. A broker started
+/// by a separately installed vadgr-cua uses the same files and is left alone.
+fn stop_bundled_broker(base: &Path) -> Result<()> {
+    let record = base.join("browser-broker.json");
+    let Some(pid) = broker_pid(&record) else {
+        return Ok(());
+    };
+    if !runs_bundled_broker(pid) {
+        return Ok(());
+    }
+    let _ = rustix::process::kill_process(pid, rustix::process::Signal::TERM);
+    let deadline = std::time::Instant::now() + BROKER_STOP_TIMEOUT;
+    while runs_bundled_broker(pid) {
+        ensure!(
+            std::time::Instant::now() < deadline,
+            "The computer-use browser helper did not stop. Close your browsers, then retry Uninstall."
+        );
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    let lock = base.join("browser-broker.lock");
+    let owner = pid.as_raw_nonzero().to_string();
+    if std::fs::read_to_string(&lock).is_ok_and(|text| text.trim() == owner) {
+        std::fs::remove_file(&lock).context("removing the computer-use browser helper lock")?;
+    }
+    if broker_pid(&record) == Some(pid) {
+        std::fs::remove_file(&record).context("removing the computer-use browser helper record")?;
+    }
+    Ok(())
+}
+
+fn broker_pid(record: &Path) -> Option<rustix::process::Pid> {
+    let raw = std::fs::read(record).ok()?;
+    let value = serde_json::from_slice::<serde_json::Value>(&raw).ok()?;
+    rustix::process::Pid::from_raw(i32::try_from(value.get("pid")?.as_i64()?).ok()?)
+}
+
+/// Whether a live process runs the browser broker from the payload bundled in
+/// Vadgr. A reaped or reused process id reads as a different command line.
+fn runs_bundled_broker(pid: rustix::process::Pid) -> bool {
+    let Ok(raw) = std::fs::read(format!("/proc/{}/cmdline", pid.as_raw_nonzero())) else {
+        return false;
+    };
+    let mut args = raw
+        .split(|byte| *byte == 0)
+        .map(|arg| String::from_utf8_lossy(arg).into_owned());
+    args.next()
+        .is_some_and(|program| program.contains("/usr/lib/cua/environments/"))
+        && args.any(|arg| arg == "computer_use.browser.broker")
 }
 
 /// Whether a native-host launcher runs the computer-use payload bundled in Vadgr.
@@ -1057,6 +1116,89 @@ mod failed_install_tests {
                     .is_file()
             );
         }
+    }
+
+    /// Start a stand-in broker whose command line has the given interpreter
+    /// path, and write the discovery record and lock a real broker keeps.
+    fn start_broker(home: &Path, interpreter_dir: &Path) -> std::process::Child {
+        std::fs::create_dir_all(interpreter_dir).unwrap();
+        let python = interpreter_dir.join("python");
+        std::os::unix::fs::symlink("/bin/sh", &python).unwrap();
+        let child = std::process::Command::new(&python)
+            .args([
+                "-c",
+                "while :; do sleep 1; done",
+                "computer_use.browser.broker",
+            ])
+            .spawn()
+            .unwrap();
+        let base = home.join(".vadgr-cua");
+        std::fs::create_dir_all(&base).unwrap();
+        std::fs::write(
+            base.join("browser-broker.json"),
+            serde_json::to_vec(
+                &serde_json::json!({"host": "127.0.0.1", "port": 1, "pid": child.id()}),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        std::fs::write(base.join("browser-broker.lock"), child.id().to_string()).unwrap();
+        child
+    }
+
+    fn exits_within(child: &mut std::process::Child, limit: std::time::Duration) -> bool {
+        let deadline = std::time::Instant::now() + limit;
+        while std::time::Instant::now() < deadline {
+            if child.try_wait().unwrap().is_some() {
+                return true;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
+        false
+    }
+
+    #[test]
+    fn uninstall_stops_the_bundled_browser_broker_and_removes_its_files() {
+        let temp = tempfile::tempdir().unwrap();
+        let home = temp.path().join("home");
+        register_browser_host(
+            &home,
+            "exec \"/tmp/.mount_Vadgr.abc/usr/lib/cua/environments/0.7.9-x/bin/python\" -m computer_use.browser.native_host \"$@\"",
+        );
+        let mut broker = start_broker(
+            &home,
+            &temp
+                .path()
+                .join("mount/usr/lib/cua/environments/0.7.9-x/bin"),
+        );
+        let stopped = unregister_bundled_browser_host(&home);
+        let exited = exits_within(&mut broker, std::time::Duration::from_secs(5));
+        if !exited {
+            let _ = broker.kill();
+            let _ = broker.wait();
+        }
+        stopped.unwrap();
+        assert!(exited, "the bundled broker must not outlive the uninstall");
+        assert!(!home.join(".vadgr-cua").exists());
+    }
+
+    #[test]
+    fn uninstall_leaves_a_browser_broker_it_did_not_install() {
+        let temp = tempfile::tempdir().unwrap();
+        let home = temp.path().join("home");
+        register_browser_host(
+            &home,
+            "exec \"/tmp/.mount_Vadgr.abc/usr/lib/cua/environments/0.7.9-x/bin/python\" -m computer_use.browser.native_host \"$@\"",
+        );
+        let mut broker = start_broker(&home, &temp.path().join("pipx/venvs/vadgr-cua/bin"));
+        let result = unregister_bundled_browser_host(&home);
+        let exited = exits_within(&mut broker, std::time::Duration::from_millis(500));
+        let _ = broker.kill();
+        let _ = broker.wait();
+        result.unwrap();
+        assert!(!exited, "a standalone broker belongs to its own install");
+        assert!(home.join(".vadgr-cua/browser-broker.json").is_file());
+        assert!(home.join(".vadgr-cua/browser-broker.lock").is_file());
     }
 
     #[test]

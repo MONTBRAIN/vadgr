@@ -222,6 +222,14 @@ impl CuaCommand {
         &self,
         command: &mut std::process::Command,
     ) -> Result<Option<LaunchChannel>> {
+        self.revalidate()?;
+        self.prepare_process(command)
+    }
+
+    /// Re-verify the installed runtime this command was resolved from. It
+    /// reads the installed package, so async callers run it on a blocking
+    /// thread and then call `prepare_process` right before the spawn.
+    pub fn revalidate(&self) -> Result<()> {
         if let Some(root) = &self.authorization_root {
             let current = super::CuaRuntime::below_install_root(root)?;
             ensure!(
@@ -229,6 +237,13 @@ impl CuaCommand {
                 "installed CUA authorization changed before launch; restart the daemon"
             );
         }
+        Ok(())
+    }
+
+    pub fn prepare_process(
+        &self,
+        command: &mut std::process::Command,
+    ) -> Result<Option<LaunchChannel>> {
         command
             .env_remove("VADGR_CUA_LAUNCH_AUTHORIZATION_FD")
             .env_remove("VADGR_CUA_LAUNCH_AUTHORIZATION_HANDLE");
