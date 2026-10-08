@@ -1132,6 +1132,20 @@ mod failed_install_tests {
             ])
             .spawn()
             .unwrap();
+        // A real broker writes its record only once it runs. Until the exec
+        // lands, the child still shows this test's own command line.
+        let cmdline = format!("/proc/{}/cmdline", child.id());
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        while !std::fs::read(&cmdline).is_ok_and(|raw| {
+            raw.split(|byte| *byte == 0)
+                .any(|arg| arg == b"computer_use.browser.broker")
+        }) {
+            assert!(
+                std::time::Instant::now() < deadline,
+                "stand-in broker did not start"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
         let base = home.join(".vadgr-cua");
         std::fs::create_dir_all(&base).unwrap();
         std::fs::write(
