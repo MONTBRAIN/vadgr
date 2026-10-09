@@ -308,6 +308,10 @@ driving in the same turn. A pass ends when every cell carries a verdict or a
 named blocker. Only a cell that cannot proceed without the owner, or a decision
 only the owner can make, ends one early. Stopping to report looks like progress
 and is the opposite, because the cells that were never run stay never run.
+A status question, or any other question the owner asks while work runs, is
+not a stop instruction: answer it briefly and keep driving in the same turn.
+Only an explicit pause or stop instruction, or a genuine owner decision, ends a
+turn before the work is done.
 
 ## How a pass is run, before anything else in this file
 
