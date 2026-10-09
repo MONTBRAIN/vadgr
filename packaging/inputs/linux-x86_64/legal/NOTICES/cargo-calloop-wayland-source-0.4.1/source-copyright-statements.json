@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "138efcf0940a02ebf0cc8d1eff41a1682a46b431630f4c52450d6265876021fa",
+  "original_statement_files": [
+    {
+      "path": "calloop-wayland-source-0.4.1/LICENSE.txt",
+      "sha256": "e7ed841a425ba764fd8599031dcf67c5b3d8de2d638779eb3e740a21d3d6eb1c",
+      "size": 1058,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 Kirill Chibisov"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

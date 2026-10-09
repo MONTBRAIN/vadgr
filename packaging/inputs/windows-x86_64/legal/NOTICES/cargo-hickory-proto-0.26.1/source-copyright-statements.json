@@ -1,0 +1,916 @@
+{
+  "archive_sha256": "0bab31817bfb44672a252e97fe81cd0c18d1b2cf892108922f6818820df8c643",
+  "original_statement_files": [
+    {
+      "path": "hickory-proto-0.26.1/LICENSE-MIT",
+      "sha256": "dc470946f0a127507a9e577a20da1eb19eae0abc383b2be1f786f6427944f06c",
+      "size": 1101,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 The Hickory DNS Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2017 Google LLC."
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/benches/lower_name_benches.rs",
+      "sha256": "9422d216183f1108eb85f9599936de0acd3ca429389095113399065068d1ea57",
+      "size": 2102,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/algorithm.rs",
+      "sha256": "539d87e82095f82e78b7b461fdc61fa921dd5034730e5ecd0932e30675cad5e8",
+      "size": 11736,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2022 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/ec_public_key.rs",
+      "sha256": "b05cbdbea5552ddc6eaabe8a34fb771885c315a9710917772e217672e1aa86f8",
+      "size": 4506,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2017 Brian Smith <brian@briansmith.org>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/mod.rs",
+      "sha256": "fc5315915c359a341d8526d94883effaa86978170eceb70b132b99b6a0de067a",
+      "size": 16388,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/proof.rs",
+      "sha256": "18cfb14eb258205e86fbbf5f5e1603c60b5dce726812c7b421e22adf05ee78a3",
+      "size": 7856,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/public_key.rs",
+      "sha256": "bb08381a5942a3d6d782aaf9f058527af1dc4dcf8edb8fc400dd0a07e9a4e40a",
+      "size": 2454,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/cdnskey.rs",
+      "sha256": "d6a238259bd036cf27100a48961660640513adb0fa65d139abf250fe239a733a",
+      "size": 7933,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/cds.rs",
+      "sha256": "628b5932b3266977802293eafeff9b4cf8f2df0e0644c81b94750fc68ec0f167",
+      "size": 6505,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/dnskey.rs",
+      "sha256": "77c4d9a2f27301f6590e3092a1b36998bba307d8bd6cd7eb845e3279eedf4d45",
+      "size": 26162,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/ds.rs",
+      "sha256": "c5e3204edfea7cbd470b44e0428d2f71bfd0a2b9268395e162402a8f6e4cbd16",
+      "size": 21649,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/key.rs",
+      "sha256": "dbbffe37e3d54ed3579245b261dec857a80df50bd405499f0420369acfc7a13d",
+      "size": 37311,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/mod.rs",
+      "sha256": "633155fe9dc163224899a66cb2dfb3f58b1405b6784d1e5950c923c5a47d4d65",
+      "size": 25840,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/nsec.rs",
+      "sha256": "63d94ec3367db15d5ebb30526e1748b197db64ddfaa24cef7fc83cddf0fef476",
+      "size": 11302,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/nsec3.rs",
+      "sha256": "18c17f4c305fddce859212fe29c238b4f847786d4c613e42846bb3b011c20bd4",
+      "size": 20722,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/nsec3param.rs",
+      "sha256": "3b13ded9b479d61e353724da248ab84c79a429b6d4ad2714484875bbaddc12ea",
+      "size": 9634,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/rrsig.rs",
+      "sha256": "1a04b677f29252aed35b6e82af4f9671309ff0ac5dcf9c2c2950cc95f897476e",
+      "size": 6991,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rdata/sig.rs",
+      "sha256": "9cc73d0572db6da726a081b2082886a91f63261cba55f193974f034437ae4a60",
+      "size": 20767,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/rsa_public_key.rs",
+      "sha256": "d8017fa22405eb3e3964c381145911be5818e8951e37d43ce58242c26b83f0db",
+      "size": 1230,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2017 Brian Smith <brian@briansmith.org>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/signer.rs",
+      "sha256": "c89837ae5f1a2d794e11b510df9f6e59055702f3558ddc6cda1810497737fd11",
+      "size": 21758,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/supported_algorithm.rs",
+      "sha256": "c0de4b3487922f3a5ab464082db9dde061a6e4516945bd872be17c37ebfde7ab",
+      "size": 8788,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/tbs.rs",
+      "sha256": "f71f053e8a083f713bcc3effe569145c37b25956758fd2e625c85ff44ad85a58",
+      "size": 7676,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/trust_anchor.rs",
+      "sha256": "2c0d4e373d53cab93c6ab57d940a17e0ceaa438e8fc6b8e10cf5255e48fbcb63",
+      "size": 4513,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/dnssec/verifier.rs",
+      "sha256": "949ab870980c2ccb9e7b23ce523d1335ed11f04b2a422ce48fa82aa6d23f794b",
+      "size": 2106,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/error.rs",
+      "sha256": "df0586c4de91f0c43446c8a815ba64585cb097a28d4b5550cd2c19ec84d57017",
+      "size": 3621,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2020 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/lib.rs",
+      "sha256": "662fa103c9c1eb4a198f152f8312c8f0505f491d62b6ebe8741b4dd14503bd96",
+      "size": 4783,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2017 Google LLC."
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/dns_request.rs",
+      "sha256": "a9cce9ec9acce179ef56aa0a8d4f6678d1640f2e074080d443674512fc6c76c1",
+      "size": 6454,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2018 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/dns_response.rs",
+      "sha256": "03905cf349ec05672dbf527b17a675e261dcd820fa5be31124d325b50a04ef57",
+      "size": 10688,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/edns.rs",
+      "sha256": "31b924a1b45c8d7eff9aed1e3e6b2fd9f463a6ec40d08eca45e4c90f8fc2f1e4",
+      "size": 10153,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/header.rs",
+      "sha256": "57ae0d1b68120305abf805dc7375ca45b927e8da6faa0ef40abdf4e94cbbc17f",
+      "size": 19064,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/lower_query.rs",
+      "sha256": "7183c471bfa64fe215ea84e2d06ed00dd82b0ca1d64fd30d2fbdadc8dd7d8583",
+      "size": 3267,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/message.rs",
+      "sha256": "1760107707bc960587f3c07ccd92d8a341ad83cc6fc1fc5b13c84ee046fe6cd7",
+      "size": 43226,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/mod.rs",
+      "sha256": "78c8fa9701c7993f92c9b5124e703a7c6982d2a7f0d17f3a957b3eb3302fbc3c",
+      "size": 1850,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/op_code.rs",
+      "sha256": "bf02d45e7e25f72a959c8d1a635553eb33fd5f281ec5f3d38a16ad528d9a31cf",
+      "size": 3264,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/query.rs",
+      "sha256": "d6be426192fef8b53704c48c41cca40256a7b1cf7b143287479a0f6da73082fd",
+      "size": 9580,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/response_code.rs",
+      "sha256": "7162e42c3532d985c577870d0fc0ceaa7c876738861b79ee60d48818b3050602",
+      "size": 13986,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/serial_message.rs",
+      "sha256": "9f6c32eedc6142242e0c9d5a87395e0689a1072d08b33d02dda3c1710643cbfa",
+      "size": 1938,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2018 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/op/update_message.rs",
+      "sha256": "531b4e9d68b6afe872431c0ac6c289264bc2b59701d103311bdcf79c02d6b0b6",
+      "size": 20236,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/dns_class.rs",
+      "sha256": "4b45e21352c3a90d699b88009322c32ef5439a1553a046c92e6f36b0d803ca0f",
+      "size": 5501,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/domain/label.rs",
+      "sha256": "5d6efa1e231bd6248032e2b5d630b0205b99dd52b830bf1d99295897187a79bd",
+      "size": 18353,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2018 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/domain/mod.rs",
+      "sha256": "2993d6bf4ae476a012776711d7363ab1a6b1da2cae350a9d9b5746987ec7ca28",
+      "size": 553,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/domain/name.rs",
+      "sha256": "a2e0874cf47ecbc17c0e8b5a5845e99e43ea0ad502348dc8c27b3f268b3c5ffa",
+      "size": 92846,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/domain/usage.rs",
+      "sha256": "681620902c581ee15855424dbe6e98ba9961e4b6ec8d685b4bd81d8e4ab69ad8",
+      "size": 22941,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2018 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/lower_name.rs",
+      "sha256": "f16699b0fa251bb34cf90ed926110da9198242d79455332c74a3da6a8a8c532a",
+      "size": 10227,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2019 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/mod.rs",
+      "sha256": "a6e7a2b912e77c59e94d24f5eb255f70b5d173f28e4dd8a2ed5e6b39a1ffed25",
+      "size": 2827,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/a.rs",
+      "sha256": "d458ce73acd6747b2db841350d911f71046b9972db5d14babeb9a45e5539b517",
+      "size": 4954,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/aaaa.rs",
+      "sha256": "ac3151c6338d981c25803c9a4ba0497cb823bc6af42fec28364af21268458c19",
+      "size": 6708,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/caa.rs",
+      "sha256": "c8228b7eb1053a7caaad324f2c03928e7dd06ff5b8476a13bb0a2c00dcd7acc3",
+      "size": 42926,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/cert.rs",
+      "sha256": "053504d412781a37c56c5ebda70a02c866463234f88f7ed265f404b15629537a",
+      "size": 31402,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 Brian Taber <btaber@zsd.systems>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/csync.rs",
+      "sha256": "f070c532821c518bed45715f312a01970d89891b0f0224add436a06fa7630c82",
+      "size": 11554,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/hinfo.rs",
+      "sha256": "ccfa2817bd97fc8b50d1e395a9ab7621d697d864681b5bf0945ed1a7e589707a",
+      "size": 7853,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/https.rs",
+      "sha256": "b931bbb42947246159278e380d26c9cf4dc0c6568a9e30b2d81ed70d344d367c",
+      "size": 1872,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/mod.rs",
+      "sha256": "dfd9282927b15ebc9fc37d4eafe26e902bc7cee68e0dce7fff51d48a922a508d",
+      "size": 1541,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/mx.rs",
+      "sha256": "68dbf343d0aac65a9f7f1320d9b3b8825934053b126222a1583868ba956b1366",
+      "size": 6847,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/name.rs",
+      "sha256": "cc4998cbd330365427c9f39fa709b72d43c9c54319ae62c12bc80b293b55f284",
+      "size": 3578,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/naptr.rs",
+      "sha256": "e16df50e88dc18e3d8556e4032466b398847715cb26bcc3c6df2fac48682c92a",
+      "size": 17122,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/null.rs",
+      "sha256": "0ac97f343e98bbca6b49333ee45462f76dae35b9b8149c46df27e2262d429cf4",
+      "size": 4029,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/openpgpkey.rs",
+      "sha256": "c02cc807b379fa231fc6a18411f9b05e5d2747d4758de0bafeaf03c19c1be513",
+      "size": 4884,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/opt.rs",
+      "sha256": "d94de80237669708b961f741817437f14393cdef69551ecc48c3a3fc6d988b42",
+      "size": 37829,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/soa.rs",
+      "sha256": "f47de7faaa6e67e7639a4690a36c2491e6d10da566a91f0cc29567bad9588b5d",
+      "size": 15148,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/srv.rs",
+      "sha256": "f82c5da50f2d039ee7e53b54d994f410935d236507202ddba3b4990e5378823f",
+      "size": 11782,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/sshfp.rs",
+      "sha256": "1e838d9fd6b425c03ab31c1fbee31f57f57e2c9f1e8ef7abf540eae7e3c781de",
+      "size": 17483,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/svcb.rs",
+      "sha256": "bb3eac628117256b3718b24627a232b64b252a9f225f63c22263a80352ebaccf",
+      "size": 78962,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/tlsa.rs",
+      "sha256": "e3c5bdfd1ef4cec155f2e389fca08fa4057369b8e6ea30723fa298cc893b210c",
+      "size": 25327,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/tsig.rs",
+      "sha256": "092264806c6a4783ffc1d0259b3148decc7bbe9a9f12e1a0a3e630fcd9c7e93b",
+      "size": 36982,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rdata/txt.rs",
+      "sha256": "fe02f49ab131c933eab442458055416b603b29c1dae9dbd0032c537e7df275ec",
+      "size": 6764,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/record.rs",
+      "sha256": "b9366f7035990ea9f38eeb56f5b2b3a8032acddf1b1328d37484592dd32dcd34",
+      "size": 26729,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/record_data.rs",
+      "sha256": "1e793bd464d5dc7e0a90570d0213bc1ab1bb6b53658907c1ead0cd57bba61e70",
+      "size": 72829,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/record_type.rs",
+      "sha256": "75038779bc7c73d81aa686b4e109f97ba16ee2b59b2c30c3a74934045104aee1",
+      "size": 18776,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/record_type_set.rs",
+      "sha256": "9e8948e2746f8b357a0a9f01bf4ab795e62419801bcd7f03ce14144520a3bd30",
+      "size": 10621,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rr_key.rs",
+      "sha256": "5dbd7b8da84317748e604d64c254af935ff5635e86257683c568c50caf284c25",
+      "size": 1629,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2017 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/rr_set.rs",
+      "sha256": "72ed49e66be71680441cf6570c4424bde3607b2ed371df79d963e0088fa7443b",
+      "size": 25346,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/rr/tsig.rs",
+      "sha256": "575b23a6b7efb7362f71f33d4bab9345925351cb724c027400d8774f96a4c3f0",
+      "size": 20124,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2019 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/binary/bin_tests.rs",
+      "sha256": "098bb48d4bcbc6b83ad74484b0bc5164592a3a25569609eca3beef798c25c94b",
+      "size": 4449,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/binary/decoder.rs",
+      "sha256": "8d482e96f185393535072ce15762b2dda56f86a6fc81520aaf82df53bbe80109",
+      "size": 12943,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/binary/encoder.rs",
+      "sha256": "1232e8a4cbe378664b085941ed3447de9f315f93d5f3820ac56dc5014d1b9d48",
+      "size": 24446,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/binary/mod.rs",
+      "sha256": "86518c4aa6f41a2065f750b71f0e3e7503207d1908fb62b0706ef434332493af",
+      "size": 2687,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/mod.rs",
+      "sha256": "83ad66a2ddbf13c1e56000686d4145852ab5d27cb7c25cc3835273dce8ef4642",
+      "size": 720,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/txt/mod.rs",
+      "sha256": "139e3a434ba1d0c42a7ac3652195d8bd4b19f79c9463dacf61ac1eb2ecd62d17",
+      "size": 4046,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (C) 2015 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/txt/rdata_parsers/svcb.rs",
+      "sha256": "9940af9983bd915dfcc58f5b2ba3672ac9383979b6fc82358963ef1ac1196363",
+      "size": 24531,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/txt/zone.rs",
+      "sha256": "f2a7802142f628dc6160bee2c3015055cd635a04baec8b9460dd676de5587a3c",
+      "size": 19356,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2023 Benjamin Fry <benjaminfry@me.com>"
+        }
+      ]
+    },
+    {
+      "path": "hickory-proto-0.26.1/src/serialize/txt/zone_lex.rs",
+      "sha256": "700a498290bea77a7f2c3c23bac70fa1ec5050d1f5e3fbe299f0b29e42a6b903",
+      "size": 28331,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Benjamin Fry"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

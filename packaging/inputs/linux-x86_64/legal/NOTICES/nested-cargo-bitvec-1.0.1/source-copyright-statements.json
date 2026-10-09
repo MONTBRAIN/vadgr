@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "1bc2832c24239b0141d5674bb9174f9d68a8b5b3f2753311927c172ca46f7e9c",
+  "original_statement_files": [
+    {
+      "path": "bitvec-1.0.1/LICENSE.txt",
+      "sha256": "411781fd38700f2357a14126d0ab048164ab881f1dcb335c1bb932e232c9a2f5",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2018 myrrlyn (Alexander Payne)"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

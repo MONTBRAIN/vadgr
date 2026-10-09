@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "2d2e76690929402faae40aebdda620a2c0e25dd6d3b9afe48867dfd95991f4bd",
+  "original_statement_files": [
+    {
+      "path": "tls_codec_derive-0.4.2/LICENSE-MIT",
+      "sha256": "904801faf3f1850328af8e1aa1047b9190cc22ed40df5c87f2d93d17f847ef67",
+      "size": 1077,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,12 @@
+{
+  "application_files": [
+    {
+      "path": "LICENSE.txt",
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "size": 558
+    }
+  ],
+  "grant_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+  "scope": "Complete text for the explicitly applied Apache-2.0 grant; original application notices remain included.",
+  "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+}

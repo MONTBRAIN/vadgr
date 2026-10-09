@@ -1,0 +1,32 @@
+{
+  "archive_sha256": "31b698c5f9a010f6573133b09e0de5408834d0c82f8d7475a89fc1867a71cd90",
+  "original_statement_files": [
+    {
+      "path": "axum-0.8.9/LICENSE",
+      "sha256": "6a13bc24a100a6812f053879ec51b126b103af7cda6dbf48c4188722da44da9f",
+      "size": 1061,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 axum Contributors"
+        }
+      ]
+    },
+    {
+      "path": "axum-0.8.9/src/extract/ws.rs",
+      "sha256": "1d2145ee8500333c511bbb43ba470f05e0dc65d6be411c0d42bb3bf507d0fdc5",
+      "size": 42150,
+      "statements": [
+        {
+          "line": 751,
+          "text": "// Copyright (c) 2017 Alexey Galakhov"
+        },
+        {
+          "line": 752,
+          "text": "// Copyright (c) 2016 Jason Housley"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

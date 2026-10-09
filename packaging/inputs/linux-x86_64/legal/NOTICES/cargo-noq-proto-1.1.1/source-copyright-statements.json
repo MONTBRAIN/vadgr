@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "baa7b5ccd819a9c68a0d955e67a881032d09b1a17219b1f90b0997a0888e1a15",
+  "original_statement_files": [
+    {
+      "path": "noq-proto-1.1.1/LICENSE-APACHE",
+      "sha256": "a237a9d796dd30eebc8def7ee282c691be4c884454444510d702644f20669c15",
+      "size": 11384,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright [2025] [The quinn developers]"
+        },
+        {
+          "line": 190,
+          "text": "Copyright [2025] [N0, Inc]"
+        }
+      ]
+    },
+    {
+      "path": "noq-proto-1.1.1/LICENSE-MIT",
+      "sha256": "9e654cd17a17880f43a84c9c024f9ca7a320ed906d521072c15aa2e8daff8df0",
+      "size": 1097,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2025 The quinn Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2025 N0, Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,120 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/__init__.py",
+      "member": "jwt/__init__.py",
+      "sha256": "a840efb5630426531f00f4204e5246c2702c43c5c9281f267f0554f56bb2b7bf",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/algorithms.py",
+      "member": "jwt/algorithms.py",
+      "sha256": "f637f8b5e4f1f4ba6365acf18eb6576e9eb13d1f622eb5659efd586d45e9271b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/api_jwk.py",
+      "member": "jwt/api_jwk.py",
+      "sha256": "a975331615c74aae1d64dfd9e8a8543c9a82a3cf040b0b624af1ef42323d921d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/api_jws.py",
+      "member": "jwt/api_jws.py",
+      "sha256": "caed888a86cdf1c2f705ed3c397bb50aa4e52cd68ee86b22e46a4141bd9d3975",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/api_jwt.py",
+      "member": "jwt/api_jwt.py",
+      "sha256": "d32eb431ad3aa00ed264b33ad1d380fa148114525d961cffb3d56918b8d9718f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/exceptions.py",
+      "member": "jwt/exceptions.py",
+      "sha256": "3540f48760343221d5e94f933edfc0af4a6b9c01f1c892748ba2c7216cddf154",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/help.py",
+      "member": "jwt/help.py",
+      "sha256": "1c1dd9b2b2557254745d8fac0c7f8bbe5e4aeda7b9422746894e96c93027621b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/jwk_set_cache.py",
+      "member": "jwt/jwk_set_cache.py",
+      "sha256": "037f79442909503c4a2e3fcce91654912e34e407837a9130ced538938c434a85",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/jwks_client.py",
+      "member": "jwt/jwks_client.py",
+      "sha256": "13783c1e3ab0c2673d6ef89e4b00e1a09f7bd89a34c5000aec6f7590924abac5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/py.typed",
+      "member": "jwt/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/types.py",
+      "member": "jwt/types.py",
+      "sha256": "478e81927a35574f1faaec6756bef502f5bab843e2947265aa4817e8e6d9167c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/utils.py",
+      "member": "jwt/utils.py",
+      "sha256": "8713a3bc3061781621cfe4483e2133ed0f3c7525124cccc474a13f5b0d95749c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jwt/warnings.py",
+      "member": "jwt/warnings.py",
+      "sha256": "8904ef3fe34f0d003eb6e84f86389f124611a8c520b5ef7d88e3cc25cfc32c99",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pyjwt-2.13.0.dist-info/licenses/AUTHORS.rst",
+      "member": "pyjwt-2.13.0.dist-info/licenses/AUTHORS.rst",
+      "sha256": "925ce43461029eedbf558ec0b7cf7fc4b045def5120ebb97937c70814071cf07",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pyjwt-2.13.0.dist-info/licenses/LICENSE",
+      "member": "pyjwt-2.13.0.dist-info/licenses/LICENSE",
+      "sha256": "797a7a20231d4c433e9f1911db1731d06b5828b98f499819a034f7c0f56f5ce5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pyjwt-2.13.0.dist-info/METADATA",
+      "member": "pyjwt-2.13.0.dist-info/METADATA",
+      "sha256": "0d1b1321a5a688caacd763e006fbbe11f60110e9fe27ff8d23a679863d01a63c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pyjwt-2.13.0.dist-info/WHEEL",
+      "member": "pyjwt-2.13.0.dist-info/WHEEL",
+      "sha256": "69e6228a0d35958183cc1812f07c565ce837b95eb51bd8a33acba9fa4f68d6c9",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pyjwt-2.13.0.dist-info/top_level.txt",
+      "member": "pyjwt-2.13.0.dist-info/top_level.txt",
+      "sha256": "44fe431cdc896ccab691ad0599f4e0a12690ce1ededebe57b825823bc6b4d24f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pyjwt-2.13.0.dist-info/RECORD",
+      "member": "pyjwt-2.13.0.dist-info/RECORD",
+      "sha256": "ce44d25874650eb7f95676e38c823fe4e8b5a97e9888a6e827b20df13c7a6e91",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "66adcc2aff09b3f1bbd95fc1e1577df8ac8723c978552fd43304c8a290ac5728",
+  "wheel": "pyjwt-2.13.0-py3-none-any.whl"
+}

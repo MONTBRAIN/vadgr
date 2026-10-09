@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "09ec2f926cc3060f09db9ebc5b52823d85268d24bb917e472c0c4bea35780a7d",
+  "original_statement_files": [
+    {
+      "path": "bit-set-0.10.0/LICENSE-MIT",
+      "sha256": "6b56ddc7cd80419e5e22e075f2252d720f6cbe17e3e2c17383095ee2712bcffa",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2026 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "bit-set-0.10.0/benches/bench.rs",
+      "sha256": "3562afdee8f08d27a0281b7037c016d9fab6c7d7992578f4ec170c60e106751f",
+      "size": 1482,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2024 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "bit-set-0.10.0/src/lib.rs",
+      "sha256": "59902a9ce1a0781d7a5ab5069d8632b2551503385df03af7814fa8ee32066296",
+      "size": 52738,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

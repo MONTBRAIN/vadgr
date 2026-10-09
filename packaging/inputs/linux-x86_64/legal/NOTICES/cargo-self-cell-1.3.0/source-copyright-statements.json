@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "2ab42ca02749e120097e328d91d415325bdf43b1c72c4c8badf37375fe40a813",
+  "original_statement_files": [
+    {
+      "path": "self_cell-1.3.0/LICENSE-GPLv2",
+      "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
+      "size": 18091,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright (C) 1989, 1991 Free Software Foundation, Inc.,"
+        },
+        {
+          "line": 315,
+          "text": "Gnomovision version 69, Copyright (C) year name of author"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

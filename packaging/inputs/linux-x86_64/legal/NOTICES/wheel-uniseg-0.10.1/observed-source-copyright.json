@@ -1,0 +1,46 @@
+{
+  "component_sha256": "74fe3f7b4ee46bbd703a70ea1e5cd28e04f63eee5af9a10388d93316c554e358",
+  "original_statement_files": [
+    {
+      "path": "uniseg/docs/html/_static/_sphinx_javascript_frameworks_compat.js",
+      "sha256": "480a2c7377252c14a11bca4d3a49dfa16ea540a998fa637fae0189aee1b89113",
+      "statements": [
+        {
+          "line": 3,
+          "text": "* Copyright Sphinx contributors"
+        }
+      ]
+    },
+    {
+      "path": "uniseg/docs/html/_static/doctools.js",
+      "sha256": "81cb2da3c284e429a1a63ab28a20b7e30bceb8eb1556a154c8cbac0b4ce7795b",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "uniseg/docs/html/_static/language_data.js",
+      "sha256": "dba8b1d8dce11dadb39bd24d2babdb617a57f8f27e04c614269c937b785df00a",
+      "statements": [
+        {
+          "line": 8,
+          "text": "* :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "uniseg/docs/html/_static/searchtools.js",
+      "sha256": "8abac35df3630c203fad510e66f2f9e0725a79080b8be96111e238a071500805",
+      "statements": [
+        {
+          "line": 7,
+          "text": "* :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

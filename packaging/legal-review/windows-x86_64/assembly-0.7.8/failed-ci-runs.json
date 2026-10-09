@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "observed_on": "2026-09-24",
+  "status": "failed-run-evidence",
+  "release_approval": false,
+  "runs": [
+    {
+      "run_id": 35962297116,
+      "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297116",
+      "head_sha": "e1c7c24b70c6fcad4cdc31c068701c758eb506ca",
+      "conclusion": "failure",
+      "failed_jobs": [
+        {
+          "name": "rust (macos-latest)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297116/job/107513276913",
+          "failed_steps": [
+            "Build"
+          ]
+        },
+        {
+          "name": "rust (ubuntu-latest)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297116/job/107513277000",
+          "failed_steps": [
+            "Build"
+          ]
+        },
+        {
+          "name": "installer (windows-latest)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297116/job/107513301134",
+          "failed_steps": [
+            "Install on Windows, through the PowerShell half"
+          ]
+        },
+        {
+          "name": "clean-install (macos-latest)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297116/job/107513301199",
+          "failed_steps": [
+            "Prepare the explicit clean-install payload mode"
+          ]
+        },
+        {
+          "name": "clean-install (macos-15)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297116/job/107513301235",
+          "failed_steps": [
+            "Prepare the explicit clean-install payload mode"
+          ]
+        },
+        {
+          "name": "clean-install (ubuntu-24.04)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297116/job/107513301248",
+          "failed_steps": [
+            "Prepare the explicit clean-install payload mode"
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 35962297141,
+      "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297141",
+      "head_sha": "e1c7c24b70c6fcad4cdc31c068701c758eb506ca",
+      "conclusion": "failure",
+      "failed_jobs": [
+        {
+          "name": "verifier-aarch64",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297141/job/107513276624",
+          "failed_steps": [
+            "Build twice from exact source and compare bytes"
+          ]
+        },
+        {
+          "name": "verifier-x86_64",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35962297141/job/107513276753",
+          "failed_steps": [
+            "Build twice from exact source and compare bytes"
+          ]
+        }
+      ]
+    }
+  ]
+}

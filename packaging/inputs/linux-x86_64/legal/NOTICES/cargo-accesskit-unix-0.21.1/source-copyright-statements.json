@@ -1,0 +1,208 @@
+{
+  "archive_sha256": "b016ca8db0ea0ea2ceff29a9d6240391492d960716aa471967c00e8cc8cb197c",
+  "original_statement_files": [
+    {
+      "path": "accesskit_unix-0.21.1/src/adapter.rs",
+      "sha256": "2035e00e976c5d107ddf6af94f7e748ede19c5ec5df6054b47bb5dee6b23584d",
+      "size": 8334,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/bus.rs",
+      "sha256": "f9872987373d099560e4cfa866446e6678853babae21879db4013e76d36416df",
+      "size": 14561,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/accessible.rs",
+      "sha256": "ee24042d6a0c7c719facc3950336164d06e9d0589326d291e7ca8af2d3e677c4",
+      "size": 6621,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/action.rs",
+      "sha256": "7ffa334b1cace21aa567a074d0c1ba59dd2229449af02ffc329bfd4671940903",
+      "size": 1453,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/application.rs",
+      "sha256": "530316441ee42b415605f6f50526ac776d8ab038aff24dfa02d4352dedcf2db0",
+      "size": 1054,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/component.rs",
+      "sha256": "bb95115fe289aa2b92b6fce76a7a60df9a93a06a32281192aa4fdd6e75373fc3",
+      "size": 2359,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/hyperlink.rs",
+      "sha256": "9a53b1d164208963ed047326f12ab380700807a3338b8c76f4edd8a492cd35d8",
+      "size": 1930,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2026 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/mod.rs",
+      "sha256": "03032ed7577b31dd1eded99d55f315aea3ebbe53780400d225a9209d3a4f71b6",
+      "size": 1012,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/selection.rs",
+      "sha256": "980d556b2620de481146580744d80f3bde0631b148d1330aed268a0a5a6b7905",
+      "size": 2669,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/text.rs",
+      "sha256": "3e36eb6bdd8dcdb7d9831474aec4d0cc86ba281d65addbbb52e72aa165b64ed9",
+      "size": 4796,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/interfaces/value.rs",
+      "sha256": "829dfa73ab581da1be9210c1a6a0361bbb8563fb8d49c7057557cc1ddefafbab",
+      "size": 1417,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/mod.rs",
+      "sha256": "0cedb0ba1137ed36e0a7bc7d154ab1846ffed870ca2b4d7db9a1b06f658a483c",
+      "size": 404,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/object_address.rs",
+      "sha256": "71f293f5de1c46e5e2a2503053baa3c1fe7c62c13cc7c957dbf2843dfa531e79",
+      "size": 1341,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/atspi/object_id.rs",
+      "sha256": "39db6c1b1f5acd278a5b7551a683c197a730d7604a4d9b9c250fa5ffd10c37ca",
+      "size": 2127,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/context.rs",
+      "sha256": "9a848d68eee83ca49eab29494fee2fab44c4a47951fc88498b03ed41e445f395",
+      "size": 8246,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/executor.rs",
+      "sha256": "38e4a47fc2afd555d91d8e74156165d7da632c381e488a1c7693ed140ff278fa",
+      "size": 4452,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 The AccessKit Authors. All rights reserved."
+        },
+        {
+          "line": 7,
+          "text": "// Copyright 2024 Zeeshan Ali Khan."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/lib.rs",
+      "sha256": "4416ce59366d321c3dbd29a1054c3ad6c426168c97f7b237ff3e818de6c3168c",
+      "size": 972,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_unix-0.21.1/src/util.rs",
+      "sha256": "2a043a60ea1d76c5603d65d5a9844586f00d1d310902032214a10c70b80750c5",
+      "size": 1616,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

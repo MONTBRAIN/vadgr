@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70",
+  "original_statement_files": [
+    {
+      "path": "hex-0.4.3/LICENSE-MIT",
+      "sha256": "f7bdb3426d045cd50efd4953026e3eb5a83d0199f458a075602611b9344da5b9",
+      "size": 1125,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2013-2014 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2015-2020 The rust-hex Developers"
+        }
+      ]
+    },
+    {
+      "path": "hex-0.4.3/src/lib.rs",
+      "sha256": "bc16c851822629225d2d2653ea080f131b0f2c4704d3ff27fed955c9b8b42f71",
+      "size": 14957,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2013-2014 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright (c) 2015-2020 The rust-hex Developers."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

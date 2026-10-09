@@ -6,8 +6,11 @@ terms, its complete dependency inventory, or a final package. The package
 approval can therefore bind the later CUA catalog without a circular hash.
 
 The publisher authorized completion, merge and release of CUA 0.7.9 on
-2026-09-26 after reviewing its code. This record implements that decision for
-the identified inputs; it does not assert review by independent legal counsel.
+2026-09-27 after reviewing its final code. The records cover the exact
+predecessor and replacement source revisions required by the signed transition.
+Each record identifies one retained review-input receipt and one source
+revision. These records implement the publisher decision; they do not assert
+review by independent legal counsel.
 
 ## Recorded license treatment
 

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "839ce5d4bbbc258ab4b83061d1e813af257cdf7a63df4837b9cc39f11ffac2d4",
+  "original_statement_files": [
+    {
+      "path": "qrcode-generator-6.0.0/LICENSE",
+      "sha256": "6182f32e16ddbf33d3c17d1832ee3cb90899645e9de8cd2c622a3958f10f9a0c",
+      "size": 1078,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2018 magiclen.org (Ron Li)"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

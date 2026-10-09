@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "b71798fca2c1fe1086445a7258a4bc81e6e49dcd24c8d0dd9a1e57395b603f51",
+  "original_statement_files": [
+    {
+      "path": "bit-vec-0.9.1/LICENSE-MIT",
+      "sha256": "f51ac2c59a222f7476ce507ca879960e2b64ea64bb2786eefdbeb7b0b538d1b7",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "bit-vec-0.9.1/benches/bench.rs",
+      "sha256": "219c551b9de61ff542166209555b501c0ec9f109ef21300548b5904a5920df13",
+      "size": 7675,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "bit-vec-0.9.1/src/lib.rs",
+      "sha256": "287a545fffc517d552f85ff59c7c68338796e115dd973622959e0c400c0e53ba",
+      "size": 106514,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2023 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

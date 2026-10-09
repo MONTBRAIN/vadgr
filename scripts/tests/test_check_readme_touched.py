@@ -5,6 +5,7 @@ must stay silent on the hundreds of changes that ship no version, or it becomes
 noise attached to every pull request.
 """
 
+import os
 import pathlib
 import subprocess
 import sys
@@ -34,10 +35,15 @@ def check(tmp_path, event=None):
     return subprocess.run(args, cwd=tmp_path, capture_output=True, text=True)
 
 
+def bump_version(tmp_path):
+    # A different size invalidates Git's stat cache even if timestamps alias.
+    (tmp_path / "Cargo.toml").write_text('[package]\nname = "x"\nversion = "0.2.10"\n')
+
+
 class TestItCatchesTheRealShape:
     def test_a_version_moved_and_no_readme_did(self, tmp_path):
         run = repo(tmp_path)
-        (tmp_path / "Cargo.toml").write_text('[package]\nname = "x"\nversion = "0.2.0"\n')
+        bump_version(tmp_path)
         run("git", "commit", "-aqm", "bump")
         result = check(tmp_path)
         assert result.returncode == 1
@@ -47,7 +53,7 @@ class TestItCatchesTheRealShape:
 class TestItLeavesCorrectWorkAlone:
     def test_a_version_moved_and_the_readme_moved_with_it(self, tmp_path):
         run = repo(tmp_path)
-        (tmp_path / "Cargo.toml").write_text('[package]\nname = "x"\nversion = "0.2.0"\n')
+        bump_version(tmp_path)
         (tmp_path / "README.md").write_text("# x\n\nnow does something else\n")
         run("git", "commit", "-aqm", "bump and say so")
         assert check(tmp_path).returncode == 0
@@ -71,7 +77,7 @@ class TestItLeavesCorrectWorkAlone:
 
     def test_the_body_says_nothing_changed(self, tmp_path):
         run = repo(tmp_path)
-        (tmp_path / "Cargo.toml").write_text('[package]\nname = "x"\nversion = "0.2.0"\n')
+        bump_version(tmp_path)
         run("git", "commit", "-aqm", "bump")
         event = '{"pull_request": {"body": "A patch.\\n\\nREADME: nothing changed\\n"}}'
         result = check(tmp_path, event)
@@ -80,9 +86,33 @@ class TestItLeavesCorrectWorkAlone:
 
     def test_a_body_that_does_not_say_it_is_not_an_escape(self, tmp_path):
         run = repo(tmp_path)
-        (tmp_path / "Cargo.toml").write_text('[package]\nname = "x"\nversion = "0.2.0"\n')
+        bump_version(tmp_path)
         run("git", "commit", "-aqm", "bump")
         assert check(tmp_path, '{"pull_request": {"body": "a patch"}}').returncode == 1
+
+
+def test_version_bump_survives_an_aliased_git_stat_cache(tmp_path):
+    run = repo(tmp_path)
+    manifest = tmp_path / "Cargo.toml"
+    # Use an old fixed mtime so Git's racy-index protection is not the oracle.
+    timestamp = 1_600_000_000_000_000_000
+    os.utime(manifest, ns=(timestamp, timestamp))
+    run("git", "update-index", "--refresh")
+    original_size = manifest.stat().st_size
+    manifest.write_text('[package]\nname = "x"\nversion = "0.2.0"\n')
+    os.utime(manifest, ns=(timestamp, timestamp))
+    assert manifest.stat().st_size == original_size
+    assert run("git", "hash-object", "Cargo.toml").stdout != run(
+        "git", "rev-parse", "HEAD:Cargo.toml"
+    ).stdout
+    # Ignore only ctime for this command to emulate the observed metadata alias.
+    run("git", "-c", "core.trustctime=false", "diff", "--exit-code", "--", "Cargo.toml")
+    bump_version(tmp_path)
+    os.utime(manifest, ns=(timestamp, timestamp))
+    assert manifest.stat().st_size != original_size
+    run("git", "-c", "core.trustctime=false", "commit", "-aqm", "bump")
+    assert b'version = "0.2.10"' in run("git", "show", "HEAD:Cargo.toml").stdout
+    assert check(tmp_path).returncode == 1
 
 
 class TestItRefusesRatherThanPasses:

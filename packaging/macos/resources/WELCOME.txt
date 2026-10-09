@@ -1,0 +1,2 @@
+Vadgr installs one local machine application, its command-line interface, and
+the private computer-use runtime. No system Python is required.

@@ -1,0 +1,26 @@
+{
+  "archive_sha256": "f7b21d115867a41ae5fd7c635a4c234d3ca25126c3661eb36028c6e25601f85e",
+  "archive_url": "https://github.com/python/cpython-source-deps/archive/refs/tags/tix-8.4.3.6.tar.gz",
+  "comparison": "Complete observed Tix license equals the source license after CRLF normalization.",
+  "limitation": "Grant-reference evidence, not a binary rebuild or source-version mapping. The HTML grant has distinct government-rights wording without the standard TCL override; custom-term and source-duty review remains open.",
+  "reference_files": [
+    {
+      "path": "sources/native_sources/sources/tk-windows-bin-8612/003-tixlicense.terms",
+      "sha256": "9d8e18d57d7113da0bfb7d80e915c3918b98e26c43cec725393f8d01b197ec60"
+    },
+    {
+      "path": "sources/native_sources/sources/tk-windows-bin-8612/008-tixlicense.terms",
+      "sha256": "9d8e18d57d7113da0bfb7d80e915c3918b98e26c43cec725393f8d01b197ec60"
+    }
+  ],
+  "referenced_grant": {
+    "path": "cpython-source-deps-tix-8.4.3.6/docs/license.html_lib",
+    "sha256": "9149f81c6efd1c3cef68742b67dc6f1b6211f32f425f3b6d24cf5279668cfd27"
+  },
+  "scope": "The Tix notice explicitly includes parts based on the HTML Library and names this separate grant. Both grants are retained conservatively; no absence of HTML-derived runtime code is inferred.",
+  "source_license": {
+    "path": "cpython-source-deps-tix-8.4.3.6/license.terms",
+    "sha256": "91ff35309038fcfab853c8634b7b743a179c211d8ff3cb174b579c8af3c3072d"
+  },
+  "source_revision": "6c27742f4c7695a35c6ca23b75d38f62a1414c9c"
+}

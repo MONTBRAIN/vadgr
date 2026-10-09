@@ -79,6 +79,25 @@ class PolicyTests(unittest.TestCase):
         with self.assertRaises(gate.Refused):
             gate.require_pull_requests([bad], "feature/0.5.0-distribution", sha)
 
+    def test_candidate_requires_exact_merged_pr_and_protected_master(self):
+        sha = "a" * 40
+        repo = {"full_name": gate.REPOSITORY, "fork": False}
+        pull = {"state": "closed", "number": 9, "merged_at": "2026-09-29T00:00:00Z",
+                "merge_commit_sha": sha, "head": {"repo": repo},
+                "base": {"ref": "master", "repo": repo}}
+        self.assertEqual(gate.require_merged_pull_requests([pull], sha), 9)
+        with self.assertRaises(gate.Refused):
+            gate.require_merged_pull_requests([], sha)
+        with self.assertRaises(gate.Refused):
+            gate.require_merged_pull_requests([{**pull, "merge_commit_sha": "b" * 40}], sha)
+        rules = [{"type": "deletion"}, {"type": "non_fast_forward"},
+                 {"type": "pull_request", "parameters": {"required_approving_review_count": 1}},
+                 {"type": "required_status_checks", "parameters": {
+                     "required_status_checks": [{"context": "build", "integration_id": 15368}]}}]
+        gate.require_master_protection(rules)
+        with self.assertRaises(gate.Refused):
+            gate.require_master_protection([rule for rule in rules if rule["type"] != "pull_request"])
+
     def test_unconfigured_public_root_and_unreviewed_terms_refused(self):
         with self.assertRaises(gate.Refused):
             gate.require_release_inputs("UNCONFIGURED\n", "# Terms\nStatus: draft", False, False)
@@ -100,7 +119,7 @@ class PolicyTests(unittest.TestCase):
                f"https://api.github.com/repos/{gate.REPOSITORY}/check-runs/42"}
         with (patch.object(gate, "github", side_effect=[workflow, run]),
               patch.object(gate, "pages", return_value=[job]) as pages):
-            selected = gate.require_trusted_check_runs([row], [check], sha, branch)
+            selected = gate.require_trusted_check_runs([row], [check], sha, branch, event="push")
         pages.assert_called_once_with(
             "actions/runs/123/attempts/1/jobs?filter=all&per_page=100", "jobs")
         self.assertEqual(selected[0]["workflow_run_id"], 123)
@@ -132,6 +151,9 @@ class PolicyTests(unittest.TestCase):
             gate.require_trusted_check_runs([row], [check], sha, branch)
         with self.assertRaises(gate.Refused):
             gate.require_trusted_check_runs([{**row, "integration_id": None}], [check], sha, branch)
+        with (patch.object(gate, "github", side_effect=[workflow, {**run, "event": "pull_request"}]),
+              self.assertRaises(gate.Refused)):
+            gate.require_trusted_check_runs([row], [check], sha, branch, event="push")
 
     def test_feature_ci_workflow_cannot_redefine_trusted_checks(self):
         rows = [("100644", "blob", "a" * 40, name) for name in gate.TRUSTED_WORKFLOWS]

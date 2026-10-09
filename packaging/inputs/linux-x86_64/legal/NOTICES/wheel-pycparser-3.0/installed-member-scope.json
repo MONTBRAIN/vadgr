@@ -1,0 +1,84 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser/__init__.py",
+      "member": "pycparser/__init__.py",
+      "sha256": "a6156247202e52682a13890d99a0aaa66e56544048bf351215aa41bf85d7df1a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser/_ast_gen.py",
+      "member": "pycparser/_ast_gen.py",
+      "sha256": "1311f9626e2993b7503c422442bf512629b97deced7414304813efa6f13ee413",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser/_c_ast.cfg",
+      "member": "pycparser/_c_ast.cfg",
+      "sha256": "95de5ecc4f72cc82452150147f0edecc94a5322e275ca342cdf9aa8cec904cda",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser/ast_transforms.py",
+      "member": "pycparser/ast_transforms.py",
+      "sha256": "5f032c6ab73968375d35680888a9b8fa33963116226fdeb2350528d3fbb6f160",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser/c_ast.py",
+      "member": "pycparser/c_ast.py",
+      "sha256": "bb091c6561df5c3408c3a583bc22f5ee258cffed11f94443a843263e35cb3807",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser/c_generator.py",
+      "member": "pycparser/c_generator.py",
+      "sha256": "4552893e0bafd82be8bc71d27d092a8a672452bf70194f4fa1fc421a3db9d500",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser/c_lexer.py",
+      "member": "pycparser/c_lexer.py",
+      "sha256": "075568a9b6213d690e2495827a6e0e638ce3d08c6b3e4b4165915ed98f3b9148",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser/c_parser.py",
+      "member": "pycparser/c_parser.py",
+      "sha256": "dc504a18b8e3942deff1a7f00ff727311ebb226a18232ef76b858a411ea15fb8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser-3.0.dist-info/licenses/LICENSE",
+      "member": "pycparser-3.0.dist-info/licenses/LICENSE",
+      "sha256": "0c846399369ea76ddd7b5c44fe6d16497415fcf015f5cbb508c24bf98b81c5b1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser-3.0.dist-info/METADATA",
+      "member": "pycparser-3.0.dist-info/METADATA",
+      "sha256": "f547a60b0ab54cc2f242213d1f87960ad80df7dd5dfeb98d17a444d48bfb6b93",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser-3.0.dist-info/WHEEL",
+      "member": "pycparser-3.0.dist-info/WHEEL",
+      "sha256": "a842dba36b35633977f599ab0226d70368e33cb5187e756150d4e5c85d6bab46",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser-3.0.dist-info/top_level.txt",
+      "member": "pycparser-3.0.dist-info/top_level.txt",
+      "sha256": "73e94f712ef82fff0aa07ec813a3d0179a1fca2ad140d57856191b48520f7963",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pycparser-3.0.dist-info/RECORD",
+      "member": "pycparser-3.0.dist-info/RECORD",
+      "sha256": "0e588c3b8b949767736c5b87aca74eeb1c97be53dc3d08a7b8bc7098bce392f7",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992",
+  "wheel": "pycparser-3.0-py3-none-any.whl"
+}

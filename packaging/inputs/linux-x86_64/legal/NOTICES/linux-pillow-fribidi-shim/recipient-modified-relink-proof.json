@@ -1,0 +1,47 @@
+{
+  "command": [
+    "gcc",
+    "-shared",
+    "-fPIC",
+    "-O2",
+    "-DHAVE_RAQM",
+    "-I/INSTALL/lib/cua/python/3.12.14/include/python3.12",
+    "-I/BUILD/relink-proof-3/pillow-12.3.0/src",
+    "-I/BUILD/relink-proof-229c665-modified/freetype-2.14.3/include",
+    "-I/BUILD/relink-proof-229c665-modified/harfbuzz-14.2.1/src",
+    "/BUILD/relink-proof-3/pillow-12.3.0/src/_imagingft.c",
+    "/BUILD/relink-proof-3/pillow-12.3.0/src/libImaging/Mode.c",
+    "/BUILD/relink-proof-3/pillow-12.3.0/src/thirdparty/raqm/raqm.c",
+    "/BUILD/relink-proof-3/pillow-12.3.0/src/thirdparty/fribidi-shim/fribidi.c",
+    "-L/INSTALL/lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pillow.libs",
+    "-l:libfreetype-9fc94c80.so.6.20.6",
+    "-l:libharfbuzz-172d1f63.so.0.61421.0",
+    "-Wl,-rpath,/INSTALL/lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pillow.libs",
+    "-ldl",
+    "-o",
+    "/BUILD/relink-proof-229c665-modified/_imagingft.cpython-312-x86_64-linux-gnu.so"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "In file included from /BUILD/relink-proof-3/pillow-12.3.0/src/_imagingft.c:25:\n/BUILD/relink-proof-3/pillow-12.3.0/src/thirdparty/pythoncapi_compat.h:45:11: warning: \u2018_Py_NULL\u2019 redefined\n   45 | #  define _Py_NULL nullptr\n      |           ^~~~~~~~\nIn file included from /INSTALL/lib/cua/python/3.12.14/include/python3.12/Python.h:38,\n                 from /BUILD/relink-proof-3/pillow-12.3.0/src/_imagingft.c:22:\n/INSTALL/lib/cua/python/3.12.14/include/python3.12/pyport.h:32:11: note: this is the location of the previous definition\n   32 | #  define _Py_NULL NULL\n      |           ^~~~~~~~\n",
+  "original_install_unchanged": true,
+  "source_sha256": {
+    "/BUILD/relink-proof-3/pillow-12.3.0/src/_imagingft.c": "1b60a70cc75bed580456e61f31cf557959373be3effa3307ed535f416a7d1387",
+    "/BUILD/relink-proof-3/pillow-12.3.0/src/libImaging/Mode.c": "40b44d8f37c5ca1f1a20b84176f1e431b1fc625c77036a4eb616b03560408209",
+    "/BUILD/relink-proof-3/pillow-12.3.0/src/thirdparty/raqm/raqm.c": "5549e7458674077ca4794033ade277910ba0ad6989651787eba1a8b5513a9f9d",
+    "/BUILD/relink-proof-3/pillow-12.3.0/src/thirdparty/fribidi-shim/fribidi.c": "7e8cfa78dcd21cebeb0ad91c0cd23e0dba6496c0fbd66e1ec3d25c5b1b365d11"
+  },
+  "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "link_inputs": {
+    "/INSTALL/lib/cua/python/3.12.14/bin/python3.12": "b1c1dd9933ae6d5f749f2ed06879ce103913a2fa1f2ddd2b0448f6a101538c21",
+    "/INSTALL/lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pillow.libs/libfreetype-9fc94c80.so.6.20.6": "994d650f4fe686013580524dd868d7001325fa3bbf408800eaa4778138a7e690",
+    "/INSTALL/lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pillow.libs/libharfbuzz-172d1f63.so.0.61421.0": "7ff87422406706600619c8467a2daa42a8122207dcb95337273ae18419f7a220"
+  },
+  "sha256": "f2060d6270ceb7e5e8df4fb4e0a4f372866ef516640e546129d6b4b231f7f93e",
+  "load_test": {
+    "returncode": 0,
+    "stdout": "{\"file\": \"/BUILD/relink-proof-229c665-modified/_imagingft.cpython-312-x86_64-linux-gnu.so\", \"freetype\": \"2.14.3\", \"raqm\": \"0.10.5\", \"harfbuzz\": \"14.2.1\"}\n",
+    "stderr": ""
+  },
+  "path_normalization": "Public diagnostic edition: /INSTALL denotes the distribution payload; /BUILD denotes a recipient-writable build directory. Raw observations are retained privately, not distributed."
+}

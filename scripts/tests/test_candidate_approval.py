@@ -42,7 +42,7 @@ def test_proposed_approval_is_bound_into_exact_authorization(proposed):
 
 
 @pytest.mark.parametrize("mutation", ["unknown-field", "unknown-target", "boolean-schema", "unsafe-path",
-                                      "digest", "noncanonical", "trusted-copy", "not-profile"])
+                                      "digest", "noncanonical", "trusted-copy"])
 def test_untrusted_approval_changes_are_refused(proposed, mutation):
     source, trusted, path, value = proposed
     if mutation == "unknown-field":
@@ -57,11 +57,17 @@ def test_untrusted_approval_changes_are_refused(proposed, mutation):
         value["targets"]["x64"]["inventory_sha256"] = "bad"
     elif mutation == "trusted-copy":
         (trusted / "packaging/candidate-legal-approval.json").write_bytes(b"{}\n")
-    elif mutation == "not-profile":
-        (source / "packaging/cua/profile-inputs.json").unlink()
     path.write_bytes(json.dumps(value).encode() if mutation == "noncanonical" else canonical(value))
     with pytest.raises((policy.Refused, PackageInputError)):
         policy.candidate_approval(source, trusted, "x64")
+
+
+def test_non_profile_source_uses_only_trusted_approval(proposed, monkeypatch):
+    source, trusted, _, _ = proposed
+    (source / "packaging/cua/profile-inputs.json").unlink()
+    expected = {"trusted": True}
+    monkeypatch.setattr(policy, "trusted_approval", lambda architecture: expected)
+    assert policy.candidate_approval(source, trusted, "x64") == expected
 
 
 def test_proposed_policy_cannot_replace_trusted_publisher(proposed):

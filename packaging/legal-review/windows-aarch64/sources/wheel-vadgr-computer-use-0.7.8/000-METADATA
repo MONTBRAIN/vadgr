@@ -1,0 +1,53 @@
+Metadata-Version: 2.4
+Name: vadgr-computer-use
+Version: 0.7.8
+Summary: Local-first MCP server for desktop automation: screenshots, mouse, keyboard
+Author: Santiago Montaño Diaz
+License: Apache-2.0
+Project-URL: Homepage, https://github.com/MONTBRAIN/vadgr-computer-use
+Project-URL: Repository, https://github.com/MONTBRAIN/vadgr-computer-use
+Project-URL: Issues, https://github.com/MONTBRAIN/vadgr-computer-use/issues
+Keywords: mcp,computer-use,automation,agent
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: NOTICE
+Requires-Dist: mcp>=2.0
+Requires-Dist: pillow>=10
+Requires-Dist: mss>=9
+Requires-Dist: nodriver>=0.40
+Requires-Dist: uniseg>=0.10.1
+Requires-Dist: python-xlib>=0.33; sys_platform == "linux"
+Requires-Dist: jeepney>=0.8; sys_platform == "linux"
+Requires-Dist: dbus-fast>=2.21; sys_platform == "linux"
+Requires-Dist: pywinauto>=0.6.8; sys_platform == "win32"
+Requires-Dist: pyobjc-framework-Quartz>=10; sys_platform == "darwin"
+Requires-Dist: pyobjc-framework-ApplicationServices>=10; sys_platform == "darwin"
+Provides-Extra: data-yaml
+Requires-Dist: pyyaml>=6; extra == "data-yaml"
+Provides-Extra: linux-uinput
+Requires-Dist: evdev>=1.6; sys_platform == "linux" and extra == "linux-uinput"
+Provides-Extra: dev
+Requires-Dist: pytest>=7; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23; extra == "dev"
+Requires-Dist: ruff>=0.1; extra == "dev"
+Requires-Dist: numpy==2.2.6; python_version == "3.10" and extra == "dev"
+Requires-Dist: scipy==1.15.3; python_version == "3.10" and extra == "dev"
+Requires-Dist: numpy==2.4.4; python_version >= "3.11" and extra == "dev"
+Requires-Dist: scipy==1.17.1; python_version >= "3.11" and extra == "dev"
+Provides-Extra: derivation
+Requires-Dist: numpy==2.2.6; python_version == "3.10" and extra == "derivation"
+Requires-Dist: scipy==1.15.3; python_version == "3.10" and extra == "derivation"
+Requires-Dist: numpy==2.4.4; python_version >= "3.11" and extra == "derivation"
+Requires-Dist: scipy==1.17.1; python_version >= "3.11" and extra == "derivation"
+Dynamic: license-file
+

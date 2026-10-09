@@ -1,0 +1,157 @@
+{
+  "archive_sha256": "1e8c61bee90b42a772d39d06a740207dc71a4e780004ace1db8d99fb1baaa954",
+  "original_statement_files": [
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/action.rs",
+      "sha256": "36d0787759c74a16a0718a81bd9b10d73d03c1114610c7c7d529ef8f2bd8efb5",
+      "size": 432,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/adapter.rs",
+      "sha256": "2fcb0ff427d66daf1a54ffbcc21e323d8289d64d5c1b1e5a124d114bbf8c5c4f",
+      "size": 21424,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        },
+        {
+          "line": 7,
+          "text": "// Copyright 2017 The Chromium Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/callback.rs",
+      "sha256": "5a4c799c0209340518170f3e9714f5f0e159b7a46ecff8c61596d05b3da3b4bd",
+      "size": 592,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/context.rs",
+      "sha256": "096ad72a261a919876c158f78e2b606d7a5813973ba6e5cca685c486cb516eed",
+      "size": 3846,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/error.rs",
+      "sha256": "9905c653b2b86274331ba783f6ed3f37acf9bd3f450e59811bdc6b7522c51ff7",
+      "size": 1011,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/events.rs",
+      "sha256": "f5cdc2eb9d72136cfdcb0e4f992cfd81c8b95f5385526c2d33ed1a2877d17a0b",
+      "size": 1321,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/filters.rs",
+      "sha256": "cfe74d16da43ccfda209f11107faf78442c6830fa126cf2d48ffdcdf14c65288",
+      "size": 282,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/lib.rs",
+      "sha256": "9eaede4aabddfbd25d0cc0a6ab6f984c7e579ee6548a63df4384ebb9f3d3b736",
+      "size": 891,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/node.rs",
+      "sha256": "64a02be78c8c9eb9e964febbd2584f58b6b78136c48e80f9b07eb2d90dc53fd3",
+      "size": 60622,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        },
+        {
+          "line": 7,
+          "text": "// Copyright 2017 The Chromium Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/rect.rs",
+      "sha256": "b24337632621ee6bfa6397525bbd864b08b94e23c9201ebefd0fd73d1aa112e2",
+      "size": 898,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/simplified.rs",
+      "sha256": "6a71e4daa8efe0a65e449571aa14efce869241d7e61f03ae228599ef587cd04a",
+      "size": 25070,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/text_attributes.rs",
+      "sha256": "bd20841018e863c108d9a25ef6c5324951f4fba02c582e19943bdccdd052a744",
+      "size": 2121,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2026 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "accesskit_atspi_common-0.18.1/src/util.rs",
+      "sha256": "e831407f6e9b05e403fb4256f037e040d813168716bb1ae3d56f8f0441b58a52",
+      "size": 4607,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2022 The AccessKit Authors. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

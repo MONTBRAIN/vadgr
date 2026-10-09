@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "e48ac77174b19c110a50ab2128b24215ac9cb40e0e12e093fb602d175c569d22",
+  "original_statement_files": [
+    {
+      "path": "tungstenite-0.30.0/LICENSE-MIT",
+      "sha256": "7fea0ee51a4ca5d5cea7464135fd55e8b09caf3a61da3d451ac8a22af95c033f",
+      "size": 1092,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 Alexey Galakhov"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2016 Jason Housley"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

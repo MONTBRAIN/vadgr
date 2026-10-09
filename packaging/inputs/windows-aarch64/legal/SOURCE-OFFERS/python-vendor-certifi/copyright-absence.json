@@ -1,0 +1,46 @@
+{
+  "archive_sha256": "2e8ff88ebb5e1fa9e3d84e5f3eb595b2080cebc049320461855c594358fb3034",
+  "component_tree_sha256": "ce8a2637ac3d10cb3466f4bb015adceace13a31e814f24e74ec6cfe975216c39",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "__init__.py",
+      "sha256": "f96d51ff2f1609a4a44f5b5d8eec47ff34c1658d581fac5081d3759db05a8ce1",
+      "size": 94,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "__main__.py",
+      "sha256": "d64dc2afde6f0b1c464460e58eb5b7c0c76965d2f73617f4bb59fe936a9db026",
+      "size": 255,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "cacert.pem",
+      "sha256": "bbc7e9c01d7551bb8a159b5dedd989b8ee3ce105aff522b68eb1b01bf854cab0",
+      "size": 234354,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "core.py",
+      "sha256": "82efc40952359b746ad32b69b0d13ad6181019c29a380b7d46cf46f0ab1308e2",
+      "size": 3442,
+      "status": "decoded-no-ownership-markers"
+    },
+    {
+      "path": "py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-observed-source-tree-v1",
+  "schema": 1
+}

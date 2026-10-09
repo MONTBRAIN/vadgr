@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "864155e69b4352db0c7f374917bf45d1e0c8d17659c8b3dbf9795f3673f8c497",
+  "original_statement_files": [
+    {
+      "path": "zvariant_derive-5.15.0/LICENSE",
+      "sha256": "260e4ff3fc493695880c90774283eb1e3d018f898fabe655bbd52dd2cbd2fcad",
+      "size": 1080,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2024 Zeeshan Ali Khan & zbus contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,12 @@
+{
+  "application_files": [
+    {
+      "path": "LICENSE",
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989
+    }
+  ],
+  "grant_sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+  "scope": "Complete text for the explicitly applied MPL-2.0 grant; source-form delivery remains separately assessed.",
+  "url": "https://www.mozilla.org/media/MPL/2.0/index.txt"
+}

@@ -1,0 +1,6 @@
+Download all three listed independent volumes. Verify source-volumes.SHA256SUMS.
+Extract each tar.gz into the same directory; never concatenate archives.
+Verify SHA256SUMS inside vadgr-0.5.0-linux-x86_64-source and follow README-SOURCE.txt.
+Supply the adjacent final development receipt for compile configuration.
+Source snapshot: 39a26aebc5205e4c7de5214d5e711df40e2e0765. Two local accessibility crates carry patches.
+Measured source-only qualification is not E2E or publisher authentication.

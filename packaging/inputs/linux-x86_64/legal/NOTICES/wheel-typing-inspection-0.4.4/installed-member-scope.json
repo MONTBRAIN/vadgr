@@ -1,0 +1,60 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection/__init__.py",
+      "member": "typing_inspection/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection/introspection.py",
+      "member": "typing_inspection/introspection.py",
+      "sha256": "5888c45bd627da692d9527699e3f549adf35651596b1656772310e12181b4396",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection/py.typed",
+      "member": "typing_inspection/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection/typing_objects.py",
+      "member": "typing_inspection/typing_objects.py",
+      "sha256": "a778d6290d51581c9c9a23e0263af2a4604c76def5c4d40a7cd1a375b0046ff6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection/typing_objects.pyi",
+      "member": "typing_inspection/typing_objects.pyi",
+      "sha256": "3bd24dd92d0270d31d64fd40abc1ef8693f5322aab9a78aeb3c5b62f992f84be",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection-0.4.4.dist-info/METADATA",
+      "member": "typing_inspection-0.4.4.dist-info/METADATA",
+      "sha256": "bad3d9e6342ef6750cf5128ec942327b8bebdce0b6e4d6f67cb15b27ae5118da",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection-0.4.4.dist-info/WHEEL",
+      "member": "typing_inspection-0.4.4.dist-info/WHEEL",
+      "sha256": "ccec20e2307acd7da453dd7437e70c6b08e2bc3ead3bc3445af135da37b56d59",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection-0.4.4.dist-info/licenses/LICENSE",
+      "member": "typing_inspection-0.4.4.dist-info/licenses/LICENSE",
+      "sha256": "804b59b25f2c31bd278f9202a19ae49a3945aa2664387e2d0a128c7cacc61ec3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/typing_inspection-0.4.4.dist-info/RECORD",
+      "member": "typing_inspection-0.4.4.dist-info/RECORD",
+      "sha256": "9bb32e43a7b1ef8c82b8f855089cecfea282157ab49728812a464e41200fee6a",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "65b8397ba37ccbce054456aaccddfc91e6e3083c92824df348d96ca832f3f147",
+  "wheel": "typing_inspection-0.4.4-py3-none-any.whl"
+}

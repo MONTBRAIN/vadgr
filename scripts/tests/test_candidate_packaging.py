@@ -33,6 +33,16 @@ def test_same_relative_names_across_payload_groups_have_distinct_identities(tmp_
     assert first_ids & second_ids == {"PrivateLibFolder"}
 
 
+def test_private_font_data_follows_the_product_file_without_registration(tmp_path: Path):
+    document = ET.fromstring(render(tmp_path, ["docs"], ["docs/font.ttf", "data.txt"]))
+    namespace = {"w": "http://wixtoolset.org/schemas/v4/wxs"}
+    files = {Path(row.get("Source")).name: row for row in document.findall(".//w:File", namespace)}
+    assert files["font.ttf"].get("CompanionFile") == "VadgrBackendFile"
+    assert files["font.ttf"].get("TrueType") is None
+    assert files["font.ttf"].get("FontTitle") is None
+    assert files["data.txt"].get("CompanionFile") is None
+
+
 @pytest.mark.parametrize("name", ["$(sys.CURRENTDIR).txt", "!(bind.evil).txt", "evil;name.txt"])
 def test_authoring_refuses_preprocessor_names(tmp_path: Path, name: str):
     (tmp_path / name).write_text("fixture", encoding="utf-8")

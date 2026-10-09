@@ -1,0 +1,30 @@
+{
+  "archive_sha256": "460de6bc52163b41b1646931f2897e5ab986f0966ade444467fec25024751a72",
+  "basis": [
+    "The exact crate manifest explicitly declares Apache-2.0 as an alternative. Complete referenced text retained with original source claims.",
+    {
+      "accounted_grants": [
+        "Apache-2.0",
+        "BSD-3-Clause"
+      ],
+      "archive_sha256": "460de6bc52163b41b1646931f2897e5ab986f0966ade444467fec25024751a72",
+      "expression": "Apache-2.0 AND BSD-3-Clause",
+      "observed_cargo_features": [
+        "fast-apple-datapath",
+        "metrics",
+        "portmapper",
+        "tls-aws-lc-rs"
+      ],
+      "reason": "The exact crate retains BSD terms for Tailscale-derived portions in addition to its declared Apache-or-MIT grant.",
+      "source_files": [
+        {
+          "path": "iroh-1.0.3/LICENSE-BSD3",
+          "sha256": "7c6c032bf8c84fb4cd99784965a39be9e836fb7f244b3cf40c42faf4b211c10a",
+          "size": 1669
+        }
+      ],
+      "status": "source-scope-proposal-not-package-approval"
+    }
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

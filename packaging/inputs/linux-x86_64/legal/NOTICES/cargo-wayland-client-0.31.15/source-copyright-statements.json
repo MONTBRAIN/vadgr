@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "e3c36a0f861ad76d0901f2800b46321410d9f73f2ea88aac0650d86c32688073",
+  "original_statement_files": [
+    {
+      "path": "wayland-client-0.31.15/LICENSE.txt",
+      "sha256": "1cb6f4dee8c649f175736380495f0af0c753c87f22d50931692968bb24bf2161",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 Elinor Berger"
+        }
+      ]
+    },
+    {
+      "path": "wayland-client-0.31.15/wayland.xml",
+      "sha256": "cc860987e54f8d85c940e97fa1270c69b6e4ad31fbcf5a7f00107ce1157f5e07",
+      "size": 168656,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2008-2011 Kristian H\u00f8gsberg"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2010-2011 Intel Corporation"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2012-2013 Collabora, Ltd."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

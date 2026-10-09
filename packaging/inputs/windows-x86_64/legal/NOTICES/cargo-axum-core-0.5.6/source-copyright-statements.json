@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "08c78f31d7b1291f7ee735c1c6780ccde7785daae9a9206026862dab7d8792d1",
+  "original_statement_files": [
+    {
+      "path": "axum-core-0.5.6/LICENSE",
+      "sha256": "008c87afcd2e626eaf564093250bed06dd7efb5732113264bba3dda8f1c556a1",
+      "size": 1080,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019\u20132025 axum Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

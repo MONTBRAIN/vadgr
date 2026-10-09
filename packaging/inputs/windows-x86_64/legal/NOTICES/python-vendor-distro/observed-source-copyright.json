@@ -1,0 +1,16 @@
+{
+  "component_sha256": "a785108cb0b4261619500d17942532f58079d94442fd9aba9db3f88a62b87466",
+  "original_statement_files": [
+    {
+      "path": "distro.py",
+      "sha256": "5ea6de7da7008434f8cebfedae76c0d79798f2f74ae064e08609af506ac433fe",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright 2015-2021 Nir Cohen"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

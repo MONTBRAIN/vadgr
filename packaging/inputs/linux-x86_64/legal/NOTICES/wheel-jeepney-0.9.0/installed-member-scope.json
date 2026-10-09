@@ -1,0 +1,210 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/__init__.py",
+      "member": "jeepney/__init__.py",
+      "sha256": "50b848af8e38b58f353d49041d158d9535e5a916c59aa3136d606c92d2a09a82",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/auth.py",
+      "member": "jeepney/auth.py",
+      "sha256": "656d07317e957f0c76f0ffa336bcd5560127d62a633be289acd276486f745775",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/bindgen.py",
+      "member": "jeepney/bindgen.py",
+      "sha256": "c8f0c916dfd68caa05529d3cafefeea6caaed0bf119aff2034aafe300e13e1b2",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/bus.py",
+      "member": "jeepney/bus.py",
+      "sha256": "294892af7102cdd6def92f6d34a9ba92f7f7a198b84589c95a46545caeed1369",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/bus_messages.py",
+      "member": "jeepney/bus_messages.py",
+      "sha256": "b9409cff55e5973b61e05f796a08690cb9a5bf91b3d1aaded85a4a83b0ff82a7",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/fds.py",
+      "member": "jeepney/fds.py",
+      "sha256": "658ccdfdcffbae4053d3053b7585264118a3a52cc2bfe0c04c2604925a57c545",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/low_level.py",
+      "member": "jeepney/low_level.py",
+      "sha256": "9b8c0663eaae3e7cf29602a505d05c72692e39717f850d606ed4f6e6a3d7d863",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/wrappers.py",
+      "member": "jeepney/wrappers.py",
+      "sha256": "e7333fbf58c5a8418349a3e1d1fd3a483c4217a2665958725e37d847a287ba6e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/__init__.py",
+      "member": "jeepney/io/__init__.py",
+      "sha256": "8a7248ff553e013ca62dc01562cf8b0f6694c2097eb62856f3ea15154c584600",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/asyncio.py",
+      "member": "jeepney/io/asyncio.py",
+      "sha256": "a9f5a2ff5a5609748fd4b35169f1c1bafaf11f1e2d5fde9be762816b8b1414c7",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/blocking.py",
+      "member": "jeepney/io/blocking.py",
+      "sha256": "23faf0f74218fc47ac0599a47d4aa4ed49e2c95910027833ee3c909b38eeebcd",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/common.py",
+      "member": "jeepney/io/common.py",
+      "sha256": "97c95b154810981c5fa920be86a1d898f51809514c29b3860759396563ca5dfb",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/threading.py",
+      "member": "jeepney/io/threading.py",
+      "sha256": "9b0182365ba7fdb697f18e1e89e9c218329d643e1229d4ccbc14e4204d0430aa",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/trio.py",
+      "member": "jeepney/io/trio.py",
+      "sha256": "21d64826741c3e354e040f4aa28167d274c1133dc1b810e4cf9eaa2d88464753",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/tests/__init__.py",
+      "member": "jeepney/io/tests/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/tests/conftest.py",
+      "member": "jeepney/io/tests/conftest.py",
+      "sha256": "a3b26b632a5813ed2334552776c438124e5d358334a1f875b1870855e099323d",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/tests/test_asyncio.py",
+      "member": "jeepney/io/tests/test_asyncio.py",
+      "sha256": "249b675f91e24516638ee1880e823c2efcdf6da48d83e963897f79c94bddf719",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/tests/test_blocking.py",
+      "member": "jeepney/io/tests/test_blocking.py",
+      "sha256": "1132e7a22bde9cdf03ce9d09078c0f39bf4f35ba52ba2a1cb8ffc80de351948e",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/tests/test_threading.py",
+      "member": "jeepney/io/tests/test_threading.py",
+      "sha256": "4402f0cbe688eb84c1a059819d253adc72dcc119d2b4b56d9dec0eb68681977a",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/tests/test_trio.py",
+      "member": "jeepney/io/tests/test_trio.py",
+      "sha256": "0cf63557f2b6a8b4f2053adbaf165e2d303976671add87b77baa73d3c5316cef",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/io/tests/utils.py",
+      "member": "jeepney/io/tests/utils.py",
+      "sha256": "8bb549613f9ac5e7f34bc99672fbfef43787101e8b74ff4cf361f71f1e9fc82e",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/__init__.py",
+      "member": "jeepney/tests/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/secrets_introspect.xml",
+      "member": "jeepney/tests/secrets_introspect.xml",
+      "sha256": "f5c7cdb356862ed200ca471056cc9cc08c022e611ea2b2a4163a8908b0249d14",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/test_auth.py",
+      "member": "jeepney/tests/test_auth.py",
+      "sha256": "11eefdbec79d0b0bdeba4b9d0194f0a984d71d65773d89d7926325d0c04c6441",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/test_bindgen.py",
+      "member": "jeepney/tests/test_bindgen.py",
+      "sha256": "133f7dcebf53215de6959747fb603f773e0b6efc42ab358321a7613826db6a87",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/test_bus.py",
+      "member": "jeepney/tests/test_bus.py",
+      "sha256": "0293b177701c610075e06d57b22146058b50e3148ac39db2f58be63f3ef4d207",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/test_bus_messages.py",
+      "member": "jeepney/tests/test_bus_messages.py",
+      "sha256": "7a5c12ee8758f510ec8e0f632f8b4dd0eeee0b152a4981ec5928565e7fd63ce4",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/test_fds.py",
+      "member": "jeepney/tests/test_fds.py",
+      "sha256": "fa0caf4297ec5ed3da2047aa6f086b34f39c2003740ecad0ecc5d9bb89ccbef4",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/test_low_level.py",
+      "member": "jeepney/tests/test_low_level.py",
+      "sha256": "d920bec0a286af4c9f120bacc1f1f30a88d24f0b1895354b3f2bb341b192dcbe",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney/tests/test_wrappers.py",
+      "member": "jeepney/tests/test_wrappers.py",
+      "sha256": "35263a2db956794da44e82128e98bd60782b77f63a3d5c85c17aa76d8f77ca05",
+      "status": "producer-pruned-test-or-cache"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney-0.9.0.dist-info/licenses/LICENSE",
+      "member": "jeepney-0.9.0.dist-info/licenses/LICENSE",
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney-0.9.0.dist-info/WHEEL",
+      "member": "jeepney-0.9.0.dist-info/WHEEL",
+      "sha256": "ff6a3334508b59cf776cae1628708ef9e0d410d0e5a3e76073d714deaa2460ee",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney-0.9.0.dist-info/METADATA",
+      "member": "jeepney-0.9.0.dist-info/METADATA",
+      "sha256": "b8e6c353e9aaed0ed0144029556417fda23b64f344e718331907054ba05b8c62",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/jeepney-0.9.0.dist-info/RECORD",
+      "member": "jeepney-0.9.0.dist-info/RECORD",
+      "sha256": "0724f017a29b1eee71ca425719628fd9d97206267e245588d5148088672ee438",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "97e5714520c16fc0a45695e5365a2e11b81ea79bba796e26f9f1d178cb182683",
+  "wheel": "jeepney-0.9.0-py3-none-any.whl"
+}

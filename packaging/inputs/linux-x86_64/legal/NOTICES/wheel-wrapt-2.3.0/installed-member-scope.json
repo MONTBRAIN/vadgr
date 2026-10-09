@@ -1,0 +1,126 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/__init__.py",
+      "member": "wrapt/__init__.py",
+      "sha256": "7c5c3763031d5c22aa5c12e227a0bf6b5d1ff22a5db4f511236e474161ddb70f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/__wrapt__.py",
+      "member": "wrapt/__wrapt__.py",
+      "sha256": "05e048f085189f58a346dfc1b927eca0dda2ceebf78a5ade42f3ab61412e05d3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/_wrappers.c",
+      "member": "wrapt/_wrappers.c",
+      "sha256": "3ed7aba345f7722ef38cd100194e033f2be89b9b1f7b5ab4e3d0a41a75311a3e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/_wrappers.cpython-312-x86_64-linux-gnu.so",
+      "member": "wrapt/_wrappers.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "ce29bc6ce66ce3009bead068779a665b092b2cd2cf0106c8610b2a7978246059",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/arguments.py",
+      "member": "wrapt/arguments.py",
+      "sha256": "b62d832244e0f54695e378523f1a40fcaf6567c97eb0de3424a468773cdd8e5a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/caching.py",
+      "member": "wrapt/caching.py",
+      "sha256": "148f6c5c13d29841aa22ba225cd65553a526b202aa5f90a1104ff2f8a6d8b71c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/decorators.py",
+      "member": "wrapt/decorators.py",
+      "sha256": "a4a9e59717e9bf19caee06f44454cf04899182af2e76853bbf527dcac4c48323",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/importer.py",
+      "member": "wrapt/importer.py",
+      "sha256": "51a189d62d2a7bb40ba42e25adfee24409358cd2611cd804fbb4841da67a1390",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/patches.py",
+      "member": "wrapt/patches.py",
+      "sha256": "40753ee67dde555ae1e1a958b9c0ea04efb43f20403e8182e3a21dafc21e5e0e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/proxies.py",
+      "member": "wrapt/proxies.py",
+      "sha256": "b2176d3e9f3bd031eaac486d6676986cf3a9ab6c2f399c34ba00e289a0776451",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/signature.py",
+      "member": "wrapt/signature.py",
+      "sha256": "a6a61cc5807fab51deb408fb21c3084d8fda3d1f80fc27ad0714b55fee9ac4de",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/synchronization.py",
+      "member": "wrapt/synchronization.py",
+      "sha256": "fd05615903bfbec364cfe5297541a60da5d49c0125cf1a8443fbe2052b1c7a43",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/weakrefs.py",
+      "member": "wrapt/weakrefs.py",
+      "sha256": "5076ff03ada2014a9d5751a8fbe98d5a307f2831c396b01c5aab4ac2677a7719",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt/wrappers.py",
+      "member": "wrapt/wrappers.py",
+      "sha256": "4fa313bdb34684ebd14cc9035d92c3c1dfe3c4ec8a752a98e8bc09cc32cd6a8c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt-stubs/__init__.pyi",
+      "member": "wrapt-stubs/__init__.pyi",
+      "sha256": "d9b85b9cc7af4fa2593f6e1a80b0dd274d53b88264a06b6a504b9a6e3aeb3622",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt-2.3.0.dist-info/METADATA",
+      "member": "wrapt-2.3.0.dist-info/METADATA",
+      "sha256": "bed8a0620d9d2a6779427fcecabcbc642f6fa68b107ab583faa01a6dabcafaef",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt-2.3.0.dist-info/WHEEL",
+      "member": "wrapt-2.3.0.dist-info/WHEEL",
+      "sha256": "07a1f02ed7e221d08b6653494207c77dfae7003690190d30e27ea89d2621bd6a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt-2.3.0.dist-info/top_level.txt",
+      "member": "wrapt-2.3.0.dist-info/top_level.txt",
+      "sha256": "8db98af4898a1a7045a43782a51e10821e1701ffa0b1bab346d2a7dac5b82508",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt-2.3.0.dist-info/RECORD",
+      "member": "wrapt-2.3.0.dist-info/RECORD",
+      "sha256": "3abea7bc321901a2354e72043a84d855578ec9d2d3cfff6349e0578af60afd92",
+      "status": "installer-regenerated-RECORD"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/wrapt-2.3.0.dist-info/licenses/LICENSE",
+      "member": "wrapt-2.3.0.dist-info/licenses/LICENSE",
+      "sha256": "d4f66854a24dda2f2a5282912aedebe6b18186b86284510a433d78fadcd88e5d",
+      "status": "retained-exact"
+    }
+  ],
+  "sha256": "5d221a6e6ddd302b8397433184e96b59f259f50024b854db1c411a881586b6b8",
+  "wheel": "wrapt-2.3.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl"
+}

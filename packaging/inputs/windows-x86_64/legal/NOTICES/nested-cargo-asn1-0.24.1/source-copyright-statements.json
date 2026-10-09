@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c9795210620c0cb3f9a7ce4f882808c38e1ef7b347c90591dceae0886e031fb1",
+  "original_statement_files": [
+    {
+      "path": "asn1-0.24.1/LICENSE",
+      "sha256": "c6deb2d156619439e147f8b62e1b3928598c8e3652ec8b56cc039490696b3985",
+      "size": 1540,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Alex Gaynor and individual contributors."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

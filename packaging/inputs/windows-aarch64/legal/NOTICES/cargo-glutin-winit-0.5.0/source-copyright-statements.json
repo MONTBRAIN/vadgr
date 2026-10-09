@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "85edca7075f8fc728f28cb8fbb111a96c3b89e930574369e3e9c27eb75d3788f",
+  "original_statement_files": [
+    {
+      "path": "glutin-winit-0.5.0/LICENSE",
+      "sha256": "d35629aec828ca86834f76e4c813bd6a6f0dda9005da898b0f49021f8042c5bd",
+      "size": 1066,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright \u00a9 2022 Kirill Chibisov"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

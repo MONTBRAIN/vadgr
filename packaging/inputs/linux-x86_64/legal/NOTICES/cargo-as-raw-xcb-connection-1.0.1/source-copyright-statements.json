@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "175571dd1d178ced59193a6fc02dde1b972eb0bc56c892cde9beeceac5bf0f6b",
+  "original_statement_files": [
+    {
+      "path": "as-raw-xcb-connection-1.0.1/LICENSE-MIT",
+      "sha256": "9520ccef8aacc5e40e5158676a6c98c7bd8f8ffe8474a64ac0d213024be0bcd5",
+      "size": 1074,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2019 as-raw-xcb-connection Contributers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

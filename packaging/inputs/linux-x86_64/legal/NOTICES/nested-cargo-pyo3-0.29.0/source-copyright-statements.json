@@ -1,0 +1,72 @@
+{
+  "archive_sha256": "cd274650b21d4bfc26a0a47587962c1edb425f69287324355cd040c3ea66071c",
+  "original_statement_files": [
+    {
+      "path": "pyo3-0.29.0/LICENSE-APACHE",
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9",
+      "size": 9807,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017-present PyO3 Project and Contributors.  https://github.com/PyO3"
+        }
+      ]
+    },
+    {
+      "path": "pyo3-0.29.0/LICENSE-MIT",
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6",
+      "size": 1107,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023-present PyO3 Project and Contributors.  https://github.com/PyO3"
+        }
+      ]
+    },
+    {
+      "path": "pyo3-0.29.0/pyo3-runtime/LICENSE-APACHE",
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9",
+      "size": 9807,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017-present PyO3 Project and Contributors.  https://github.com/PyO3"
+        }
+      ]
+    },
+    {
+      "path": "pyo3-0.29.0/pyo3-runtime/LICENSE-MIT",
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6",
+      "size": 1107,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023-present PyO3 Project and Contributors.  https://github.com/PyO3"
+        }
+      ]
+    },
+    {
+      "path": "pyo3-0.29.0/src/buffer.rs",
+      "sha256": "c22b7d5dab213b2bd08bbfaf2931e66d6c9c0943eda3b7a67397efadcfbc0ab6",
+      "size": 39525,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2017 Daniel Grunwald"
+        }
+      ]
+    },
+    {
+      "path": "pyo3-0.29.0/src/types/mappingproxy.rs",
+      "sha256": "118feb23b4e2a9066f4deede927768f9c4ba1241a67bae4344087087975b97b5",
+      "size": 18255,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright (c) 2017-present PyO3 Project and Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

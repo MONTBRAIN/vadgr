@@ -15,6 +15,7 @@ from scripts import candidate_artifacts as artifacts
 from scripts import candidate_claims as claims
 from scripts import candidate_policy, cua_profiles
 from scripts.candidate import cua_helpers as helpers
+from scripts.candidate.prepare_signing_policy import check_predecessors
 from scripts.validate_package_inputs import (
     PackageInputError,
     read_owned,
@@ -131,7 +132,7 @@ def stage(auth, native_root, wsl_root, trusted, wsl_metadata, output, source=Non
                             input_archive=common["archive"], input_manifest=common["member_manifest"])
     predecessor = candidate_policy.candidate_policy_data(source, trusted,
         f"packaging/cua/helper-signing/{architecture}-predecessors.json", approval)
-    helpers.document(predecessor)
+    check_predecessors(predecessor, common["archive"], architecture)
     for name, data in {CLAIM: helpers.canonical(claim), POLICY: policy_raw,
                        "input-broker.zip": common["archive"], "input-member-manifest.json": common["member_manifest"],
                        "input-index.json": helpers.canonical({"relay_path": relay_path,

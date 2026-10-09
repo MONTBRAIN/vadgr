@@ -1,0 +1,28 @@
+{
+  "component_sha256": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360",
+  "original_statement_files": [
+    {
+      "path": "click/parser.py",
+      "sha256": "a09f9f53fde6bf1ba022e36d1da0804d9e7a9601261d18208c9892a84818ae30",
+      "statements": [
+        {
+          "line": 17,
+          "text": "Copyright 2001-2006 Gregory P. Ward. All rights reserved."
+        },
+        {
+          "line": 18,
+          "text": "Copyright 2002-2006 Python Software Foundation. All rights reserved."
+        },
+        {
+          "line": 23,
+          "text": "# Copyright 2001-2006 Gregory P. Ward"
+        },
+        {
+          "line": 24,
+          "text": "# Copyright 2002-2006 Python Software Foundation"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

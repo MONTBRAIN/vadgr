@@ -1,24 +1,31 @@
 #!/usr/bin/env python3
-"""Measure unapproved Windows inputs for legal review. Never authorizes a candidate."""
+"""Measure unapproved Windows inputs for package review. Never authorizes a candidate."""
 
 from __future__ import annotations
 
 import argparse
 import os
-from pathlib import Path
 import re
 import shutil
 import struct
 import sys
-import tomllib
 import unicodedata
-from urllib.parse import quote
 import zipfile
+from pathlib import Path
+from urllib.parse import quote
+
+import tomllib
 
 if __package__:
-    from scripts import candidate_policy as gate, cua_wheelhouse, distribution_matrix, windows_runtime_evidence
+    from scripts import candidate_policy as gate
+    from scripts import cua_wheelhouse, distribution_matrix, windows_runtime_evidence
     from scripts.validate_package_inputs import (
-        PackageInputError, canonical_json, parse_json, read_owned, relative_path, sha256_bytes,
+        PackageInputError,
+        canonical_json,
+        parse_json,
+        read_owned,
+        relative_path,
+        sha256_bytes,
     )
 else:
     import candidate_policy as gate
@@ -26,7 +33,12 @@ else:
     import distribution_matrix
     import windows_runtime_evidence
     from validate_package_inputs import (
-        PackageInputError, canonical_json, parse_json, read_owned, relative_path, sha256_bytes,
+        PackageInputError,
+        canonical_json,
+        parse_json,
+        read_owned,
+        relative_path,
+        sha256_bytes,
     )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -100,7 +112,7 @@ def admit(source, branch, sha):
     cargo = tomllib.loads(gate.git(source, "show", f"{sha}:Cargo.toml"))
     gate.require(cargo["package"]["version"] == "0.5.0", "preparation version differs")
     gate.require(re.search(r"^## \[0\.5\.0\] - ",
-                           gate.git(source, "show", f"{sha}:CHANGELOG.md"), re.M) is not None,
+                           gate.git(source, "show", f"{sha}:CHANGELOG.md"), re.MULTILINE) is not None,
                  "preparation changelog missing")
     check_branch()
     gate.require(gate.pages("rules/branches/master?per_page=100") == rules,
@@ -161,7 +173,7 @@ def terms_input(source):
         return {"status": "unavailable", "reason": "exact proposed terms file is absent"}
     data = read_owned(source, name)
     text = data.decode("utf-8")
-    versions = re.findall(r"^\*\*Version ([0-9]+\.[0-9]+)\*\*\s*$", text, re.M)
+    versions = re.findall(r"^\*\*Version ([0-9]+\.[0-9]+)\*\*\s*$", text, re.MULTILINE)
     if not data or versions != ["1.0"]:
         return {"status": "unavailable", "reason": "exact proposed terms version is not 1.0"}
     return {"status": "unapproved", "path": name, "version": "1.0", "sha256": sha256_bytes(data)}
@@ -274,7 +286,7 @@ def cargo_notices(metadata_path, source, cargo_home, output):
                         "license_file": package.get("license_file"), "directory": key, "files": files})
     (output / "cargo-components.json").write_bytes(canonical_json({
         "schema": 1, **BOUNDARY, "packages": records, "resolve": metadata.get("resolve"),
-        "limitation": "Declared metadata and supplied notices require independent legal review."}))
+        "limitation": "Declared metadata and supplied notices require exact package-input review."}))
 
 
 def observe(source, source_record, raw, architecture, output):
@@ -326,7 +338,7 @@ def observe(source, source_record, raw, architecture, output):
                               "Cargo notices are reported build inputs, not concluded license rights."]}
     (output / "preparation-observation.json").write_bytes(canonical_json(report))
     (output / "UNAPPROVED-NONPUBLISHABLE.txt").write_text(
-        "Unsigned observations for owner and legal review only.\n"
+        "Unsigned observations for Publisher-owner and package-input review only.\n"
         "Not a candidate, release, legal approval or installation qualification.\n", encoding="utf-8")
     return report
 

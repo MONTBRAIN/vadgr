@@ -3,8 +3,9 @@
 A daemon per machine: the native agent loop, the MCP host, gates and policy,
 the API the phone talks to, persistence, plus `src/cli/` - the on-box owner
 surface.
-v2 has no desktop frontend - `0.4.2` deleted it, and a guardrail test fails the
-suite if it comes back. The clients are this CLI and the phone.
+The installed native product gains one small local desktop console in `0.5.0`.
+It uses the same loopback API as the CLI and never opens daemon state directly.
+WSL remains CLI-only. The phone remains the remote client.
 
 **This file is loaded automatically. The rules live in the docs repo and are not
 copied here** - a second copy drifts, and a drifted rule is worse than none.
@@ -117,6 +118,13 @@ Use this lifecycle for every signed release:
 
 1. Build an exact release-equivalent unsigned development artifact from the
    pushed implementation head. Record the source, inventory and artifact hashes.
+   The executable or installation vehicle is implementation output. If the
+   unsigned package, credential-free producer, reviewed non-secret package
+   inputs or pinned runtime payload is missing, fix or create it on this branch,
+   add regression coverage, run the affected gates, build the registered
+   vehicle and continue E2E. Do not wait for protected CD or substitute a
+   checkout, loose binary, system runtime, earlier artifact, another platform's
+   artifact or an unapproved package format.
 2. Open the implementation PR after its ordinary first-host gate. Complete every
    source gate and every applicable functional E2E assertion on every required
    operating system before merge. The development artifact must match the final
@@ -146,6 +154,27 @@ a new candidate from the next merged commit. Never patch or bless failed bytes.
 The runbook names the PR-opening, merge and release gates separately. It also
 separates functional cells from post-merge trust cells so missing signing inputs
 cannot block independent functional work.
+
+**Unsigned functional qualification includes the bundled computer-use task on
+every supported OS.** Linux, macOS, Windows and WSL must exercise the installed
+private runtime through Vadgr, not the external testing MCP. Keep a dedicated
+B01 cell in the minor's runbook. Inventory and truthful unavailability never
+pass that cell. If missing development admission prevents execution, fix the
+package/runtime path and rerun it before functional qualification is complete.
+Do not relabel that implementation gap as signing-only or move the task after
+merge. Development admission must be explicit, integrity-checked and
+non-publishable. Production signature, attestation and adoption verification
+remain mandatory and unchanged. Do not fabricate trust records or add an
+environment switch that disables production checks. Each OS needs its own
+installed-artifact result; another platform's pass does not carry over.
+
+**Release signing does not enable unfinished functionality.** Before merge,
+the unsigned desktop app must execute real runs, bundled computer use, provider
+connections, mobile pairing and transports, and every applicable lifecycle flow.
+Apply this rule to every supported OS and its shipped surfaces. The release
+pipeline adds signatures and distribution trust metadata to an already working
+product. Final identity, integrity and promotion checks still run; they must
+not become the first functional test or repair a disabled development feature.
 
 ## Current research before design
 
@@ -185,6 +214,22 @@ Test another model only when it represents a distinct protocol or capability
 class, a written cell requires it, or the cheaper model failed for a recorded
 capability reason. Stop at the ceiling; never upgrade silently or use a
 frontier model merely because it is available.
+
+**The current routine E2E cost targets are the Claude Sonnet, GPT Luna at medium
+reasoning, and Gemini Flash families; Terra is the next OpenAI lane only when
+Luna lacks a required capability. These are cost classes, not frozen model ids
+or a permanent allowlist.** On every execution date, use live internet access
+to read the provider's current official model and pricing pages, then intersect
+that result with the authenticated catalog. If a newly launched cheaper model
+supports the cell, it replaces today's example. Never infer price from catalog
+order or a model name. Fable, Sol, Opus and another provider's frontier tier
+are forbidden for setup, navigation, screenshots, smoke tasks and ordinary
+provider-neutral cells. A frontier call is allowed only after the same cell has
+a recorded lower-cost capability failure, the runbook's prewritten escalation
+condition is met, and a new hard cost ceiling is recorded. Quality preference,
+availability in the picker, and a previously persisted default are not
+escalation reasons. Change an inherited expensive default before the first
+routine billed call; never spend against it for convenience.
 
 ## The practices every repo in this family follows
 
@@ -828,6 +873,70 @@ offered.
   package manager or operating system as the independent oracle. The owner acts
   only at an unavoidable physical or protected boundary after the agent prepares
   the exact state and gives one explicit instruction.
+- **Linux uses a separately installed released Vadgr CUA MCP driver.** This
+  Linux-only rule takes precedence over older direct-helper instructions.
+  Verify the latest released version at setup, install it in an isolated
+  environment, and record its release, wheel, executable and MCP identities
+  separately from the tested AppImage and its bundled CUA payload. Drive the
+  real MCP wire with `ui_tree`, `ui_find` and `ui_act`, using fresh references,
+  exact process/control identity and structured readback after every action.
+  Do not import product modules or call backend functions directly. These local
+  accessibility and capture tool calls require no provider API key.
+  Prove that this agent session exposes and can invoke the configured tools.
+  A server inventory or standalone MCP client is only a diagnostic. Follow the
+  current runbook's session-tool preflight when a client lists tools that the
+  agent cannot call. Accessibility remains the primary control tier; pixels
+  serve visual inspection, not a fallback for a refused structured action.
+  Reproduce a suspected CUA defect through its public MCP tool, check existing
+  issues, and file a sanitized issue with the exact release and failed oracle.
+  Filing an issue does not resolve the finding. Fix confirmed defects in the
+  responsible repository, add a regression that fails without the fix, and
+  rerun the affected public MCP actions and E2E assertions. Record an exact
+  external or protected-owner boundary if it prevents completion.
+  A repaired development driver or open repair PR is not final closure. Qualify
+  the CUA patch and required version-plan realignment, obtain the applicable
+  owner approvals, and follow its protected release gates. Before assigning a
+  version, fetch the latest published tag and default branch; compare the
+  version register and inspect all unreleased default-branch changes. Never
+  release unqualified unrelated work to obtain the fix. A conflicting release
+  scope requires an owner decision, not silent renumbering or a trust bypass.
+  Merge consistent version-plan realignment before tagging; preserve required
+  reviews and branch protection without administrative bypass.
+  After authorized publication, install the verified released driver, replace
+  its MCP process and rerun affected Vadgr assertions with fresh evidence.
+  Keep those results separate from the bundled payload's qualification. This
+  procedure grants no implicit approval to merge, tag or release another PR.
+  Keep client configuration failures separate from CUA product findings.
+  Review server startup side effects and isolate driver-owned writes without
+  replacing the real desktop bus or modifying owner browser registrations.
+  Driver isolation does not turn a container into native subject coverage.
+  The agent performs ordinary setup; owner action is reserved for genuinely
+  protected permissions. Tool availability alone is not application coverage.
+  Use public MCP capture capabilities for Linux visual checks, but verify what
+  the selected release actually offers. Full-screen screenshots and crops do
+  not prove exact application-only unfocused capture. If that oracle cannot be
+  satisfied, leave it owed; do not invent a window-capture tool. The current
+  Linux runbook has an owner-approved focused-region visual exception. Follow
+  its exact scope, focus, bounds and privacy checks; never call that image an
+  unfocused application-only capture. Accessibility remains the input tier.
+  Direct native helpers may diagnose failures, but are not the primary Linux
+  driver. Keep their historical results distinct from new MCP observations.
+- **The installed Vadgr CUA payload is not this external test driver.** On
+  Windows, use Windows UI Automation through the AccessKit tree and an app-only
+  `PrintWindow(PW_CLIENTONLY)` capture under a per-monitor-aware DPI context. On
+  macOS, use `SCScreenshotManager` with an
+  `SCContentFilter(desktopIndependentWindow:)` for the target window. On native
+  Linux Wayland, use the XDG Desktop Portal ScreenCast interface with one WINDOW
+  source and read its PipeWire stream. On X11, use the target window ID and the
+  XComposite window pixmap. Prove once per host that the exact app-only capture
+  still works while another application has focus. A focused capture, desktop
+  capture, monitor capture or crop from either is not a substitute. If the host
+  cannot make the exact unfocused capture, leave the visual assertion owed and
+  record the limitation. The Linux portal/XComposite paths describe the required
+  capture scope, not permission to replace the released MCP driver with a direct
+  helper. Use the bundled CUA only inside a cell whose product assertion runs a
+  computer-use task. Windows UIA and macOS Accessibility remain unchanged;
+  adopting the released Linux driver does not qualify it on those platforms.
 - **A native console has no silent dead controls.** Every enabled control works
   in this minor and has an independent E2E oracle. A future control is disabled
   and visibly names the exact registered minor that enables it. A control which
@@ -835,34 +944,21 @@ offered.
   reason instead. An enabled no-op, an inaccessible control, or an unlabeled
   future control is a finding.
 
-**A supported virtual machine is valid native functional coverage when the
-guest runs the product directly.** Record the hypervisor, guest OS, virtual
-hardware, architecture, desktop and display protocol. Call the result
-virtualized native coverage, never bare-metal coverage. Leave hardware-specific
-behavior and unavailable architectures or desktop sessions `not run` with the
-exact reason. A VirtualBox guest is not WSL, a container or a remote
-Windows-mounted checkout.
-
-**A phone attached to a VM host is not absent until the host ADB bridge is
-checked.** Stop the guest-local ADB server before selecting a remote socket.
-For VirtualBox NAT, derive the guest's default gateway and use
-`ADB_SERVER_SOCKET=tcp:<gateway>:5037`; the usual gateway is `10.0.2.2`. The
-host runs a temporary network-listening ADB server, and every guest ADB command
-uses the same socket. Require the intended device to be in `device` state before
-the cell starts. Never record its serial. Do not change firewall, DNS, routing,
-VPN or other network services to make the bridge work. Restore the host's prior
-ADB-server mode during cleanup. The exact commands and security boundary belong
-in the runbook before a phone cell can be called blocked.
-
 **Before native installer or console cells, prove the automation path.** Read
 the docs `general/ENGINEERING.md` section "Native desktop cold-start procedure"
 and the current runbook's matching checklist. Prove process-scoped native
 actions, actual text replacement and independent readback before relying on
 them. Inspect exact unfocused application-only images; a UI tree is not a visual
-pass. Preserve failed probes, fix product accessibility defects, and restore
+pass. The current Linux runbook's explicit focused-region exception can satisfy
+its visual inspection slice, not the separate unfocused-capture capability.
+Preserve failed probes, fix product accessibility defects, and restore
 assistive settings. Put this procedure in both the current minor and template
 so the next agent does not have to rediscover it. CLAUDE.md imports this entry
 point and follows the same procedure.
+Recheck live process, session and bus identities after resumption. Use the
+engineering checklist's conditional chooser procedure only when its actual
+backend predicates hold. Keep reusable instructions free of personal details
+and incident narratives; retain sanitized attempts in the evidence boundary.
 
 The gate, before offering anything:
 

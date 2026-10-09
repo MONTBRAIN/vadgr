@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d52efb639344a7c6adb8e62c6f3d2c19c001ff1b79a5041ba1c6ed42e19c6aa5",
+  "original_statement_files": [
+    {
+      "path": "tokio-websockets-0.13.3/LICENSE",
+      "sha256": "86b056a8bec91d091d37990ffd767b3df48a5060374c52eda159045c245479b7",
+      "size": 1055,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2021 Jens Reidel"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

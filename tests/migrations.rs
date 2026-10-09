@@ -35,8 +35,9 @@ fn an_existing_0_4_6_database_keeps_its_runs_through_provider_migration() {
 
 // ---------------------------------------------------------------- the ladder
 
-/// Fresh and upgraded databases end at the same schema, `device_peers` and
-/// its primary key included, because a fresh database runs the ladder too.
+/// Fresh and upgraded databases end at the same schema, including the peer
+/// bindings and editable machine settings, because a fresh database runs the
+/// ladder too.
 #[test]
 fn a_version_one_database_and_a_fresh_one_end_with_the_same_schema() {
     let directory = tempfile::tempdir().unwrap();
@@ -99,17 +100,18 @@ fn a_version_one_database_and_a_fresh_one_end_with_the_same_schema() {
         .unwrap();
     assert_eq!(settings, 1);
 
-    // The versions ended equal, and a second open is a no-op.
+    // The versions ended equal at the machine-settings rung, and a second open
+    // is a no-op.
     for db in [&upgraded, &fresh] {
         let version: i64 = db
             .with(|c| c.query_row("PRAGMA user_version", [], |r| r.get(0)))
             .unwrap();
-        assert_eq!(version, 2);
+        assert_eq!(version, 3);
     }
     drop(upgraded);
     let reopened = Db::open(&upgraded_path).unwrap();
     let version: i64 = reopened
         .with(|c| c.query_row("PRAGMA user_version", [], |r| r.get(0)))
         .unwrap();
-    assert_eq!(version, 2);
+    assert_eq!(version, 3);
 }

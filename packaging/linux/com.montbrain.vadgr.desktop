@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=Vadgr
+Comment=Install or manage this Vadgr machine
+Exec=Vadgr.AppImage
+Icon=com.montbrain.vadgr
+Terminal=false
+Categories=Utility;

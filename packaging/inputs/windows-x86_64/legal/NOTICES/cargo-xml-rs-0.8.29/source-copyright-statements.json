@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e450f9b2ed1dff33c94c12589a87338689467b9c4f5d8a5710bd09a847d2c8a7",
+  "original_statement_files": [
+    {
+      "path": "xml-rs-0.8.29/LICENSE",
+      "sha256": "0dc18d924dc0a5f41172a393012843a5eaaef338e795b3645da9cc3b6068220b",
+      "size": 1083,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2014 Vladimir Matveev"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

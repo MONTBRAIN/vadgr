@@ -1,0 +1,41 @@
+Metadata-Version: 2.4
+Name: sse-starlette
+Version: 3.4.8
+Summary: SSE plugin for Starlette
+Author-email: sysid <sysid@gmx.de>
+License-Expression: BSD-3-Clause
+Project-URL: Homepage, https://github.com/sysid/sse-starlette
+Project-URL: Repository, https://github.com/sysid/sse-starlette
+Project-URL: Issues, https://github.com/sysid/sse-starlette/issues
+Project-URL: Source, https://github.com/sysid/sse-starlette
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Internet :: WWW/HTTP
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: AUTHORS
+Requires-Dist: starlette>=0.49.1
+Requires-Dist: anyio>=4.7.0
+Provides-Extra: examples
+Requires-Dist: uvicorn>=0.34.0; extra == "examples"
+Requires-Dist: fastapi>=0.115.12; extra == "examples"
+Requires-Dist: pydantic>=2; extra == "examples"
+Provides-Extra: examples-db
+Requires-Dist: sqlalchemy[asyncio]>=2.0.41; extra == "examples-db"
+Requires-Dist: aiosqlite>=0.21.0; extra == "examples-db"
+Provides-Extra: uvicorn
+Requires-Dist: uvicorn>=0.34.0; extra == "uvicorn"
+Provides-Extra: granian
+Requires-Dist: granian>=2.3.1; extra == "granian"
+Provides-Extra: daphne
+Requires-Dist: daphne>=4.2.0; extra == "daphne"
+Dynamic: license-file
+

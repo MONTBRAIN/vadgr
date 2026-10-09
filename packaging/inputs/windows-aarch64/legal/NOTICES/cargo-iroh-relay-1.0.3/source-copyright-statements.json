@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "24bd586cf927f7b700f56ec3639b53cb5fa901ce284784051ff71092bfbf8193",
+  "original_statement_files": [
+    {
+      "path": "iroh-relay-1.0.3/LICENSE-BSD3",
+      "sha256": "bcaa9acadee6c20991d4b5eb56e226191411a3f6ceb92587b272f2ef0221ed71",
+      "size": 1600,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright (c) 2020 Tailscale Inc & AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "iroh-f2eb930-LICENSE-APACHE.txt",
+      "sha256": "903131e2786f073a942fbf8fae122d9e576e4dad758c6da7f9f2ba58fd8611ab",
+      "source_url": "https://raw.githubusercontent.com/n0-computer/iroh/f2eb930dda3779c6d852b72f3712aacd6e573ab1/LICENSE-APACHE",
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright [2025] [N0, INC]"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

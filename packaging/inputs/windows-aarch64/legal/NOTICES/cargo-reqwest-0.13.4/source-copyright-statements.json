@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "219c5811de6525e5416c7d5d53bb656d3afdbc6c5af816e0802bcfa42dbdc1c3",
+  "original_statement_files": [
+    {
+      "path": "reqwest-0.13.4/LICENSE-APACHE",
+      "sha256": "751963a8b88c0e3a9f27e98933079fbcf09b9998b2c13ac49c2e4d58444520d6",
+      "size": 10833,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2016 Sean McArthur"
+        }
+      ]
+    },
+    {
+      "path": "reqwest-0.13.4/LICENSE-MIT",
+      "sha256": "dd87e27dfbaa888cb77ea34592648a7743636b8dce07e49543bddda0fcfc73bc",
+      "size": 1063,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016-2026 Sean McArthur"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

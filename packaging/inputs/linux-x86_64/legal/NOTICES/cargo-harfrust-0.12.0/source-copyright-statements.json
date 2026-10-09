@@ -1,0 +1,43 @@
+{
+  "archive_sha256": "c03d949a14aa089bbb282f7dd76a498a7f684428e4257202efc119ec010376f9",
+  "original_statement_files": [
+    {
+      "path": "harfrust-0.12.0/LICENSE",
+      "sha256": "3a7c3f0b887abb7c638faf022d29257418458614c6724b120ceeffb279f9c7d2",
+      "size": 1117,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) HarfBuzz developers"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2020 Yevhenii Reizner"
+        }
+      ]
+    },
+    {
+      "path": "harfrust-0.12.0/src/hb/DoNotEmit.txt",
+      "sha256": "25c75725f6098024ec38c5c13c337e2b7a95b75e4a6805bff6c40fbfa53a2f38",
+      "size": 46504,
+      "statements": [
+        {
+          "line": 3,
+          "text": "# \u00a9 2024 Unicode\u00ae, Inc."
+        }
+      ]
+    },
+    {
+      "path": "harfrust-0.12.0/src/hb/unicode_emoji_table.rs",
+      "sha256": "e4fd4ad582d8df3d14d0c7ed34f33ad615865438a8178879954ddfc993d5faea",
+      "size": 4811,
+      "statements": [
+        {
+          "line": 11,
+          "text": "* # \u00a9 2025 Unicode\u00ae, Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}
