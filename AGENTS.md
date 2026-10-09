@@ -342,6 +342,24 @@ destructive action and owner decision up front, map each to its cells, and
 inform the owner before the affected group runs. Missing setup blocks written
 cells; it never deletes or collapses them.
 
+**A runbook holds only what existing tools can test.** Before a cell or
+assertion enters a runbook, name the exact tool, version and interface its
+action and its oracle use, and prove that the tool exists and works on the
+target with a capability probe recorded beside the runbook. A development build
+that exists counts, released or not; a version that does not exist does not.
+An assertion whose tool does not exist yet, or is released only after this
+minor, is never written into this minor's runbook as owed. Assign it to the
+minor that delivers the tool and name that minor in `PLANS.md`, or replace it
+with a workaround that existing tools execute and record the workaround. Every
+cell must reach pass or fail with existing tools; only real hardware, OS or
+owner-protected steps named up front may wait on anything else. A runbook that
+only a future release can finish is unfinished. When a pass finds an assertion
+it cannot execute with existing tools, it moves the assertion out that same
+day instead of leaving it partial. Written from `vadgr 0.5.0`, whose visual
+cells waited on a cua version that did not exist, on a cua release ordered
+after the `vadgr` release under test, and on a pressed state no driver tool
+could hold, and so could never close.
+
 **The implementation pull request opens only after the first required live OS
 or device pass succeeds.** Before that pass, push the working branch and make
 the runbook name that branch, the exact product head and the evidence pull

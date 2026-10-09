@@ -302,6 +302,16 @@ present in a given runbook, the entry is all there is.
     Markdown in a formatted terms view is a rendering finding, not a cosmetic
     exemption. [Desktop visual acceptance]
 
+26. **Every cell is testable with tools that exist.** Before a cell enters
+    this runbook, name the exact tool, version and interface for its action
+    and its oracle, and record a capability probe that ran on the target. A
+    tool version that does not exist, or one released only after this minor,
+    never leaves a cell owed here: move the assertion to the minor that
+    delivers the tool, or replace it with a recorded workaround existing tools
+    execute. A pass that finds an assertion it cannot execute moves it out the
+    same day instead of leaving it partial. [Tooling capability probes]
+    [../README.md]
+
 **A pass is finished, not paused, and reporting is not a stopping point.** A
 checkpoint or a progress summary does not end your turn: write it and keep
 driving in the same turn. A pass ends when every cell carries a verdict or a
@@ -996,7 +1006,8 @@ cells while a specific owner approval or producer prerequisite remains owed.
   `EditableText.SetTextContents` must actually work; an editable flag or click
   action is not sufficient. Do not replace this proof with injected keys,
   clipboard, backend writes or owner typing.
-- Prove the required unfocused application-only capture. On Wayland use the
+- Prove the required unfocused application-only capture before any visual cell
+  depends on it, and record that probe in the tooling table. On Wayland use the
   portal WINDOW source and scoped PipeWire stream. A missing row action or
   refused Selection is a recorded capability failure, not automatically an
   owner-only permission prompt. Cancel the owned chooser after a bounded probe.
@@ -1006,8 +1017,10 @@ cells while a specific owner approval or producer prerequisite remains owed.
   count a desktop crop as equivalent. Helper probes remain diagnostic records.
 - Name helper dependencies, safe tree filtering, exact new output paths and
   cleanup commands. Never retain private window titles or secret-bearing trees.
-- Record unavailable assertions separately, continue independent cells, and
-  restore the exact original settings and owned processes after testing. After
+- Move each assertion no existing tool can execute to the minor that delivers
+  the tool, or to a recorded workaround, as the tooling section says. Continue
+  independent cells, and restore the exact original settings and owned
+  processes after testing. After
   a reboot, rediscover readiness and identities before resuming.
 
 #### Conditional Wayland chooser and unfocused capture probe
@@ -1096,11 +1109,46 @@ Inspect these properties explicitly:
 | <each installer, console and dialog state> | <existing cell id> | <digests or exact capture boundary> | <actual settings> | <what the agent inspected> | <pass / fail / not run with reason> |
 
 A successful capture command alone is not an inspection. A tree or API result
-cannot close a rendering assertion. If the required exact capture cannot be
-made, preserve the failed native probe and leave that visual assertion owed.
-Continue independent functional assertions, but never promote their success to
-a visual pass or call the GUI qualification complete. Do not ask the owner to
-inspect the screen in place of the agent.
+cannot close a rendering assertion. Each visual state enters this ledger only
+after an existing capture tool and an existing driver tool that can hold the
+state have passed their probes in the tooling table. If no existing tool can
+make the required exact capture or hold the required state, preserve the failed
+probe and move that visual assertion to the minor that delivers the tool, or
+replace it with a recorded workaround that existing tools execute. Never leave
+it owed in this runbook. Continue independent functional assertions, but never
+promote their success to a visual pass. Do not ask the owner to inspect the
+screen in place of the agent.
+
+## Tooling capability probes
+
+<Complete this table before the first live cell. Give one row to every tool a
+cell's action or oracle uses: the driving agent CLI, an MCP server such as the
+cua driver, the accessibility backend, the capture method, the wire client, the
+device interface or a committed helper. Name the exact version and interface,
+and run a probe that proves the tool exists and does the required thing on the
+target host. An existing development build counts, released or not, when the
+row names its exact source commit and artifact hash. A version that does not
+exist yet does not count, and neither does a release ordered after this minor.>
+
+<An assertion whose tool does not exist, or whose tool is released only after
+this minor, is never written here as owed. Move it to the minor that delivers
+the tool and name that minor in the second table, or replace it with a
+workaround that an existing tool executes and record that workaround in the
+cell. A runbook that only a future release can finish is unfinished. Only real
+hardware, OS or owner-protected steps listed under the owner and environment
+requirements may wait on something other than an existing tool.>
+
+<When a pass finds an assertion that no existing tool can execute, move it out
+of this runbook the same day, with the failed probe as its evidence. Do not
+leave it `partial`, `blocked` or owed.>
+
+| cells | role (action or oracle) | exact tool, version and interface | build identity | probe on the target and its result |
+|---|---|---|---|---|
+| <ids> | <action / oracle> | <for example `vadgr-cua` X.Y.Z, tool `<name>`> | <release tag, or source commit and artifact hash> | <command, exit code, observation, evidence path> |
+
+| assertion | tool or capability that does not exist | delivering minor | workaround that existing tools execute |
+|---|---|---|---|
+| <id: assertion> | <exact missing tool, version or interface> | `<X.Y.Z>` | <recorded workaround and its cell, or none> |
 
 Verify how the installed toolkit exposes size, scale and system appearance
 before attempting alternate configurations. A configured minimum size is not
