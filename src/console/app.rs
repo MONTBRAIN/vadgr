@@ -173,7 +173,11 @@ impl ConsoleApp {
         });
         self.pending = Some(receive);
         self.pending_announced = announced;
-        self.notice = None;
+        // A new user action replaces the previous result. The periodic refresh
+        // must not, or a failure reason vanishes before it can be read.
+        if announced {
+            self.notice = None;
+        }
     }
 
     fn reload(&mut self) {

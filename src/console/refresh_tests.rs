@@ -487,3 +487,33 @@ fn background_refresh_does_not_interrupt_a_pointer_press() {
         "restart"
     );
 }
+
+#[test]
+fn background_refresh_keeps_the_last_result_notice() {
+    let (gate, wait) = mpsc::channel::<()>();
+    let (ctx, mut app, calls) = ready_app_with_refresh_gate(Some(wait));
+    draw(&ctx, &mut app, vec![]);
+    let failure = "The update download failed. The update server returned HTTP 404.";
+    app.notice = Some((false, failure.to_owned()));
+    app.last_refresh = std::time::Instant::now() - std::time::Duration::from_secs(9);
+    // An idle frame starts the periodic refresh, which the gate holds pending.
+    draw(&ctx, &mut app, vec![]);
+    assert_eq!(
+        calls.recv_timeout(std::time::Duration::from_secs(5)),
+        Ok("refresh")
+    );
+    for _ in 0..2 {
+        draw(&ctx, &mut app, vec![]);
+        assert!(app.pending.is_some());
+        assert_eq!(app.notice, Some((false, failure.to_owned())));
+    }
+    drop(gate);
+}
+
+#[test]
+fn a_user_action_replaces_the_previous_notice() {
+    let (_ctx, mut app, _calls) = ready_app();
+    app.notice = Some((true, "The change completed.".to_owned()));
+    app.start(|_| Ok(OperationResult::Changed));
+    assert_eq!(app.notice, None);
+}

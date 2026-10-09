@@ -23,6 +23,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
   125 or 150 percent, the console and installer no longer open smaller than
   their minimum size. A window that opens too small is maximized when the
   screen has room for its minimum size.
+- A console result notice, such as an update failure, stays until the next
+  action you start. The automatic background refresh no longer clears it after
+  a few seconds.
 - Installed updates accept an explicit HTTPS or absolute local source without
   changing the installation receipt or its trust requirements. Linux AppImages
   use the existing release download location when no origin is configured.
