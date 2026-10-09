@@ -655,7 +655,7 @@ replaced by a recorded workaround, the same day; it is never left owed here.
 | VL01-VL03, O2, B01 driving on Linux | action and readback | development `vadgr-cua` MCP server over stdio, through a fresh Claude Code session; tools `ui_find`, `ui_act`, `ui_tree`, `ui_windows`, `key_press`, `type_text` | source `58bfd3f2` (contains the `11fc082b` Linux action fix), wheel `5dae6b3127a01e64bb656a4a6e432a58f4898f75e9751c271214604c48f98722` | session preflight listed 33 tools and made a real tool call; every K and L session record names the tool calls and results |
 | VL01-VL03 on Linux | visual oracle | the same server, tool `screenshot_region` under the owner-approved focused-region exception | same build | crop geometry from the owned-window geometry oracle, focus checked before and after each capture; captures inspected on J, K and L |
 | VL01-VL03 hover on Linux | action | the same server, tool `move_mouse` | same build | hover fill observed on secondary buttons and sidebar items on L in both themes |
-| VL01-VL03 pressed state on Linux | action | the same server, tool `drag` used as a press workaround | same build | failed three times on L: a "Not Responding" overlay, the pointer leaving the button, then no pressed fill. `drag` presses and releases inside one call, so no capture can occur while a control is held |
+| VL01-VL03 pressed state on Linux | action | the same server, tool `drag` used as a press workaround | same build | failed three times on L: a "Not Responding" overlay, the pointer leaving the button, then no pressed fill. In the third attempt a second session captured the button during a 25 second `drag` and saw only the hover fill. `drag` presses and releases inside one call and is not a held-button tool |
 | O2 reader on Linux | oracle | Orca speech through the bounded speech monitor | host Orca | allowlisted speech retained on exact F and earlier subjects; the monitor setting restored each time |
 | W and M visual and reader cells | action and oracle | each host records its own rows before its first live cell | per host | not run on these hosts yet |
 
@@ -3067,9 +3067,9 @@ defect; the hover task retries an unchanged page.
 The pressed state was tried on exact L with the driver's `drag` tool as a
 workaround, three times and in both themes. The first attempt hit a GNOME "Not
 Responding" overlay during a compositor stall. The second moved the pointer off
-the button before the capture. The third kept the pointer on the button, but the
-capture showed only the hover fill, because `drag` releases the button before it
-returns. No existing tool holds a button through a capture, so the pressed
+the button before the capture. In the third, a second driver session captured the
+button during a 25 second `drag` on it, and the image showed only the hover
+fill. No existing tool holds a button through a capture, so the pressed
 state, exact unfocused capture and the released-driver rerun moved out of 0.5.0
 the same day (Tooling capability probes). VL01 through VL03 and O2 then pass for
 this host.
