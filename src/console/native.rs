@@ -43,7 +43,9 @@ impl WindowSize {
 /// already placed window does not.
 pub(crate) struct InitialSize {
     min: egui::Vec2,
-    checked: bool,
+    done: bool,
+    requested_at: Option<std::time::Instant>,
+    attempts: u8,
 }
 
 /// Room for the desktop's top bar and the window's title bar. GNOME refuses
@@ -51,30 +53,62 @@ pub(crate) struct InitialSize {
 /// grows it to the minimum where it stands, partly off the screen.
 const DESKTOP_CHROME: egui::Vec2 = egui::vec2(0.0, 64.0);
 
+/// GNOME can drop a maximize request that arrives while it is still placing a
+/// new window, so an unanswered request is sent again a few times.
+const RETRY_AFTER: std::time::Duration = std::time::Duration::from_millis(500);
+const MAX_ATTEMPTS: u8 = 6;
+
 impl InitialSize {
     pub(crate) fn new(size: WindowSize) -> Self {
         Self {
             min: size.min,
-            checked: false,
+            done: false,
+            requested_at: None,
+            attempts: 0,
         }
     }
 
     pub(crate) fn check(&mut self, ctx: &egui::Context) {
-        if self.checked {
+        if self.done {
             return;
         }
-        let (current, monitor) =
-            ctx.input(|input| (input.viewport_rect().size(), input.viewport().monitor_size));
+        let (current, monitor, maximized) = ctx.input(|input| {
+            let viewport = input.viewport();
+            (
+                input.viewport_rect().size(),
+                viewport.monitor_size,
+                viewport.maximized,
+            )
+        });
+        // Frames only run on input, so keep checking until this settles.
+        ctx.request_repaint_after(RETRY_AFTER);
         // The monitor is known once the window is shown on one.
         let Some(monitor) = monitor else {
             return;
         };
-        // Only the size the window opened at is eframe's; later sizes are the
-        // user's or the compositor's and stay as they are.
-        self.checked = true;
-        if should_maximize(current, monitor, self.min) {
-            ctx.send_viewport_cmd(egui::ViewportCommand::Maximized(true));
+        // Once the window fits, later sizes are the user's or the
+        // compositor's and stay as they are.
+        if !should_maximize(current, monitor, self.min) {
+            self.done = true;
+            return;
         }
+        // Maximized but not yet resized: the compositor is applying it.
+        if maximized == Some(true) {
+            return;
+        }
+        if self
+            .requested_at
+            .is_some_and(|requested| requested.elapsed() < RETRY_AFTER)
+        {
+            return;
+        }
+        if self.attempts == MAX_ATTEMPTS {
+            self.done = true;
+            return;
+        }
+        self.attempts += 1;
+        self.requested_at = Some(std::time::Instant::now());
+        ctx.send_viewport_cmd(egui::ViewportCommand::Maximized(true));
     }
 }
 
@@ -94,21 +128,34 @@ mod tests {
         min: egui::vec2(900.0, 600.0),
     };
 
+    const INSTALLER: WindowSize = WindowSize {
+        default: egui::vec2(760.0, 620.0),
+        min: egui::vec2(680.0, 540.0),
+    };
+
     fn frame(
         ctx: &egui::Context,
         size: &mut InitialSize,
         current: egui::Vec2,
         monitor: Option<egui::Vec2>,
     ) -> Vec<egui::ViewportCommand> {
+        frame_maximized(ctx, size, current, monitor, None)
+    }
+
+    fn frame_maximized(
+        ctx: &egui::Context,
+        size: &mut InitialSize,
+        current: egui::Vec2,
+        monitor: Option<egui::Vec2>,
+        maximized: Option<bool>,
+    ) -> Vec<egui::ViewportCommand> {
         let mut input = egui::RawInput {
             screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, current)),
             ..Default::default()
         };
-        input
-            .viewports
-            .entry(egui::ViewportId::ROOT)
-            .or_default()
-            .monitor_size = monitor;
+        let viewport = input.viewports.entry(egui::ViewportId::ROOT).or_default();
+        viewport.monitor_size = monitor;
+        viewport.maximized = maximized;
         let mut output = ctx.run_ui(input, |ui| size.check(ui.ctx()));
         output.textures_delta.clear();
         output
@@ -140,6 +187,56 @@ mod tests {
             vec![egui::ViewportCommand::Maximized(true)]
         );
         assert!(frame(&ctx, &mut size, small, Some(egui::vec2(1280.0, 720.0))).is_empty());
+    }
+
+    #[test]
+    fn a_maximize_the_compositor_dropped_is_sent_again() {
+        // GNOME at 125 percent on 1280x800 left the installer at 640x400 in
+        // one of five launches after a single request.
+        let ctx = egui::Context::default();
+        let mut size = InitialSize::new(INSTALLER);
+        let small = egui::vec2(640.0, 400.0);
+        let monitor = Some(egui::vec2(1024.0, 640.0));
+        assert_eq!(
+            frame(&ctx, &mut size, small, monitor),
+            vec![egui::ViewportCommand::Maximized(true)]
+        );
+        size.requested_at = Some(std::time::Instant::now() - RETRY_AFTER);
+        assert_eq!(
+            frame_maximized(&ctx, &mut size, small, monitor, Some(false)),
+            vec![egui::ViewportCommand::Maximized(true)]
+        );
+    }
+
+    #[test]
+    fn a_maximize_in_progress_is_not_repeated() {
+        let ctx = egui::Context::default();
+        let mut size = InitialSize::new(INSTALLER);
+        let small = egui::vec2(640.0, 400.0);
+        let monitor = Some(egui::vec2(1024.0, 640.0));
+        assert_eq!(frame(&ctx, &mut size, small, monitor).len(), 1);
+        size.requested_at = Some(std::time::Instant::now() - RETRY_AFTER);
+        assert!(frame_maximized(&ctx, &mut size, small, monitor, Some(true)).is_empty());
+    }
+
+    #[test]
+    fn retries_stop_after_the_limit_or_once_the_window_fits() {
+        let ctx = egui::Context::default();
+        let small = egui::vec2(640.0, 400.0);
+        let monitor = Some(egui::vec2(1024.0, 640.0));
+        let mut size = InitialSize::new(INSTALLER);
+        let mut sent = 0;
+        for _ in 0..20 {
+            sent += frame(&ctx, &mut size, small, monitor).len();
+            size.requested_at = Some(std::time::Instant::now() - RETRY_AFTER);
+        }
+        assert_eq!(sent, usize::from(MAX_ATTEMPTS));
+
+        let mut size = InitialSize::new(INSTALLER);
+        assert_eq!(frame(&ctx, &mut size, small, monitor).len(), 1);
+        assert!(frame(&ctx, &mut size, egui::vec2(957.0, 576.0), monitor).is_empty());
+        size.requested_at = Some(std::time::Instant::now() - RETRY_AFTER);
+        assert!(frame(&ctx, &mut size, small, monitor).is_empty());
     }
 
     #[test]
