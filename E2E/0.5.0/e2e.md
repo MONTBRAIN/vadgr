@@ -1000,7 +1000,7 @@ pointer input that the visual exception does not authorize. Minimum sizes and
 125, 150 and 200 percent display scales were observed on K and L. L04
 passed on exact H, O1 passed on exact H and again for the J-affected offline
 uninstall, F01 passed on exact H with one owner scan, B01 passed on final L,
-and C1 runs after L. FUSE is present, so L02 has no protected
+and C1 passed after L. FUSE is present, so L02 has no protected
 dependency prompt to exercise on this host. Complete visual/reader matrices
 remain in their dedicated cells rather than invalidating functional startup.
 
