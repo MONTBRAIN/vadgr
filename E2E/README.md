@@ -19,8 +19,9 @@ Before native desktop cells, read the "Native desktop cold-start checklist"
 in the template and current minor. Follow the repository entry point's full
 engineering procedure. The template and current minor
 must name the automation preflight, native text-entry proof and exact unfocused
-application capture. Complete those probes before depending on them; preserve
-each missing capability and continue independent assertions. Inspect actual
+application capture. Complete those probes before depending on them. Move an
+assertion whose capability no existing tool provides to the minor that
+delivers it, or to a recorded workaround, and continue independent assertions. Inspect actual
 images of the terms and other GUI states, not only accessibility or API data.
 
 **The rules in one place: `## The rules`, the first section of
@@ -306,6 +307,34 @@ The tell that this rule is being broken: a cell whose "expected" column
 describes a capability the code does not have. If a check needs a tool the loop
 is not wired to, or a surface that ships two minors from now, it is not an open
 cell - it is somebody else's cell.
+
+**The same holds for the test tooling, not only the product.** Before a cell or
+assertion enters a runbook, name the exact tool, version and interface its
+action and its oracle use, and record a capability probe that shows the tool
+exists and works on the target. The template's tooling table is where it goes.
+An existing development build counts, released or not, when its exact source
+and artifact are named. A version that does not exist does not count, and
+neither does a release that is ordered after this minor, because then the
+runbook and the tool each wait for the other to ship.
+
+An assertion that needs such a tool is not written into this minor's runbook as
+owed. It moves to the minor that delivers the tool, named in the plan and in
+one line here, or it is replaced by a workaround that existing tools execute,
+with the workaround recorded in the cell. **A runbook that only a future
+release can finish is unfinished.** Every cell must reach pass or fail with
+existing tools. The only exceptions are real hardware, OS or owner-protected
+steps, and they are named in the requirements table before the first cell.
+
+When a pass discovers that an assertion cannot be executed with existing tools,
+it moves the assertion out the same day, to the delivering minor or to a
+workaround, with the failed probe as evidence. It does not leave the assertion
+`partial` and owed.
+
+Written from `0.5.0`'s Linux pass. Four visual cells needed an unfocused
+application-only window capture that only a driver version that did not exist
+could make, a closure with a driver release that was ordered after `0.5.0`
+itself, and a pressed-button state the driver had no tool to hold. The cells
+could never close, and the runbook carried them as owed.
 
 ## Enumerate the surface, never sample it
 
