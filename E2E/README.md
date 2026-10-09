@@ -241,17 +241,23 @@ finding you are pleased with: none of them ends your turn. Write the lines and
 keep driving in the same turn. A pass ends when every cell carries a verdict or
 a named blocker, and only then does control go back to the owner.
 
+**A question is not a stop instruction.** "Status so far?", or any other
+question the owner asks while the pass runs, gets a short answer, and the pass
+keeps driving in the same turn. Asking where things stand is not asking the
+pass to end.
+
 Stopping to report looks like progress and is the opposite. The owner now has to
 say "continue", the momentum is gone, and the cells that were never run stay
 never run. **It is the most repeated failure in this project's passes**, and it
 has cost more owner time than every real defect these runbooks have found.
 
-Exactly two things end a pass early:
+Exactly three things end a pass early:
 
 - a cell that physically cannot proceed without the owner, which rule 1 exists to
-  prevent after the start, and
+  prevent after the start,
 - a decision only the owner can make, surfaced with the options and a
-  recommendation.
+  recommendation, and
+- an explicit instruction from the owner to pause or stop.
 
 "I have finished an interesting group and want to tell you about it" is neither.
 Neither is "the next part is long". Neither is a defect you just fixed: fix it,
