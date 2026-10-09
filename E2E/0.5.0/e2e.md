@@ -993,11 +993,16 @@ the 14 applicable cells account for **10 passes, 4 partial, 0 blocked and 0 not
 run**. L01 through L06, B01, O1, F01 and C1 pass their applicable
 host-functional assertions, with unchanged exact `69b10704` evidence and the new
 exact-subject observations kept distinct. VL01 through VL03 and O2 remain
-partial only for assertions this host cannot close before release: exact
-unfocused application-only capture waits for CUA 0.8.0, released-driver
-closure waits for the CUA 0.7.9 release, and hover and pressed states need
-pointer input that the visual exception does not authorize. Minimum sizes and
-125, 150 and 200 percent display scales were observed on K and L. L04
+partial only for assertions this host cannot close before release. Under the
+owner's delegation on 2026-10-09: the development driver at `11fc082b`
+closes the driver assertions for 0.5.0 and the released-driver rerun moves to
+CUA 0.7.9 release validation, because that release is ordered after vadgr
+0.5.0; the approved focused-region capture closes the Linux visual slices and
+exact unfocused capture moves to CUA 0.8.0 qualification; pointer hover is
+authorized on the test window only. Hover passed on L in both themes. The
+pressed state stays owed: the driver's `drag` holds the button only inside one
+blocking call, so no capture can occur while a control is pressed. Minimum
+sizes and 125, 150 and 200 percent display scales were observed on K and L. L04
 passed on exact H, O1 passed on exact H and again for the J-affected offline
 uninstall, F01 passed on exact H with one owner scan, B01 passed on final L,
 and C1 passed after L. FUSE is present, so L02 has no protected
@@ -3024,6 +3029,17 @@ committed in the J packet after a cleanup removed them; the rebuilt edition
 matched the J seal. The privacy baseline moved from the original preserved
 inputs to the previous approved packet, using byte-identical scanner and
 classifier editions.
+
+Hover on exact L (owner-authorized pointer hover, no pointer clicks):
+secondary buttons and sidebar items show a hover fill in both themes; the
+primary and destructive buttons set their own fill, so they show no hover
+change in light and a darker fill in dark (hovered primary text 6.18:1). No
+hovered control lost readable contrast. Navigation actions that seemed ignored
+were traced to the compositor: during those launches the console's UI thread
+waited in `eglSwapBuffers`, a `wl_display.sync` took 3.7 seconds, and
+gnome-shell answered a trivial D-Bus read in up to 3.7 seconds even while idle,
+with the VM at load 4.5 on four CPUs. This is a host limitation, not a Vadgr
+defect; the hover task retries an unchanged page.
 
 ## macOS qualification history
 
