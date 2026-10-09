@@ -19,6 +19,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
   available. The check of the installed runtime before each start no longer
   counts against the status request's handshake limit, and it no longer holds
   a daemon worker while a run starts.
+- On Linux with GNOME fractional scaling, such as a 1920 by 1080 display at
+  125 or 150 percent, the console and installer no longer open smaller than
+  their minimum size. A window that opens too small is maximized when the
+  screen has room for its minimum size.
 - Installed updates accept an explicit HTTPS or absolute local source without
   changing the installation receipt or its trust requirements. Linux AppImages
   use the existing release download location when no origin is configured.

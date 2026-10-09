@@ -236,6 +236,7 @@ fn app(theme: egui::Theme) -> (egui::Context, ConsoleApp) {
         notice: None,
         available_update: None,
         last_refresh: std::time::Instant::now(),
+        initial_size: InitialSize::new(WINDOW),
     };
     (ctx, app)
 }

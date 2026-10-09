@@ -1,6 +1,8 @@
 //! Native Linux graphical installer.
 
 #[cfg(target_os = "linux")]
+use crate::console::native::{InitialSize, WindowSize};
+#[cfg(target_os = "linux")]
 use anyhow::ensure;
 use anyhow::{Result, anyhow};
 #[cfg(target_os = "linux")]
@@ -35,12 +37,7 @@ pub fn run(vehicle: PathBuf) -> Result<()> {
     // Open Vadgr and the installed daemon must not hold this vehicle's mount.
     crate::install::keep_inherited_descriptors_from_children()?;
     let preflight = Preflight::open(&vehicle)?;
-    let options = crate::console::native::options(
-        egui::ViewportBuilder::default()
-            .with_title("Install Vadgr")
-            .with_inner_size([760.0, 620.0])
-            .with_min_inner_size([680.0, 540.0]),
-    );
+    let options = crate::console::native::options(WINDOW.viewport().with_title("Install Vadgr"));
     eframe::run_native(
         "Install Vadgr",
         options,
@@ -126,7 +123,14 @@ struct InstallerApp {
     accepted: bool,
     state: State,
     receiver: Option<mpsc::Receiver<State>>,
+    initial_size: InitialSize,
 }
+
+#[cfg(target_os = "linux")]
+const WINDOW: WindowSize = WindowSize {
+    default: egui::Vec2::new(760.0, 620.0),
+    min: egui::Vec2::new(680.0, 540.0),
+};
 
 #[cfg(target_os = "linux")]
 impl InstallerApp {
@@ -136,6 +140,7 @@ impl InstallerApp {
             accepted: false,
             state: State::Terms,
             receiver: None,
+            initial_size: InitialSize::new(WINDOW),
         }
     }
 
@@ -465,6 +470,7 @@ fn installer_button(
 #[cfg(target_os = "linux")]
 impl eframe::App for InstallerApp {
     fn ui(&mut self, root: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        self.initial_size.check(root.ctx());
         self.render(root);
     }
 }

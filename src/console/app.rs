@@ -2,6 +2,7 @@ use super::controller::{
     ConsoleController, DeviceSnapshot, HealthSnapshot, HttpConsoleController, MachineEdit,
     MachineSnapshot, PairingSession, ProviderSnapshot,
 };
+use super::native::{InitialSize, WindowSize};
 use super::text_input::TextInput;
 use super::theme;
 use anyhow::{Result, anyhow};
@@ -121,7 +122,13 @@ pub struct ConsoleApp {
     notice: Option<(bool, String)>,
     available_update: Option<crate::install::UpdateCheck>,
     last_refresh: std::time::Instant,
+    initial_size: InitialSize,
 }
+
+const WINDOW: WindowSize = WindowSize {
+    default: Vec2::new(1200.0, 720.0),
+    min: Vec2::new(900.0, 600.0),
+};
 
 impl ConsoleApp {
     fn new(controller: Arc<dyn ConsoleController>, ctx: &egui::Context) -> Self {
@@ -138,6 +145,7 @@ impl ConsoleApp {
             notice: None,
             available_update: None,
             last_refresh: std::time::Instant::now(),
+            initial_size: InitialSize::new(WINDOW),
         };
         app.reload();
         app
@@ -1630,6 +1638,7 @@ fn pairing_qr(ui: &mut egui::Ui, session: &PairingSession, side: f32) -> Result<
 impl eframe::App for ConsoleApp {
     fn ui(&mut self, root: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let ctx = root.ctx().clone();
+        self.initial_size.check(&ctx);
         theme::refresh(&ctx);
         self.dialog_focus.begin_frame(&ctx, self.view);
         self.poll(&ctx);
@@ -1743,11 +1752,7 @@ impl eframe::App for ConsoleApp {
 
 pub fn run(base_url: String) -> Result<()> {
     let controller = Arc::new(HttpConsoleController::new(base_url)?);
-    let options = super::native::options(
-        egui::ViewportBuilder::default()
-            .with_inner_size([1200.0, 720.0])
-            .with_min_inner_size([900.0, 600.0]),
-    );
+    let options = super::native::options(WINDOW.viewport());
     eframe::run_native(
         "Vadgr",
         options,
@@ -2261,6 +2266,7 @@ mod tests {
                 notice: None,
                 available_update: None,
                 last_refresh: std::time::Instant::now(),
+                initial_size: InitialSize::new(WINDOW),
             };
             (ctx, app)
         }
@@ -2470,6 +2476,7 @@ mod tests {
             notice: None,
             available_update: None,
             last_refresh: std::time::Instant::now() - std::time::Duration::from_secs(30),
+            initial_size: InitialSize::new(WINDOW),
         };
 
         app.poll(&ctx);
@@ -2517,6 +2524,7 @@ mod tests {
             notice: None,
             available_update: None,
             last_refresh: std::time::Instant::now(),
+            initial_size: InitialSize::new(WINDOW),
         };
         app.poll(&ctx);
         let notice = &app.notice.as_ref().unwrap().1;

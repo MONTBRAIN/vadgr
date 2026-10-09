@@ -122,6 +122,7 @@ fn ready_app_with_refresh_gate(
         notice: None,
         available_update: None,
         last_refresh: std::time::Instant::now(),
+        initial_size: InitialSize::new(WINDOW),
     };
     (ctx, app, calls)
 }
