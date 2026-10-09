@@ -22,8 +22,9 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - On Linux with GNOME fractional scaling, such as a 1920 by 1080 display at
   125 or 150 percent, the console and installer no longer open smaller than
   their minimum size. A window that opens too small is maximized when the
-  screen has room for its minimum size, and the request is repeated if the
-  desktop drops it while it places the window.
+  screen has room for its minimum size. The first frame decides, so the
+  window does not wait for the desktop to report its monitor, and the request
+  is repeated if the desktop drops it while it places the window.
 - A console result notice, such as an update failure, stays until the next
   action you start. The automatic background refresh no longer clears it after
   a few seconds.

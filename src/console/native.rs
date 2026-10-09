@@ -41,7 +41,14 @@ impl WindowSize {
 /// as GNOME does at map time for a window nearly as large as the screen.
 /// Maximizing also keeps the window on screen, which a plain resize of an
 /// already placed window does not.
+///
+/// The window learns its monitor only after GNOME shows it, and GNOME can
+/// withhold the frame callbacks that drive later frames for seconds. The first
+/// frame therefore estimates the monitor from eframe's own limit: the window
+/// opened at the monitor size divided by the integer output scale, which GNOME
+/// sets to the fractional scale rounded up.
 pub(crate) struct InitialSize {
+    default: egui::Vec2,
     min: egui::Vec2,
     done: bool,
     requested_at: Option<std::time::Instant>,
@@ -61,6 +68,7 @@ const MAX_ATTEMPTS: u8 = 6;
 impl InitialSize {
     pub(crate) fn new(size: WindowSize) -> Self {
         Self {
+            default: size.default,
             min: size.min,
             done: false,
             requested_at: None,
@@ -72,18 +80,20 @@ impl InitialSize {
         if self.done {
             return;
         }
-        let (current, monitor, maximized) = ctx.input(|input| {
+        let (current, monitor, scale, maximized) = ctx.input(|input| {
             let viewport = input.viewport();
             (
                 input.viewport_rect().size(),
                 viewport.monitor_size,
+                viewport.native_pixels_per_point,
                 viewport.maximized,
             )
         });
         // Frames only run on input, so keep checking until this settles.
         ctx.request_repaint_after(RETRY_AFTER);
-        // The monitor is known once the window is shown on one.
-        let Some(monitor) = monitor else {
+        let Some(monitor) =
+            monitor.or_else(|| scale.map(|scale| estimated_monitor(current, self.default, scale)))
+        else {
             return;
         };
         // Once the window fits, later sizes are the user's or the
@@ -110,6 +120,20 @@ impl InitialSize {
         self.requested_at = Some(std::time::Instant::now());
         ctx.send_viewport_cmd(egui::ViewportCommand::Maximized(true));
     }
+}
+
+/// The monitor size in points, from the size eframe limited the window to.
+/// A dimension eframe did not limit only bounds the monitor from below.
+fn estimated_monitor(current: egui::Vec2, default: egui::Vec2, scale: f32) -> egui::Vec2 {
+    let output_scale = scale.ceil().max(1.0);
+    let limited = |current: f32, default: f32| {
+        if current + 0.5 < default {
+            current
+        } else {
+            default
+        }
+    };
+    egui::vec2(limited(current.x, default.x), limited(current.y, default.y)) * output_scale / scale
 }
 
 fn should_maximize(current: egui::Vec2, monitor: egui::Vec2, min: egui::Vec2) -> bool {
@@ -140,6 +164,33 @@ mod tests {
         monitor: Option<egui::Vec2>,
     ) -> Vec<egui::ViewportCommand> {
         frame_maximized(ctx, size, current, monitor, None)
+    }
+
+    fn first_frame(
+        ctx: &egui::Context,
+        size: &mut InitialSize,
+        current: egui::Vec2,
+        scale: f32,
+    ) -> Vec<egui::ViewportCommand> {
+        let mut input = egui::RawInput {
+            screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, current)),
+            ..Default::default()
+        };
+        input
+            .viewports
+            .entry(egui::ViewportId::ROOT)
+            .or_default()
+            .native_pixels_per_point = Some(scale);
+        let mut output = ctx.run_ui(input, |ui| size.check(ui.ctx()));
+        output.textures_delta.clear();
+        output
+            .viewport_output
+            .get(&egui::ViewportId::ROOT)
+            .map(|viewport| viewport.commands.clone())
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|command| matches!(command, egui::ViewportCommand::Maximized(_)))
+            .collect()
     }
 
     fn frame_maximized(
@@ -187,6 +238,40 @@ mod tests {
             vec![egui::ViewportCommand::Maximized(true)]
         );
         assert!(frame(&ctx, &mut size, small, Some(egui::vec2(1280.0, 720.0))).is_empty());
+    }
+
+    #[test]
+    fn the_first_frame_estimates_the_monitor_from_the_limited_size() {
+        // 1920x1080 at 125 percent: GNOME reports output scale 2, so eframe
+        // limited the console to 960x540; the monitor is 1536x864 points.
+        assert_eq!(
+            estimated_monitor(egui::vec2(960.0, 540.0), CONSOLE.default, 1.25),
+            egui::vec2(1536.0, 864.0)
+        );
+        // An unlimited dimension stays at the default and bounds from below.
+        assert_eq!(
+            estimated_monitor(egui::vec2(1200.0, 720.0), CONSOLE.default, 1.0),
+            egui::vec2(1200.0, 720.0)
+        );
+    }
+
+    #[test]
+    fn an_undersized_window_is_maximized_before_its_monitor_is_reported() {
+        let ctx = egui::Context::default();
+        let mut size = InitialSize::new(CONSOLE);
+        assert_eq!(
+            first_frame(&ctx, &mut size, egui::vec2(960.0, 540.0), 1.5),
+            vec![egui::ViewportCommand::Maximized(true)]
+        );
+        // 1280x800 at 125 percent has no room for the console's minimum.
+        let mut size = InitialSize::new(CONSOLE);
+        assert!(first_frame(&ctx, &mut size, egui::vec2(640.0, 400.0), 1.25).is_empty());
+        // The installer's smaller minimum fits the same monitor.
+        let mut size = InitialSize::new(INSTALLER);
+        assert_eq!(
+            first_frame(&ctx, &mut size, egui::vec2(640.0, 400.0), 1.25),
+            vec![egui::ViewportCommand::Maximized(true)]
+        );
     }
 
     #[test]
