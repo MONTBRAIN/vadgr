@@ -614,15 +614,65 @@ mod platform {
     }
 
     pub fn uninstall(receipt: &InstallReceipt, purge_owner_state: bool) -> Result<()> {
+        uninstall_with(
+            receipt,
+            purge_owner_state,
+            stop_installed_daemon,
+            |setup, arguments| {
+                let status = Command::new(setup)
+                    .args(arguments)
+                    .status()
+                    .context("starting the Vadgr uninstaller")?;
+                ensure!(status.success(), "Vadgr setup returned {status}");
+                Ok(())
+            },
+        )
+    }
+
+    /// Stop the installed daemon, then hand the removal to the setup bundle.
+    ///
+    /// Windows keeps a running executable locked, and the daemon holds both
+    /// `vadgr.exe` and the state database. An uninstall that leaves it running
+    /// fails inside `PurgeOwnerState`, which cannot delete the open database;
+    /// Windows Installer then rolls the transaction back *after* that action has
+    /// already removed the acceptance record and the stored credentials, so the
+    /// owner loses data and keeps the package. Stopping first is what makes the
+    /// removal succeed, so it has to happen before the bundle runs, not beside it.
+    fn uninstall_with(
+        receipt: &InstallReceipt,
+        purge_owner_state: bool,
+        stop: impl FnOnce(&Path) -> Result<()>,
+        run: impl FnOnce(&Path, &[&str]) -> Result<()>,
+    ) -> Result<()> {
         ensure!(
             receipt.package_kind == "msi",
             "this is not a Windows MSI installation"
         );
+        stop(&receipt.install_root)?;
         let setup = registered_bundle_path()?;
-        let mut command = Command::new(setup);
-        command.args(bundle_uninstall_args(purge_owner_state));
-        let status = command.status().context("starting the Vadgr uninstaller")?;
-        ensure!(status.success(), "Vadgr setup returned {status}");
+        run(&setup, &bundle_uninstall_args(purge_owner_state))
+    }
+
+    /// Ask the installed product to stop through its own public command.
+    ///
+    /// The pid and port records belong to the CLI, so the daemon library asks
+    /// the installed binary rather than keeping a second copy of that logic.
+    fn stop_installed_daemon(install_root: &Path) -> Result<()> {
+        let binary = install_root.join("vadgr.exe");
+        if !binary.is_file() {
+            // Nothing installed to stop; the caller's own checks report that.
+            return Ok(());
+        }
+        let status = Command::new(&binary)
+            .arg("stop")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .context("stopping the installed Vadgr daemon")?;
+        ensure!(
+            status.success(),
+            "the installed Vadgr daemon could not be stopped before removal"
+        );
         Ok(())
     }
 
@@ -756,6 +806,66 @@ mod platform {
             assert_eq!(
                 bundle_uninstall_args(false),
                 ["/uninstall", "/quiet", "/norestart"]
+            );
+        }
+
+        fn msi_receipt() -> InstallReceipt {
+            InstallReceipt {
+                schema: 1,
+                version: "0.5.0".to_owned(),
+                install_root: PathBuf::from(r"C:\Users\owner\AppData\Local\Programs\Vadgr"),
+                package_kind: "msi".to_owned(),
+                product_code: Some("{CEFD8482-734F-403D-B9BB-5ABD06A2A79E}".to_owned()),
+                release_sequence: Some(500),
+                manifest_sha256: None,
+                development_receipt_sha256: None,
+                update_origin: None,
+                publisher: None,
+                rollback_vehicle: None,
+            }
+        }
+
+        #[test]
+        fn the_daemon_is_stopped_before_the_uninstaller_runs() {
+            let order = std::cell::RefCell::new(Vec::new());
+            uninstall_with(
+                &msi_receipt(),
+                true,
+                |root| {
+                    assert!(root.ends_with("Vadgr"), "the installed root is passed on");
+                    order.borrow_mut().push("stop");
+                    Ok(())
+                },
+                |_, _| {
+                    order.borrow_mut().push("run");
+                    Ok(())
+                },
+            )
+            .expect("the uninstall sequence completes");
+            assert_eq!(
+                order.into_inner(),
+                ["stop", "run"],
+                "a daemon still holding the database makes PurgeOwnerState fail, \
+                 and the rollback does not give the deleted owner data back"
+            );
+        }
+
+        #[test]
+        fn a_daemon_that_will_not_stop_cancels_the_uninstall() {
+            let ran = std::cell::Cell::new(false);
+            let result = uninstall_with(
+                &msi_receipt(),
+                true,
+                |_| Err(anyhow!("the installed Vadgr daemon could not be stopped")),
+                |_, _| {
+                    ran.set(true);
+                    Ok(())
+                },
+            );
+            assert!(result.is_err(), "the removal does not start blind");
+            assert!(
+                !ran.get(),
+                "starting the uninstaller anyway is what deletes owner data and then rolls back"
             );
         }
     }
