@@ -84,9 +84,10 @@ pub async fn providers(client: &Client) -> Result<(), CliError> {
 pub async fn computer_use_status(client: &Client) -> Result<(), CliError> {
     let body = client.get("/api/settings/computer-use").await?;
     let enabled = body.get("enabled").and_then(|v| v.as_bool()) == Some(true);
+    let venv_ready = body.get("venv_ready").and_then(|v| v.as_bool()) == Some(true);
     anstream::println!(
         "  Computer use: {}",
-        output::format_status(if enabled { "enabled" } else { "disabled" })
+        output::format_status(computer_use_state(enabled, venv_ready))
     );
     Ok(())
 }
@@ -144,9 +145,42 @@ fn module_state(available: bool) -> &'static str {
     }
 }
 
+/// The word `vadgr computer-use status` prints for the installed module.
+///
+/// The stored setting and the private runtime are separate facts. The daemon's
+/// health and the console both call the module usable only when it is enabled
+/// *and* its runtime is ready, so printing the stored `enabled` flag alone told
+/// an owner "enabled" while the console beside it read "Unavailable" and no
+/// bundled task could start. These three states keep the owner's own choice
+/// visible and still state what the module can actually do.
+fn computer_use_state(enabled: bool, venv_ready: bool) -> &'static str {
+    match (enabled, venv_ready) {
+        (false, _) => "disabled",
+        (true, false) => "unavailable",
+        (true, true) => "enabled",
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::module_state;
+    use super::{computer_use_state, module_state};
+
+    #[test]
+    fn an_enabled_module_without_its_runtime_is_not_called_enabled() {
+        assert_eq!(computer_use_state(true, false), "unavailable");
+        assert_ne!(
+            computer_use_state(true, false),
+            "enabled",
+            "health and the console call this module unusable; the CLI must agree"
+        );
+    }
+
+    #[test]
+    fn the_owners_own_choice_stays_visible() {
+        assert_eq!(computer_use_state(false, false), "disabled");
+        assert_eq!(computer_use_state(false, true), "disabled");
+        assert_eq!(computer_use_state(true, true), "enabled");
+    }
 
     #[test]
     fn a_module_the_daemon_calls_false_is_never_reported_as_missing() {
