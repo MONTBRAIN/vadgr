@@ -12,6 +12,36 @@ copied here** - a second copy drifts, and a drifted rule is worse than none.
 What follows is the handful of things that must not be looked up, plus where to
 look for everything else.
 
+## Reporting to the owner
+
+**A report is not a stopping point. Report inside the turn and keep working.**
+
+A long task needs progress reports. It does not need pauses. Write the report
+as part of the work, then start the next step in the same turn. Ending a turn
+to deliver a status update costs the owner a round trip, and it stops every
+background job and every live subject you had running.
+
+Stop and wait only for these:
+
+1. a protected operating system prompt that only the owner can accept;
+2. a physical action, such as aiming a phone camera or connecting a device;
+3. a decision that changes what the work is, where proceeding either way
+   would waste the result.
+
+Everything else continues:
+
+- **a question from the owner is not a stop.** Answer it in one or two
+  sentences and carry on in the same turn;
+- **a finding is not a stop.** Record it, say what you will do about it, do it;
+- **a blocked cell is not a stop.** Say what blocks it, then run the cells that
+  are not blocked;
+- **a mistake of your own is not a stop.** Correct it in one line and continue.
+  Do not re-open settled work to re-examine how you said something.
+
+When you do report, lead with what changed since the last report, name the
+exact artifacts, commits and hashes, separate what you observed from what you
+concluded, and say what you are doing next. Then do it in the same turn.
+
 ## Before you touch anything
 
 ```bash
