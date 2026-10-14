@@ -1094,7 +1094,13 @@ The shared update-source repair still requires affected Windows W07,
 failed-update W09 and O2 Settings update-control reruns, plus macOS M06 and
 its update controls. WSL must exercise its current public installed CLI path.
 The shared console action/refresh repair at `bb8fb0a8` additionally requires
-affected restart/action and O2 reruns on Windows and macOS. Linux observations
+affected restart/action and O2 reruns on Windows and macOS.
+The shared CLI repair at `c87317d8` is not platform gated: `vadgr computer-use
+status` now reports actual availability instead of the stored setting, so every
+host that reads that command in a cell reruns it. Linux and macOS rerun it on a
+rebuilt artifact; Windows reran it on 2026-10-14 and all three surfaces agree.
+The Windows removal repair at `f233e58f` is compiled for Windows only and asks
+no rerun of another host. Linux observations
 at `16cd0c47` cover only their explicitly recorded assertions; they do not
 qualify another platform. Earlier platform passes remain historical for
 changed behavior. Unchanged machine and phone observations are not invalidated
