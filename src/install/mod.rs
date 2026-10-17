@@ -414,6 +414,115 @@ fn valid_sha256(value: &str) -> bool {
     value.len() == 64 && value.chars().all(|character| character.is_ascii_hexdigit())
 }
 
+/// The Windows setup theme is read by the bootstrapper at run time, so a layout
+/// mistake in it reaches the owner as a wrong frame rather than a build error.
+/// These checks read the shipped theme itself.
+#[cfg(test)]
+mod windows_theme_tests {
+    const THEME: &str = include_str!("../../packaging/windows/VadgrTheme.xml");
+    const STEPS: [&str; 3] = ["1   Terms", "2   Install", "3   Finish"];
+
+    /// Every label the theme declares, as (page, font id, height, text).
+    fn labels() -> Vec<(String, String, i32, String)> {
+        let mut page = String::from("window");
+        let mut out = Vec::new();
+        for line in THEME.lines() {
+            let trimmed = line.trim();
+            if let Some(rest) = trimmed.strip_prefix("<Page Name=\"") {
+                page = rest.split('"').next().unwrap_or("").to_owned();
+                continue;
+            }
+            if trimmed.starts_with("</Page>") {
+                page = String::from("window");
+                continue;
+            }
+            if !trimmed.starts_with("<Label ") {
+                continue;
+            }
+            let attr = |name: &str| -> Option<String> {
+                trimmed
+                    .split_once(&format!("{name}=\""))
+                    .and_then(|(_, rest)| rest.split('"').next())
+                    .map(str::to_owned)
+            };
+            let text = trimmed
+                .split_once('>')
+                .map(|(_, rest)| rest.trim_end_matches("</Label>"))
+                .unwrap_or("")
+                .to_owned();
+            out.push((
+                page.clone(),
+                attr("FontId").unwrap_or_default(),
+                attr("Height").and_then(|h| h.parse().ok()).unwrap_or(0),
+                text,
+            ));
+        }
+        out
+    }
+
+    #[test]
+    fn the_step_list_is_per_page_so_the_current_step_can_change() {
+        // Declared on the window, the list is painted identically on every
+        // page, so Terms stayed the current step while setup was installing
+        // and after it had finished.
+        for (page, _, _, text) in labels() {
+            if STEPS.contains(&text.as_str()) {
+                assert_ne!(
+                    page, "window",
+                    "the step list must belong to a page, not to the window"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn each_page_marks_its_own_step_as_the_current_one() {
+        let current = ["Install", "Progress", "Modify", "Success", "Failure"];
+        for page in current {
+            let on_page: Vec<_> = labels()
+                .into_iter()
+                .filter(|(p, _, _, text)| p == page && STEPS.contains(&text.as_str()))
+                .collect();
+            assert_eq!(on_page.len(), 3, "page {page} must show all three steps");
+            let highlighted: Vec<_> = on_page
+                .iter()
+                .filter(|(_, font, _, _)| font == "0")
+                .map(|(_, _, _, text)| text.clone())
+                .collect();
+            assert_eq!(
+                highlighted.len(),
+                1,
+                "page {page} must mark exactly one step as current, found {highlighted:?}"
+            );
+            let want = match page {
+                "Progress" => "2   Install",
+                "Success" | "Failure" => "3   Finish",
+                _ => "1   Terms",
+            };
+            assert_eq!(highlighted[0], want, "page {page} marks the wrong step");
+        }
+    }
+
+    #[test]
+    fn the_brand_description_box_holds_every_line_it_wraps_to() {
+        let (_, _, height, text) = labels()
+            .into_iter()
+            .find(|(_, _, _, text)| text.starts_with("Installs Vadgr"))
+            .expect("the brand description label");
+        // Font 3 is declared at 12 pixels, which the control draws on about a
+        // 18 pixel line. The box is 145 wide and the text wraps to three lines
+        // at that width, so 42 pixels cut the last line in half.
+        let line_height = 18;
+        let characters_per_line = 24;
+        let lines = text.len().div_ceil(characters_per_line) as i32;
+        assert!(
+            height >= lines * line_height,
+            "the brand description wraps to about {lines} lines, which needs at least              {} pixels, but the box is {height}",
+            lines * line_height
+        );
+    }
+}
+
 #[cfg(test)]
 mod acceptance_tests {
     use super::*;
