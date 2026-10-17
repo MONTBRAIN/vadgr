@@ -173,23 +173,52 @@ pub fn purge_owner_state() -> Result<()> {
         std::env::var_os("VADGR_STATE_HOME").is_none(),
         "the package uninstaller refuses to delete an overridden state root"
     );
+    ensure!(
+        std::env::var_os("VADGR_CONFIG_HOME").is_none(),
+        "the package uninstaller refuses to delete an overridden configuration root"
+    );
     let config = crate::config::Config::from_env()
         .map_err(|error| anyhow!("resolving Vadgr state: {error}"))?;
-    let root = config
-        .state_home
-        .ok_or_else(|| anyhow!("the Vadgr state root is unavailable"))?;
-    ensure!(
-        safe_default_state_root(&root),
-        "the resolved owner-state path is not a Vadgr default"
-    );
+    for root in purge_roots(config.state_home, crate::computer_use_setup::config_home().ok())? {
+        remove_owner_root(&root)?;
+    }
+    Ok(())
+}
+
+/// The roots an explicit purge removes.
+///
+/// The confirmation promises settings as well as credentials, pairings and
+/// journals, and the settings file does not live in the state root: on Windows
+/// it is in the configuration root under Roaming. A purge that took the state
+/// root alone left `settings.json` behind after the owner had typed the
+/// confirmation phrase.
+fn purge_roots(state: Option<PathBuf>, config: Option<PathBuf>) -> Result<Vec<PathBuf>> {
+    let state = state.ok_or_else(|| anyhow!("the Vadgr state root is unavailable"))?;
+    let mut roots = vec![state];
+    if let Some(config) = config {
+        if !roots.contains(&config) {
+            roots.push(config);
+        }
+    }
+    for root in &roots {
+        ensure!(
+            safe_default_state_root(root),
+            "the resolved owner path {} is not a Vadgr default",
+            root.display()
+        );
+    }
+    Ok(roots)
+}
+
+fn remove_owner_root(root: &Path) -> Result<()> {
     if !root.exists() {
         return Ok(());
     }
     ensure!(
-        !std::fs::symlink_metadata(&root)?.file_type().is_symlink(),
-        "the owner-state root is a link"
+        !std::fs::symlink_metadata(root)?.file_type().is_symlink(),
+        "an owner root is a link"
     );
-    std::fs::remove_dir_all(&root).context("deleting the Vadgr owner-state root")
+    std::fs::remove_dir_all(root).context("deleting a Vadgr owner root")
 }
 
 fn safe_default_state_root(path: &Path) -> bool {
@@ -524,6 +553,53 @@ mod windows_theme_tests {
 }
 
 #[cfg(test)]
+mod purge_scope_tests {
+    use super::*;
+
+    fn absolute(parts: &[&str]) -> PathBuf {
+        let mut path = if cfg!(windows) {
+            PathBuf::from("C:\\")
+        } else {
+            PathBuf::from("/")
+        };
+        for part in parts {
+            path.push(part);
+        }
+        path
+    }
+
+    #[test]
+    fn an_explicit_purge_takes_the_configuration_root_as_well() {
+        // The settings file lives in the configuration root, so a purge that
+        // took the state root alone left it behind.
+        let state = absolute(&["Users", "owner", "AppData", "Local", "Vadgr"]);
+        let config = absolute(&["Users", "owner", "AppData", "Roaming", "vadgr"]);
+        let roots = purge_roots(Some(state.clone()), Some(config.clone())).expect("both roots");
+        assert!(roots.contains(&state), "the state root must be removed");
+        assert!(roots.contains(&config), "the configuration root must be removed");
+    }
+
+    #[test]
+    fn one_root_serving_both_is_removed_once() {
+        let shared = absolute(&["Users", "owner", "AppData", "Local", "Vadgr"]);
+        let roots = purge_roots(Some(shared.clone()), Some(shared)).expect("one root");
+        assert_eq!(roots.len(), 1);
+    }
+
+    #[test]
+    fn a_root_that_is_not_a_vadgr_default_is_refused() {
+        let state = absolute(&["Users", "owner", "AppData", "Local", "Vadgr"]);
+        let wrong = absolute(&["Users", "owner", "Documents"]);
+        assert!(purge_roots(Some(state), Some(wrong)).is_err());
+    }
+
+    #[test]
+    fn a_missing_state_root_is_refused() {
+        assert!(purge_roots(None, None).is_err());
+    }
+}
+
+#[cfg(test)]
 mod acceptance_tests {
     use super::*;
 
@@ -727,6 +803,7 @@ mod platform {
             receipt,
             purge_owner_state,
             stop_installed_daemon,
+            registered_bundle_path,
             |setup, arguments| {
                 let status = Command::new(setup)
                     .args(arguments)
@@ -747,10 +824,14 @@ mod platform {
     /// already removed the acceptance record and the stored credentials, so the
     /// owner loses data and keeps the package. Stopping first is what makes the
     /// removal succeed, so it has to happen before the bundle runs, not beside it.
+    /// `locate` is a seam: finding the registered bundle reads the machine, so
+    /// a test that could not substitute it only passed on a machine that
+    /// happened to have Vadgr installed.
     fn uninstall_with(
         receipt: &InstallReceipt,
         purge_owner_state: bool,
         stop: impl FnOnce(&Path) -> Result<()>,
+        locate: impl FnOnce() -> Result<PathBuf>,
         run: impl FnOnce(&Path, &[&str]) -> Result<()>,
     ) -> Result<()> {
         ensure!(
@@ -758,7 +839,7 @@ mod platform {
             "this is not a Windows MSI installation"
         );
         stop(&receipt.install_root)?;
-        let setup = registered_bundle_path()?;
+        let setup = locate()?;
         run(&setup, &bundle_uninstall_args(purge_owner_state))
     }
 
@@ -980,6 +1061,7 @@ mod platform {
                     order.borrow_mut().push("stop");
                     Ok(())
                 },
+                || Ok(PathBuf::from("setup.exe")),
                 |_, _| {
                     order.borrow_mut().push("run");
                     Ok(())
@@ -1001,6 +1083,7 @@ mod platform {
                 &msi_receipt(),
                 true,
                 |_| Err(anyhow!("the installed Vadgr daemon could not be stopped")),
+                || Ok(PathBuf::from("setup.exe")),
                 |_, _| {
                     ran.set(true);
                     Ok(())
