@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "72069c3113ab32ab29e5584db3c6ec55d416895e60715417b5b883a357c3e471",
+  "original_statement_files": [
+    {
+      "path": "widestring-1.2.1/.reuse/dep5",
+      "sha256": "d3824f88d34cd8a6eb4b015e7cd209eb0a06e159501bc5760c7b0e465cbb7ec4",
+      "size": 243,
+      "statements": [
+        {
+          "line": 2,
+          "text": "Copyright: Kathryn Long <squeeself@gmail.com>"
+        },
+        {
+          "line": 6,
+          "text": "Copyright: 2021 Kathryn Long <squeeself@gmail.com>"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,40 @@
+{
+  "candidate_approval": false,
+  "packages": [
+    {
+      "id": "framework-wixtoolset.bal.wixext-7.0.0",
+      "included_source_archive": "legal/SOURCE-OFFERS/wix-b8977d6.tar.gz",
+      "included_source_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "nuspec_path": "sources/framework-wixtoolset.bal.wixext-7.0.0/001-WixToolset.Bal.wixext.nuspec",
+      "nuspec_sha256": "d384efd1ecf57d54089feab74e6e7a5992152aaa3685fda5becb546a19fd1b19",
+      "package_sha256": "0f30c29f9e53a6c6acdea2ce0d1f0833153883fa3d16ed8dff75005edd7fe876",
+      "scope": "build-package-source-revision-not-a-final-installer-runtime-membership-claim",
+      "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
+    },
+    {
+      "id": "framework-wixtoolset.sdk-7.0.0",
+      "included_source_archive": "legal/SOURCE-OFFERS/wix-b8977d6.tar.gz",
+      "included_source_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "nuspec_path": "sources/framework-wixtoolset.sdk-7.0.0/001-WixToolset.Sdk.nuspec",
+      "nuspec_sha256": "ddecbc44a71e62d1d708dc492410c64ae389c0a27abd11be999b463724b0fc9d",
+      "package_sha256": "af8f72fb2550e9c2cf00b6eaf5e3ed811514aa2b3f344dfa342540af39676979",
+      "scope": "build-package-source-revision-not-a-final-installer-runtime-membership-claim",
+      "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
+    },
+    {
+      "id": "framework-wixtoolset.util.wixext-7.0.0",
+      "included_source_archive": "legal/SOURCE-OFFERS/wix-b8977d6.tar.gz",
+      "included_source_sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "nuspec_path": "sources/framework-wixtoolset.util.wixext-7.0.0/001-WixToolset.Util.wixext.nuspec",
+      "nuspec_sha256": "bceb912e7e68a2988632b45546b94fa7ad9ae8f81f6c1e960ae647dfc0dddcc3",
+      "package_sha256": "6431ef896ddaff08d21221e67de98a3597fa94fb0557372cb96feb4edae0c23e",
+      "scope": "build-package-source-revision-not-a-final-installer-runtime-membership-claim",
+      "source_commit": "b8977d6f88e7b68e000bac226a2814f236770570"
+    }
+  ],
+  "publishable": false,
+  "remaining_artifact_evidence": "After installer assembly, enumerate actual Burn/BAL/Util runtime code and bind its member hashes to these source revisions; inspect any product modifications.",
+  "remaining_owner_decision": "Official WiX build distribution terms and the actual legal/business facts required by OSMFEULA are not established by a source archive.",
+  "schema": 1,
+  "status": "draft"
+}

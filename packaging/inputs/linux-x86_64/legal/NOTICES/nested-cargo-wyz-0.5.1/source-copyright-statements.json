@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "05f360fc0b24296329c78fda852a1e9ae82de9cf7b27dae4b7f62f118f77b9ed",
+  "original_statement_files": [
+    {
+      "path": "wyz-0.5.1/LICENSE.txt",
+      "sha256": "411781fd38700f2357a14126d0ab048164ab881f1dcb335c1bb932e232c9a2f5",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2018 myrrlyn (Alexander Payne)"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

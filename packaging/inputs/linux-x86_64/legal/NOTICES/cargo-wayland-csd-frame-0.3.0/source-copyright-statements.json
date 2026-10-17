@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "625c5029dbd43d25e6aa9615e88b829a5cad13b2819c4ae129fdbb7c31ab4c7e",
+  "original_statement_files": [
+    {
+      "path": "wayland-csd-frame-0.3.0/LICENSE",
+      "sha256": "c138726a726ac37bae09d0f8a48e74e8e3aa8a8952fcd10fae0fb224cc1c05f1",
+      "size": 1059,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 Kirill Chibisov"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

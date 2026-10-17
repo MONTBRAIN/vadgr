@@ -1,0 +1,25 @@
+{
+  "archive_sha256": "74765f6d916ee2faa39bc8e68e4f3ed8949b48cccdac59983d287a7cb71ce9c5",
+  "original_statement_files": [
+    {
+      "path": "r-efi-5.2.0/AUTHORS",
+      "sha256": "c42285aa32440c3b5358fd4805b817cd8d6e1795111d2e4c547530be41896b2d",
+      "size": 3652,
+      "statements": [
+        {
+          "line": 54,
+          "text": "Copyright (C) 2017-2023 Red Hat, Inc."
+        },
+        {
+          "line": 55,
+          "text": "Copyright (C) 2019-2023 Microsoft Corporation"
+        },
+        {
+          "line": 56,
+          "text": "Copyright (C) 2022-2023 David Rheinsberg"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,34 @@
+Metadata-Version: 2.4
+Name: rpds-py
+Version: 2026.6.3
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Rust
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: 3.15
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+License-File: LICENSE
+Summary: Python bindings to Rust's persistent data structures (rpds)
+Keywords: data structures,rust,persistent
+Author-email: Julian Berman <Julian+rpds@GrayVines.com>
+License-Expression: MIT
+Requires-Python: >=3.11
+Description-Content-Type: text/x-rst; charset=UTF-8
+Project-URL: Documentation, https://rpds.readthedocs.io/
+Project-URL: Funding, https://github.com/sponsors/Julian
+Project-URL: Homepage, https://github.com/crate-py/rpds
+Project-URL: Issues, https://github.com/crate-py/rpds/issues/
+Project-URL: Source, https://github.com/crate-py/rpds
+Project-URL: Tidelift, https://tidelift.com/subscription/pkg/pypi-rpds-py?utm_source=pypi-rpds-py&utm_medium=referral&utm_campaign=pypi-link
+Project-URL: Upstream, https://github.com/orium/rpds
+
+===========
+``rpds.py``
+===========
+

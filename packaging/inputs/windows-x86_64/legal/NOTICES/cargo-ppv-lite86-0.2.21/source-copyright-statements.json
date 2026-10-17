@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "85eae3c4ed2f50dcfe72643da4befc30deadb458a9b590d720cde2f2b1e97da9",
+  "original_statement_files": [
+    {
+      "path": "ppv-lite86-0.2.21/LICENSE-APACHE",
+      "sha256": "0218327e7a480793ffdd4eb792379a9709e5c135c7ba267f709d6f6d4d70af0a",
+      "size": 10854,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2019 The CryptoCorrosion Contributors"
+        }
+      ]
+    },
+    {
+      "path": "ppv-lite86-0.2.21/LICENSE-MIT",
+      "sha256": "4cada0bd02ea3692eee6f16400d86c6508bbd3bafb2b65fed0419f36d4f83e8f",
+      "size": 1076,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 The CryptoCorrosion Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

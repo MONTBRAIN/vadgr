@@ -1,0 +1,17 @@
+{
+  "diff_sha256": "c6136c9f6ed367a42569de5815d38e614b45b2f48115830d81d0d9ff3550c322",
+  "kde_commit": "03d462bbbac0c292beed03d3a5682bb90c893633",
+  "kde_commit_json_sha256": "3dd768edf66887e300ad10624504f4c5e890ea832a59994d6f12c482d1ea261c",
+  "kde_commit_message": "[kwin-wayland] Add support for FullscreenShell\n\nThe FullscreenShell is a Wayland protocol provided by Weston to have\nexactly one surface per output. This is exactly what KWin needs. So\nin case the Wayland server we connect to provides the FullscreenShell\nwe prefer it over the normal Shell and mapping our surface as fullscreen.\n\nThe protocol is not yet part of wayland-client library, so the header\nand source file needs to be generated. This is done during the build\nprocess using the external tool wayland-scanner. The protocol\ndescription is copied from the Westion 1.5 sources.\n\nREVIEW: 119839",
+  "kde_commit_url": "https://api.github.com/repos/KDE/plasma-wayland-protocols/commits/03d462bbbac0c292beed03d3a5682bb90c893633",
+  "license_conclusion": "LicenseRef-Weston-fullscreen-87fd2cefa8601f7060527345fc6abf9526463dc8c8fe6cf6f536c44d7f0a39e0",
+  "plasma_archive_sha256": "2b6d8cf1eb2c1c31ed1f5643c88a6e53538129d4af80030c8cabd1f9fa884d91",
+  "plasma_protocol_sha256": "ed7ded0629f9f05adb9326a378258255d623522b85ec4d47c787742da7fd5c7c",
+  "schema": 1,
+  "scope": "General software/documentation grant in COPYING, before the explicit For libbacklight.c section. Entire original COPYING retained without changing bytes.",
+  "status": "primary-source-provenance-not-package-approval",
+  "weston_archive_sha256": "06388ba04ac79aa72d685cc1a8e646ddb2b8cfe11fcc742294f9addac48b7684",
+  "weston_copying_sha256": "87fd2cefa8601f7060527345fc6abf9526463dc8c8fe6cf6f536c44d7f0a39e0",
+  "weston_protocol_sha256": "2ccd919a865e8d5cc107842a387989746d78ec6c1ff07e163ffd6aa78e3807b5",
+  "weston_url": "https://wayland.freedesktop.org/releases/weston-1.5.0.tar.xz"
+}

@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "e1cf6437eb19a8f4a6cc0f7dca544973b0b78843adbfeb3683d1a94a0024a294",
+  "original_statement_files": [
+    {
+      "path": "scoped-tls-1.0.1/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "scoped-tls-1.0.1/src/lib.rs",
+      "sha256": "ca804e29dde7dc843ab24f7f70c694eb43fac7c62194d85a58c8062caa0a84f4",
+      "size": 7273,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2014-2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,208 @@
+{
+  "assembler_binary_sha256": "b94f2e709f1bc9e79750ac7f86702b4f808b4ba3c9781e955627df63791b864a",
+  "assembly_exit_code": 0,
+  "assembly_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "binding": {
+    "installed_inventory_sha256": "2cc8d1ff4cb04000ce2f0298f0b2c886ecbd6a850c4015e8e2224083c75f1907",
+    "requirements_sha256": "83bdf9d395ea701f032e30cba1537483ebfefe8cdac03f30b9eccdccb4e98292",
+    "target": "x86_64-pc-windows-msvc",
+    "wheel_manifest_sha256": "2f86c4d2c6493d32019a617c669e3c0babefc565f9da73c6182475286ad499b8"
+  },
+  "build_profile": "dev",
+  "certificate_scope": "PE certificate-table presence only; no cryptographic signature validity or trust claim.",
+  "cua_version": "0.7.8",
+  "finished": "2026-09-24T06:11:32.877830+00:00",
+  "first_failed_payload_manifest_sha256": "88390db2db98409bbbd7d2e2d5c8c87e48f00d62285c76d1be7f78638bfa2007",
+  "first_failure": "Four pip/distlib launcher templates target x86 or ARM64 instead of x64; Python also retained debug files.",
+  "installed_inventory_sha256": "2cc8d1ff4cb04000ce2f0298f0b2c886ecbd6a850c4015e8e2224083c75f1907",
+  "legal_review_status": "draft",
+  "loose_native_files_checked": 128,
+  "nested_archives": [
+    {
+      "path": "environments/0.7.8-83bdf9d395ea/Lib/site-packages/computer_use/browser/winbroker/vadgr-cua-browser-broker-win-x64.zip",
+      "pe_members": [
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_asyncio.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "02c681521aa0eaa4822b206e2ed0cb51de969af86045846a52a321908e041f14",
+          "size": 59392
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_bz2.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "1cedba5927c6f00b4278c2b60b5696506ccc73af4859384a26160e1cf4945d01",
+          "size": 73216
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_ctypes.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "78edcd2a863472cded0f311eac31c778bc30fb9754fa815bb32c4e286eb7f155",
+          "size": 116224
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_decimal.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "14ec08311a3ee2248eaa332cec544bfda6a777bf649029303ee5675bb8ffa939",
+          "size": 248320
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_hashlib.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "0f234dd56319a354cbc103063e58ea25f57b05c0e3825bca0d608518e9c16583",
+          "size": 54784
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_lzma.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "31cfc6fd91059f0e4fd819a3381615db6639faaca7d5428c07c37fb64385b3da",
+          "size": 152576
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_multiprocessing.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "95303df7e7be0b75e67d64127b69704392267e50b2306f5ad45a9e64e7764aa2",
+          "size": 24064
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_overlapped.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "6a36b0102c76e6a931523725380ad8b9d4d559578c528f98110f7b42445feef3",
+          "size": 44032
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_queue.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "6f8dd84f376f5312b206acbe56d2a80eaea53cfadcf81f1c14fb97e75f82fc32",
+          "size": 20480
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_socket.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "df165b012ac7c7dbdd240bfec0237c215dea88ebcd988719658ca8afa4ec7692",
+          "size": 71680
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_ssl.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "480cce65c9b8fd755c5fafab5ba89b04dffd43ce64a1220b30c483e83f28fe6a",
+          "size": 164864
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_uuid.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "89b9c2751660b7821c4107f75821b3b705a6004e9a70517956c7cfb5edae7b42",
+          "size": 13824
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/_wmi.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "01e899f2e92bb73c25edfe2d69a7bb55bd2814a1c3f9eeb115377c19b388ed7a",
+          "size": 25600
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/libcrypto-3-x64.dll",
+          "pe_machine": "0x8664",
+          "sha256": "7404fb0dc38e868aea1551ff8ceb3fce635ba6173439f882715a6e87e5237370",
+          "size": 7987712
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/libffi-8.dll",
+          "pe_machine": "0x8664",
+          "sha256": "634bca492b28c5d530f1bc321dd6d240b92c5013f3815f59653ec483890db27b",
+          "size": 28160
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/libssl-3-x64.dll",
+          "pe_machine": "0x8664",
+          "sha256": "48d349578f5584f15fd3501501e75e87c80369c6ed35f39de55fbb92bee02df5",
+          "size": 1583616
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/pyexpat.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "7c7197db94612b3904ef0ada2a4940bcc6853136cc70f3523a4f26fffccbf37e",
+          "size": 210432
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/python312.dll",
+          "pe_machine": "0x8664",
+          "sha256": "53d38ecd2d9f4e19ac9328a715d1155e3e183473845e15d0044342909fc718a0",
+          "size": 6969856
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/select.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "de108cd0108e8cdfb1f1e95e9fe6b3ede886aaa80a9fe86deb2619ec17d4e625",
+          "size": 18944
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "_internal/unicodedata.pyd",
+          "pe_machine": "0x8664",
+          "sha256": "f7cd7dfbc3c82be5f17fc61424ca316fa43b50193f3e633c5c042d62a47d0dd7",
+          "size": 1127936
+        },
+        {
+          "embedded_certificate_present": true,
+          "path": "_internal/VCRUNTIME140.dll",
+          "pe_machine": "0x8664",
+          "sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066",
+          "size": 124544
+        },
+        {
+          "embedded_certificate_present": true,
+          "path": "_internal/VCRUNTIME140_1.dll",
+          "pe_machine": "0x8664",
+          "sha256": "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f",
+          "size": 49792
+        },
+        {
+          "embedded_certificate_present": false,
+          "path": "vadgr-cua-browser-broker.exe",
+          "pe_machine": "0x8664",
+          "sha256": "9c060691b94152efdb313894385c39f0d44c3ba1ef5f258a9bdb66e4a9e839c4",
+          "size": 2816925
+        }
+      ],
+      "sha256": "cb8d47ede577c76683576a7bb4f8e5251eaa884b66bd50a2a35ad394966ce39d"
+    }
+  ],
+  "owed": [
+    "Regenerate the Windows x64 inventory and legal packet from the corrected CUA release profile.",
+    "Complete nested native signing and exact owner legal review before candidate authorization.",
+    "ARM64 and macOS package inputs remain absent and owed."
+  ],
+  "payload_bytes": 137879805,
+  "payload_file_count": 5049,
+  "payload_manifest_sha256": "adc371605a25de8541699575a48253098ef50a02838247a602045bf5a2bc1a99",
+  "refusal": "The embedded broker archive has PE members without embedded Authenticode certificates. This is not a signed candidate or approved legal package.",
+  "schema": 1,
+  "signed": false,
+  "source_base_sha": "e1c7c24b70c6fcad4cdc31c068701c758eb506ca",
+  "source_file_sha256": {
+    "src/cua_payload.rs": "8dacac8243fa9c8ea495b8aa1d6fccb6ee89b2888ff69b8b3ac91eab7a91aa05"
+  },
+  "source_had_local_changes": true,
+  "started": "2026-09-24T06:11:05.310315+00:00",
+  "status": "not-candidate-ready",
+  "target": "x86_64-pc-windows-msvc"
+}

@@ -1,0 +1,47 @@
+{
+  "archive_sha256": "d1219ed1b7f229ee7104d281dd01d6802fe28bb6e95d292942c4daacdeb798c0",
+  "original_statement_files": [
+    {
+      "path": "memmap2-0.9.11/LICENSE-APACHE",
+      "sha256": "04ea4849dba9dcae07113850c6f1b1a69052c625210639914eee352023f750ad",
+      "size": 10835,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright [2015] [Dan Burkert]"
+        }
+      ]
+    },
+    {
+      "path": "memmap2-0.9.11/LICENSE-MIT",
+      "sha256": "0d25d03b5ab49576178ad0cae7a2648d12c17ad0452fe49c07e55e4b59aa5257",
+      "size": 1091,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020 Yevhenii Reizner"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2015 Dan Burkert"
+        }
+      ]
+    },
+    {
+      "path": "memmap2-0.9.11/README.md",
+      "sha256": "e3388f55065d69e076d90871c0a91dc97420bd0d07b4f154b08e40ac47b115eb",
+      "size": 1212,
+      "statements": [
+        {
+          "line": 31,
+          "text": "Copyright (c) 2020 Yevhenii Reizner"
+        },
+        {
+          "line": 33,
+          "text": "Copyright (c) 2015 Dan Burkert"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

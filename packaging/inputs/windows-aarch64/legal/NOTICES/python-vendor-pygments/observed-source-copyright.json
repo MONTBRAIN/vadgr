@@ -1,0 +1,206 @@
+{
+  "component_sha256": "8ad7673e2a788b4cf63046d081471c0affc0e8e7b1a10551ffc8f4eb46fe35df",
+  "original_statement_files": [
+    {
+      "path": "__init__.py",
+      "sha256": "5e777fedf254a94ffa0f46f15d6d2a4bd33f384f46e955bc60d3db18b5a82b04",
+      "statements": [
+        {
+          "line": 24,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "__main__.py",
+      "sha256": "22a010ffcdfa2afd824f1f2be887ba76e450b9848f97ce6c6d8a2613022c635e",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "console.py",
+      "sha256": "0b5f3d240c210b5421d002a0b21cdbd70543cc5a819efd55678e644c40c83b7d",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "filter.py",
+      "sha256": "d5d9db92ad80742dc0907b770da5f09ce91304b0a1975911ea76922f09ebfed7",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "filters/__init__.py",
+      "sha256": "3eb77ac542bfee4c34ad0bff3973d8dfcef5473c2d58a1a9fe0ed275d6070578",
+      "statements": [
+        {
+          "line": 8,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "formatter.py",
+      "sha256": "12e0173d7e9cdd74240adde50f456148f4990721bb61093c1eb0b0c657fe0994",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "formatters/__init__.py",
+      "sha256": "1182c30888011cbfc392e84d4506651e94b6fd4139f8c7ec18bd6131c39af79c",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "lexer.py",
+      "sha256": "c125c3cedd9f359252ae57dd21f9ca56585e469164b3390f9a0c0125ebdb04da",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "lexers/__init__.py",
+      "sha256": "b3c23fb55968b6b33c7054c69678f0e39518e6c8f98e10f0750cce3a387380d8",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "lexers/python.py",
+      "sha256": "4eac9f40e3e10983f1df96a940beb90808fd93ee01c6eccbabc3037dd9b68ef1",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "modeline.py",
+      "sha256": "99ef20e6bc9289dbcfb4c04eac3cb63b5b0ca99774da5047318e4a0d979f530b",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "plugin.py",
+      "sha256": "3facc8c3ebe4490d24d56287af36c14e3a7094264f6d1fba41efdd3bd06376ed",
+      "statements": [
+        {
+          "line": 32,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "regexopt.py",
+      "sha256": "776853bdace5a30e73cd920e0959df7841b6098d06ad8fe2807d6409249fee8c",
+      "statements": [
+        {
+          "line": 8,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "scanner.py",
+      "sha256": "0eda0b8b5a4e2a936efba8e26a42694902d48bf7a9dbd490421bfba00c1858c1",
+      "statements": [
+        {
+          "line": 14,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "sphinxext.py",
+      "sha256": "45f9699df5c1e2b64b63267e390fe2827b553a507c8c6e36c456201152321dff",
+      "statements": [
+        {
+          "line": 8,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "style.py",
+      "sha256": "c094973978de84663123a7b70c6694b4e35e5ae8664dfb307e4cacacbf566acd",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "styles/__init__.py",
+      "sha256": "91874218af2067557cc1f1501133b3a4f9994c9d67301d1bd6236553c74743d1",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "token.py",
+      "sha256": "0d58a5e53da5b479138104d4632d5d32d8328a08dabc2b35ca913841fd82ac6a",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "unistring.py",
+      "sha256": "678c381df395521b9e09445191f840a90d9bfbaf54ce4858e31b877af604cb98",
+      "statements": [
+        {
+          "line": 10,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    },
+    {
+      "path": "util.py",
+      "sha256": "ce4f77e6d252a70480f73c4d995d53ba17043f431f6e85e24594864272cf12a9",
+      "statements": [
+        {
+          "line": 7,
+          "text": ":copyright: Copyright 2006-present by the Pygments team, see AUTHORS."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

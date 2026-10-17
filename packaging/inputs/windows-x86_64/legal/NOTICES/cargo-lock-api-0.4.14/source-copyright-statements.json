@@ -1,0 +1,61 @@
+{
+  "archive_sha256": "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965",
+  "original_statement_files": [
+    {
+      "path": "lock_api-0.4.14/LICENSE-MIT",
+      "sha256": "c9a75f18b9ab2927829a208fc6aa2cf4e63b8420887ba29cdb265d6619ae82d5",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "lock_api-0.4.14/src/lib.rs",
+      "sha256": "f6dfe0a321e47b5ea9f01a59711e5d3a0442949a829eb4957fa1491fbce63e5c",
+      "size": 4233,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Amanieu d'Antras"
+        }
+      ]
+    },
+    {
+      "path": "lock_api-0.4.14/src/mutex.rs",
+      "sha256": "1487130ba159c9158623d58204b52531c0feaabcdea8e58c0740a29d4f33e5af",
+      "size": 34492,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Amanieu d'Antras"
+        }
+      ]
+    },
+    {
+      "path": "lock_api-0.4.14/src/remutex.rs",
+      "sha256": "a0cc36a3ac9ba2a399f83667ca53670afbec0d0bae6e9c103323918594873eeb",
+      "size": 38522,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Amanieu d'Antras"
+        }
+      ]
+    },
+    {
+      "path": "lock_api-0.4.14/src/rwlock.rs",
+      "sha256": "3094177475cf67c8dc34e68b3fdff2d4133ffb453860b72037477734cb87aefc",
+      "size": 113376,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 Amanieu d'Antras"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

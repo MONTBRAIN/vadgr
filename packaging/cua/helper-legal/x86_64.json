@@ -3,26 +3,26 @@
   "scope": "cua-helper-input-redistribution-and-authenticode-transformation",
   "version": "0.7.9",
   "architecture": "x86_64",
-  "source_commit": "14cb515ba54ca9346ea931ba46d4c3253164c8b4",
-  "review_date": "2026-09-26",
+  "source_commit": "df7be3d898d57a9f2f6295733e3d76926253e984",
+  "review_date": "2026-09-27",
   "status": "approved",
-  "decision": "Publisher authorization to complete, merge and release CUA 0.7.9 after source review, recorded on 2026-09-26.",
-  "review_notes_sha256": "e5f77bf323a8d0470c7125257df76883f9dde7054ea7ed8c4ac66db815da0fc9",
+  "decision": "Publisher authorization to complete, merge and release CUA 0.7.9 after final source review, recorded on 2026-09-27.",
+  "review_notes_sha256": "b10fecc9879443109a5a5d4412f8430bdb2039248560e9206aded3afe9af389c",
   "review_input": {
     "repository": "MONTBRAIN/vadgr-computer-use",
-    "run_id": 36181636747,
+    "run_id": 36346786722,
     "attempt": 1,
-    "tooling_commit": "4ee4570ff4a1ec6393fdc61e8dc199cfd86e5fa9",
-    "receipt_sha256": "4df434e5082912907052aa235e87ac8e31451d978c5f9b171fdfd92a05a13782",
+    "tooling_commit": "6e078f4d83a546abe35c34c8d37d28dfba66f65b",
+    "receipt_sha256": "67025e4350428247974c611fcc5a05a4fd7d2bfd65cb707a6f828f159db554c0",
     "files": [
       {
         "path": "broker.manifest.json",
-        "sha256": "c6b57325ec734b8a287ab887e9821e0ba0203ef1f17cb64e216c31cc517674e0",
+        "sha256": "5933ceac8ecb48a2c9c98db7a39c9c1817b6d7fccdc486fe915f12492dff7969",
         "size": 10031
       },
       {
         "path": "broker.spdx.json",
-        "sha256": "d02c806d6f651704496c7e45c0fa50d54732423cd75bf533bab7213ab2d1c478",
+        "sha256": "5921a04a0aa39cd11b963f7ba68aefd669d81600420e460852fe59a6036e7cf6",
         "size": 121548
       },
       {
@@ -37,7 +37,7 @@
       },
       {
         "path": "build-inputs/source-input.json",
-        "sha256": "34cc1eb8bccbaa520412d304d7b5e57a5eec9df36cad57cde65e892baaeda10e",
+        "sha256": "11c5ae8b33ff05a07e388112ab8650a3d2d475e478300015ae10477958130c45",
         "size": 103
       },
       {
@@ -52,7 +52,7 @@
       },
       {
         "path": "member-inventory.json",
-        "sha256": "6afa6f0e3afada763835af4d1d0f674efb2cc7eab65ed228ebde66a8263625da",
+        "sha256": "d2442223fc2eac910e14ad3dd2adb78a7b20ab6a462a0ca39bed2cdc6bfc2e86",
         "size": 10562
       },
       {
@@ -146,12 +146,12 @@
     "architecture": "x86_64",
     "archive": {
       "path": "computer_use/browser/winbroker/x86_64/vadgr-cua-browser-broker-win-x64.zip",
-      "sha256": "79ada4f29a0b98a023c62a00b3cb23f8cb0133054dd608141993aef03aa73f2a",
-      "size": 23617249
+      "sha256": "a4008d5969883bcc32a484365128a32b26ef9a7f3bb35dfeda156212c4294704",
+      "size": 23621787
     },
     "member_manifest": {
       "path": "computer_use/browser/winbroker/x86_64/vadgr-cua-browser-broker-win-x64.manifest.json",
-      "sha256": "c6b57325ec734b8a287ab887e9821e0ba0203ef1f17cb64e216c31cc517674e0",
+      "sha256": "5933ceac8ecb48a2c9c98db7a39c9c1817b6d7fccdc486fe915f12492dff7969",
       "size": 10031
     },
     "relay": {
@@ -590,8 +590,8 @@
       ]
     },
     "vadgr-cua-browser-broker.exe": {
-      "input_sha256": "0248fe42d3992b639fd5f2e47b8dcec651dfdee1b25ccb79001fba14815d42c4",
-      "size": 2883928,
+      "input_sha256": "ffc29ae812efd46cc464277843c017f560c47967e7f0c0261edac6d867165fc5",
+      "size": 2888466,
       "trust_class": "publisher-sign",
       "components": [
         "vadgr-computer-use",

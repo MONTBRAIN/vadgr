@@ -1,0 +1,114 @@
+{
+  "archive_sha256": "40a1f863128dcaaec790d7b4b396cc9b9a7a079e878e18c47e6c2d2c5a8dcbb1",
+  "original_statement_files": [
+    {
+      "path": "wayland-protocols-experimental-20250721.0.1/LICENSE.txt",
+      "sha256": "1cb6f4dee8c649f175736380495f0af0c753c87f22d50931692968bb24bf2161",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 Elinor Berger"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-experimental-20250721.0.1/protocols/xx-input-method/xx-input-method-v2.xml",
+      "sha256": "94524ebefc978feda6da26735b8c84bd36b9e146f3392c1472200edd9e2688f9",
+      "size": 39515,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2008-2011 Kristian H\u00f8gsberg"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2010-2011 Intel Corporation"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2012-2013 Collabora, Ltd."
+        },
+        {
+          "line": 8,
+          "text": "Copyright \u00a9 2012, 2013 Intel Corporation"
+        },
+        {
+          "line": 9,
+          "text": "Copyright \u00a9 2015, 2016 Jan Arne Petersen"
+        },
+        {
+          "line": 10,
+          "text": "Copyright \u00a9 2017, 2018 Red Hat, Inc."
+        },
+        {
+          "line": 11,
+          "text": "Copyright \u00a9 2018       Purism SPC"
+        },
+        {
+          "line": 12,
+          "text": "Copyright \u00a9 2025       DorotaC"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-experimental-20250721.0.1/protocols/xx-input-method/xx-input-method-v2.xml.orig",
+      "sha256": "1ca2937cc4672a7d984df1b2bafe52b389b6fc9a43054e193ec7688c6ba2fe9b",
+      "size": 45827,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2008-2011 Kristian H\u00f8gsberg"
+        },
+        {
+          "line": 6,
+          "text": "Copyright \u00a9 2010-2011 Intel Corporation"
+        },
+        {
+          "line": 7,
+          "text": "Copyright \u00a9 2012-2013 Collabora, Ltd."
+        },
+        {
+          "line": 8,
+          "text": "Copyright \u00a9 2012, 2013 Intel Corporation"
+        },
+        {
+          "line": 9,
+          "text": "Copyright \u00a9 2015, 2016 Jan Arne Petersen"
+        },
+        {
+          "line": 10,
+          "text": "Copyright \u00a9 2017, 2018 Red Hat, Inc."
+        },
+        {
+          "line": 11,
+          "text": "Copyright \u00a9 2018       Purism SPC"
+        },
+        {
+          "line": 12,
+          "text": "Copyright \u00a9 2025       DorotaC"
+        }
+      ]
+    },
+    {
+      "path": "wayland-protocols-experimental-20250721.0.1/protocols/xx-session-management/xx-session-management-v1.xml",
+      "sha256": "b7879cb6855fb07a5c6e6b5b2dcfdfffb11badbfff7a7099062c1cad5552b377",
+      "size": 11880,
+      "statements": [
+        {
+          "line": 4,
+          "text": "Copyright 2018 Mike Blumenkrantz"
+        },
+        {
+          "line": 5,
+          "text": "Copyright 2018 Samsung Electronics Co., Ltd"
+        },
+        {
+          "line": 6,
+          "text": "Copyright 2018 Red Hat Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

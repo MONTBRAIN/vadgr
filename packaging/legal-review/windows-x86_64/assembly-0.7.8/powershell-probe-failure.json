@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "observed_on": "2026-09-24",
+  "status": "failed-run-evidence",
+  "release_approval": false,
+  "runs": [
+    {
+      "run_id": 35965228807,
+      "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35965228807",
+      "head_sha": "a081a6caf2e55b6d18ff653d7a9c610d7f8620fa",
+      "conclusion": "failure",
+      "failed_jobs": [
+        {
+          "name": "rust (windows-latest)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35965228807/job/107522215109",
+          "failed_steps": [
+            "Test"
+          ]
+        },
+        {
+          "name": "installer (windows-latest)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35965228807/job/107522243214",
+          "failed_steps": [
+            "Keep Windows on the graphical installer boundary"
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 35965228746,
+      "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35965228746",
+      "head_sha": "a081a6caf2e55b6d18ff653d7a9c610d7f8620fa",
+      "conclusion": "failure",
+      "failed_jobs": [
+        {
+          "name": "gate-tests (windows-latest)",
+          "url": "https://github.com/MONTBRAIN/vadgr/actions/runs/35965228746/job/107522214742",
+          "failed_steps": [
+            "Test credential and signing gates"
+          ]
+        }
+      ]
+    }
+  ],
+  "reproduction": {
+    "powershell_version": "7.6.5",
+    "archive_url": "https://github.com/PowerShell/PowerShell/releases/download/v7.6.5/PowerShell-7.6.5-win-x64.zip",
+    "archive_sha256": "32eb8f6cdce08f86e987d625a2733e54ac3e289ae7e1621b14c0b5bcec2434ea",
+    "attempts": 2,
+    "changed_isolated_paths": [
+      "profile/AppData/Local/Microsoft/PowerShell/StartupProfileData-NonInteractive"
+    ],
+    "command_warmup": "refused",
+    "file_warmup": "refused",
+    "isolated_host_cache": "passed twice"
+  },
+  "rust_fixture_reproduction": {
+    "test": "unpromoted_target_refuses_payload_assembly_before_filesystem_mutation",
+    "precondition": "TEMP and TMP point to an isolated directory through a Windows junction",
+    "before": "failed at constructor: cua install root cannot pass through a symlink",
+    "after": "passed after canonicalizing the synthetic fixture directory",
+    "production_symlink_refusal_changed": false
+  },
+  "repair": "Separate the shell profile from the installer profile. Permit content changes only to the two exact shell startup cache files; retain path/type checks and all owner-state and unknown-file checks."
+}

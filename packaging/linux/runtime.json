@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "repository": "AppImage/type2-runtime",
+  "source_commit": "8f39b89e2ac31e1640b3d3f7e9a5108e6ce805fa",
+  "published_at": "2026-09-28T18:16:12Z",
+  "targets": {
+    "x86_64": {
+      "asset_id": 596078161,
+      "filename": "runtime-x86_64",
+      "size": 944632,
+      "sha256": "156f4bdbde9c52d01814600013e0a273f0118dc2de98975f3c8c63427ec79074"
+    },
+    "aarch64": {
+      "asset_id": 596077442,
+      "filename": "runtime-aarch64",
+      "size": 936456,
+      "sha256": "b4ff0030242d0c3bb12ce40541828303cf167493f4793456f0436edd6255c39d"
+    }
+  }
+}

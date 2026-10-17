@@ -1,0 +1,60 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated/__init__.py",
+      "member": "deprecated/__init__.py",
+      "sha256": "a303779e3dd462d7bd277dbb34935ffe13504c9a2f97cd771ff43b60a8455fd3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated/classic.py",
+      "member": "deprecated/classic.py",
+      "sha256": "bd65bef2756f11e8f1e0ff6c7fbe6f95e13d2566c44da85afd26be05ff417b2a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated/params.py",
+      "member": "deprecated/params.py",
+      "sha256": "fdb5915cb6468b6a85f849997e05a319ed86d7959969b84e1fff4db6fb78d9c7",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated/sphinx.py",
+      "member": "deprecated/sphinx.py",
+      "sha256": "70e2a75db0f2140c03af93bb1c1129810af1f89faa7e9e7bb1f74afcb69b0f1b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated-1.3.1.dist-info/licenses/LICENSE.rst",
+      "member": "deprecated-1.3.1.dist-info/licenses/LICENSE.rst",
+      "sha256": "1e83edd15be419b5d5bde372e325e527ff4f9915f548e7c75314b41f6699e83c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated-1.3.1.dist-info/METADATA",
+      "member": "deprecated-1.3.1.dist-info/METADATA",
+      "sha256": "409767ac23878c1c694888ce4acc43dab6b37efa2b40499567fb5c7d9dce5852",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated-1.3.1.dist-info/WHEEL",
+      "member": "deprecated-1.3.1.dist-info/WHEEL",
+      "sha256": "24d5a1d459b551dc08415d3be609429f8315b8246cd2ca2d248abe27aadbc425",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated-1.3.1.dist-info/top_level.txt",
+      "member": "deprecated-1.3.1.dist-info/top_level.txt",
+      "sha256": "9c76ce61ac0a3d0404e65425fada140752414498d4ca7fe6fcc6fc4552744630",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/deprecated-1.3.1.dist-info/RECORD",
+      "member": "deprecated-1.3.1.dist-info/RECORD",
+      "sha256": "74c42feee5bdc2157375ef79400592d9784acb7ccef8e78d672642c6b01f481e",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f",
+  "wheel": "deprecated-1.3.1-py2.py3-none-any.whl"
+}

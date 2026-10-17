@@ -51,12 +51,25 @@ jobs:
         with:
           components: clippy, rustfmt
       - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
+      - name: Install native Linux build libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libxkbcommon-dev libwayland-dev libudev-dev libdbus-1-dev libssl-dev pkg-config
       - name: Build
         run: cargo build --locked
       - name: Test
         run: cargo test --locked
       - name: Lint
-        run: cargo clippy --locked --all-targets --all-features -- -D warnings
+        run: cargo clippy --locked --all-targets --features native-gui,macos-cua-host,release-verifier -- -D warnings
+      - name: Test and lint the Linux development feature
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          export VADGR_QUALIFICATION_SOURCE_COMMIT="$(git rev-parse HEAD)"
+          export VADGR_QUALIFICATION_SOURCE_TREE="$(git rev-parse HEAD^{tree})"
+          export VADGR_RELEASE_PROFILE=linux-x86_64
+          cargo test --locked --all-targets --features linux-unsigned-qualification --target x86_64-unknown-linux-gnu
+          cargo clippy --locked --all-targets --features linux-unsigned-qualification --target x86_64-unknown-linux-gnu -- -D warnings
       - name: Format
         run: cargo fmt --all -- --check
 

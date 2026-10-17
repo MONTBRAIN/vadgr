@@ -1,0 +1,23 @@
+{
+  "patches": [
+    {
+      "manifest": "packaging/rust-patches/accesskit_atspi_common-0.18.1.json",
+      "manifest_sha256": "2b1afd0ea9983bb97fd969d934b2bc5556d5b968e59c4d0985b3be2beb9dcb01",
+      "name": "accesskit_atspi_common",
+      "path": "vendor/accesskit_atspi_common-0.18.1",
+      "upstream_archive_sha256": "1e8c61bee90b42a772d39d06a740207dc71a4e780004ace1db8d99fb1baaa954",
+      "upstream_archive_url": "https://static.crates.io/crates/accesskit_atspi_common/accesskit_atspi_common-0.18.1.crate",
+      "version": "0.18.1"
+    },
+    {
+      "manifest": "packaging/rust-patches/accesskit_unix-0.21.1.json",
+      "manifest_sha256": "718cfe03447e8cfecab6258506763d907e6e5ee215fee5f995a205db75d56692",
+      "name": "accesskit_unix",
+      "path": "vendor/accesskit_unix-0.21.1",
+      "upstream_archive_sha256": "b016ca8db0ea0ea2ceff29a9d6240391492d960716aa471967c00e8cc8cb197c",
+      "upstream_archive_url": "https://static.crates.io/crates/accesskit_unix/accesskit_unix-0.21.1.crate",
+      "version": "0.21.1"
+    }
+  ],
+  "schema": 1
+}

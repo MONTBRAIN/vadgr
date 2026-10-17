@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "23169fe34a5fbcdd3f3862e78fb9b6fccd5f02a6dc6f732547005d45631ce71c",
+  "original_statement_files": [
+    {
+      "path": "http-body-util-0.1.5/LICENSE",
+      "sha256": "248378d0a3383c173fb925f17141b88e71580b3ba17ddc6ac3d2a344683232ab",
+      "size": 1083,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019-2026 Sean McArthur & Hyper Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

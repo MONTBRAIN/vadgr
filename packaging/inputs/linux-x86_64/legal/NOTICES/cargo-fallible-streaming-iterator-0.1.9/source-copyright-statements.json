@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a",
+  "original_statement_files": [
+    {
+      "path": "fallible-streaming-iterator-0.1.9/LICENSE-MIT",
+      "sha256": "8dcec5569a9be5b0e086c80faed6f1aefa670af0ec29cecc2f714303096887e0",
+      "size": 1086,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 The fallible-streaming-iterator Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

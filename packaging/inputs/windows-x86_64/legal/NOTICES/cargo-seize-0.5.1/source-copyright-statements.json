@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "5b55fb86dfd3a2f5f76ea78310a88f96c4ea21a3031f8d212443d56123fd0521",
+  "original_statement_files": [
+    {
+      "path": "seize-0.5.1/LICENSE",
+      "sha256": "de701d0618d694feb1af90f02181a1763d9b0bdeb70a3a592781e529077dba65",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2022 Ibraheem Ahmed"
+        }
+      ]
+    },
+    {
+      "path": "seize-0.5.1/src/raw/tls/mod.rs",
+      "sha256": "0fc93fba7c55b13fd7442e280c52ea31a8a82f6aca93d3fa35b0073952669984",
+      "size": 15167,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2017 Amanieu d'Antras"
+        }
+      ]
+    },
+    {
+      "path": "seize-0.5.1/src/raw/tls/thread_id.rs",
+      "sha256": "3302fd10a463544a295d6a42ff1249fa418077090492d7760b073709aba48030",
+      "size": 7093,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2017 Amanieu d'Antras"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "0bf256ce5efdfa370213c1dabab5935a12e49f2c58d15e9eac2870d3b4f27263",
+  "original_statement_files": [
+    {
+      "path": "sync_wrapper-1.0.2/src/lib.rs",
+      "sha256": "81898bdb0429273524efb125b8b5d3b0fc0fea0e134946b366f043708dc07b83",
+      "size": 8197,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright 2020 Actyx AG"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

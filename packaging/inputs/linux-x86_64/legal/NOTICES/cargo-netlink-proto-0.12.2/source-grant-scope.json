@@ -1,0 +1,8 @@
+{
+  "archive_sha256": "93af8261786086024cd5e96e0a991dd65ced07bbf7c233a487bbc96b971d5539",
+  "basis": [
+    "Exact modified MIT grant retained under a hash-bound LicenseRef; its source and binary notice requirement is assessed separately.",
+    "This retained grant requires notice retention and changes to original author bug contacts if substantial functionality is altered outside documented configuration. Exact archives are unmodified. No source delivery clause exists; downstream patches must be assessed against the contact clause."
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

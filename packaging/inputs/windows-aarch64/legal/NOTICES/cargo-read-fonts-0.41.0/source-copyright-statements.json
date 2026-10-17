@@ -1,0 +1,61 @@
+{
+  "archive_sha256": "046a7d674daf459825b32f5062056d6882db0d2f5a479fbd76ccfc870ac18709",
+  "original_statement_files": [
+    {
+      "path": "read-fonts-0.41.0/LICENSE-APACHE",
+      "sha256": "eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0",
+      "size": 9701,
+      "statements": [
+        {
+          "line": 55,
+          "text": "Copyright 2019 Fontations Developers"
+        }
+      ]
+    },
+    {
+      "path": "read-fonts-0.41.0/LICENSE-MIT",
+      "sha256": "7b4c9a3946dfcea7967582760e963e27799e225dcf20565c8ef55324bb017427",
+      "size": 1065,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Fontations Developers"
+        }
+      ]
+    },
+    {
+      "path": "read-fonts-0.41.0/data/glyphlist.txt",
+      "sha256": "7bca3e2431753d85e6c6617707bec21396af7110199e746a3b75e01f0ace2346",
+      "size": 78059,
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright 2002-2019 Adobe (http://www.adobe.com/)."
+        }
+      ]
+    },
+    {
+      "path": "read-fonts-0.41.0/src/ps/cff/v1.rs",
+      "sha256": "6f18feeee08d30d41b6147d76dff152a0c8647d6e40d9d57cbff36321d37280a",
+      "size": 7739,
+      "statements": [
+        {
+          "line": 187,
+          "text": "b\"Copyright 2022 The Noto Project Authors https:github.comnotofontslatin-greek-cyrillic\""
+        }
+      ]
+    },
+    {
+      "path": "read-fonts-0.41.0/src/ps/type1.rs",
+      "sha256": "9cbfe57589e4bf94e7b45c775ca8f3f7b8b2c44ee29d41510097d24ab8d9fbbc",
+      "size": 77458,
+      "statements": [
+        {
+          "line": 1609,
+          "text": "%Copyright: Copyright 2015-2021 Google LLC. All Rights Reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

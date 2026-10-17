@@ -1,0 +1,41 @@
+{
+  "artifacts": {
+    "source": {
+      "id": 9579112829,
+      "member": "cryptography-50.0.1.tar.gz",
+      "member_sha256": "5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20",
+      "name": "cryptography-sdist",
+      "zip_sha256": "b3aebca66a48838d24aebac66ef4e0f49037afe24f34e38836763c4b7169d7bd"
+    },
+    "wheel": {
+      "id": 9579199730,
+      "member": "cryptography-50.0.1-cp311-abi3-win_amd64.whl",
+      "member_sha256": "aed8db4f6d71c51efb89530e12d9464e7bf2923d46c3205dc794a2a93f8c0648",
+      "name": "cryptography--win64-3.14-py311",
+      "zip_sha256": "756eff5b659a9befe61c1f98cbd12215d3826b96ba4d2cd58b61c25dd9a949c8"
+    }
+  },
+  "basis": "Upstream native job consumes the exact source artifact; its retained wheel equals the observed installed wheel.",
+  "candidate_approval": false,
+  "evidence_files": {
+    "job.json": "1be5f6ded559bcb0a4f84965e42ff943c35fa445f0cce12c354da3d5cbb892c1",
+    "run.json": "ff6cbdaa36eb3c88d4693428c33e35d923527a6892ea3c22d1bcf86e4f683ac3",
+    "source-artifact.json": "b647359e58e865d54dde2a274ed3e3877463f68641c8c5f325c7e61d4d5f668b",
+    "source.zip": "b3aebca66a48838d24aebac66ef4e0f49037afe24f34e38836763c4b7169d7bd",
+    "wheel-artifact.json": "c5c95f2663db613bfab5e80e3a84adc5e65c65eb48bdbd244a8ff748381eaefc",
+    "wheel.zip": "756eff5b659a9befe61c1f98cbd12215d3826b96ba4d2cd58b61c25dd9a949c8",
+    "windows-action.yml.txt": "19bb5698ce119146ebdae890e72204175db79ae74ef4f6c00757c33b80cdce8b",
+    "workflow.yml.txt": "f7566e44970db9e4d8409e4c6a0aba51bd6d2a4abf6db0cba03254cba1ec039d"
+  },
+  "job_id": 97940032724,
+  "limitation": "Primary GitHub API records and exact artifact equality, not a new independently verified build attestation, reproducible rebuild or legal approval.",
+  "observed_native_members": {
+    "payload/lib/cua/environments/0.7.9-65ce2eeb1654/Lib/site-packages/cryptography/hazmat/bindings/_rust.pyd": "6a42262974f0e086c1f2defaff4ccd9fb25046cf193422135e2dda5b4b29b2a2"
+  },
+  "publishable": false,
+  "repository": "pyca/cryptography",
+  "run_id": 32890072935,
+  "schema": 1,
+  "source_commit": "ffde75a2b594822c740a2e4748b56c00548302bf",
+  "status": "upstream-source-observations-not-approval"
+}

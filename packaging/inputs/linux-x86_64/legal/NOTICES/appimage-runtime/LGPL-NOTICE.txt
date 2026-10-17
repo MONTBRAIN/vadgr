@@ -1,0 +1,23 @@
+IMPORTANT: THE APPIMAGE RUNTIME USES THE GNU LESSER GENERAL PUBLIC LICENSE
+
+This AppImage's Type2 runtime statically links libfuse 3.15.0, with the AppImage
+mount.c modification. The libfuse library is licensed under GNU LGPL version2.1
+(with separately retained BSD notices for applicable portions). The complete LGPL
+text is supplied in legal/LICENSES/runtime-appimage-libfuse/.
+
+You may modify the LGPL-covered library and relink the runtime to use your
+modified version. Reverse engineering for debugging modifications to the library
+is permitted; other package terms must not restrict this permission. The library
+is supplied without warranty to the extent permitted by its license.
+
+The accompanying appimage-runtime-corresponding-source.tar.gz contains the actual
+source of the runtime and its static dependencies, the exact libfuse modification,
+distribution patches, build instructions and scripts. It is supplied using the
+source route in LGPL2.1 section6(a), not merely as a source URL or future offer.
+README.txt explains how to prepare source, relink the runtime and make a new
+AppImage preserving the original application payload. Recipient modifications
+are not required to retain a publisher signature or be approved by the publisher.
+
+The LGPL applies to the covered library and its combination obligations; it does
+not replace the independent licenses of Vadgr, Type2 runtime, musl, compression
+libraries, mimalloc or GCC startup code. Their complete notices are retained.

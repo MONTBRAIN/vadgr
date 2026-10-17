@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "e7c1832837b905bbfb5101e07cc24c8deddf52f93225eee6ead5f4d63d53ddcb",
+  "original_statement_files": [
+    {
+      "path": "der-0.7.10/LICENSE-MIT",
+      "sha256": "ad64fcb9589f162720f3cc5010ad76ca6ad3764e11861f9192c489df176bb71d",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020-2023 The RustCrypto Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "der-0.7.10/src/datetime.rs",
+      "sha256": "d0f269d07f4d5ba9a5f7b9b0ae4727b348487cda73210bb8fc5d4575d5a19f1b",
+      "size": 13233,
+      "statements": [
+        {
+          "line": 5,
+          "text": "// Copyright (c) 2016 The humantime Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

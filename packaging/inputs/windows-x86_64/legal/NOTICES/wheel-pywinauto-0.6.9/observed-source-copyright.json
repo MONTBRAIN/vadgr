@@ -1,0 +1,496 @@
+{
+  "component_sha256": "5924b3072864a1d730c5546bbeb17cf4063ba518b618dbc5e43c18276c7c9356",
+  "original_statement_files": [
+    {
+      "path": "pywinauto/__init__.py",
+      "sha256": "c4894231630f0bf12b3fabb5d2ce45f18d9d38e77ded98ceff7e268480fd9974",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/actionlogger.py",
+      "sha256": "2559f2dd54902337121fa1127d43e4c4fa33489af130c3af970ccd894ccefbf1",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/application.py",
+      "sha256": "fca208925fd964d143668fe984f858057d58b8d661e29156e40d60758bd35dea",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/backend.py",
+      "sha256": "84b80edc7b270895183683df53c0b00f5d7230a8d46623ee5e50b4f3424db9f1",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/base_wrapper.py",
+      "sha256": "a8022f1fac0a77aa240410c7636d609caec0d83423e47e37a95e21790a90c5ce",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/clipboard.py",
+      "sha256": "569296ed6437045e7b7262e4580d0e7f5e911ba042b8b4aa197d2c5b69cdd5db",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/controlproperties.py",
+      "sha256": "610d656c7c56bcc7f7f0f181d0961d37cae187d3d8a1ef22c1a59bb70dc4535c",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/controls/__init__.py",
+      "sha256": "d1cb97571aa9a6edef40825f8e0c41fc9fffdd5b6bdc4bdb0c4c7b4da458eb80",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/controls/common_controls.py",
+      "sha256": "e1afd1c90703978376256f05ffdb0afaeb495892beba3c2a5c5e2f12101a15ed",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/controls/hwndwrapper.py",
+      "sha256": "9c388263e0e7547ac3da8e3d59346fefec7fda407d5dff6705bde05899209792",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/controls/menuwrapper.py",
+      "sha256": "4e58075f1326ea9501ef95435ba47e5f9a1cb684a96ae5ccd2dee944827c6cf1",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/controls/uia_controls.py",
+      "sha256": "7a2faed74746c4c46347b490ba90f7771aef95b8aa1e6f748206fd5b2ada7090",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/controls/uiawrapper.py",
+      "sha256": "c3bc2c5276ec492b66df61f9b768c423e3fdb1d6cc54e4bc3980121c99e68439",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/controls/win32_controls.py",
+      "sha256": "233fb6f1ad1bfd33d1f178924c892bf1aade457cb1b9743480eaac8483dcae15",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/element_info.py",
+      "sha256": "2feb3713ac5d540c607c21595c042531b687979384b46ff114cf38e60173e737",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/findbestmatch.py",
+      "sha256": "8b3544aa93125e016174c2dddcec4de927b17e8e8c1951d33c4c241718430e95",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/findwindows.py",
+      "sha256": "38c9fb2798b8be4db189520d3d0e1d69a319e4c0c20299609ede0c5c7a367466",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/fuzzydict.py",
+      "sha256": "98d169113f1c912a4c7a7e0b751458c86451e0b4e831b430fa0a8d1b79560aa3",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/handleprops.py",
+      "sha256": "f39509c9be8b7d454d8a6e5b8b207d173fa8202a3796ad52ffe8cfc7182cdbc7",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/keyboard.py",
+      "sha256": "b49e0c487ed656f98fae29cc0f2711affb969bb004b6216b7d88c58d580ec16d",
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/linux/clipboard.py",
+      "sha256": "5f8c11d2bd7f5fc7dd2c5d0aa6136c915fef576734feda0dcb2b769be4d8ea74",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/linux/keyboard.py",
+      "sha256": "cf9e34752c1d0af9a8c914a909a25a8a73ce4dac1b63be9ea3c8bf516daac984",
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/mouse.py",
+      "sha256": "f9187dcd8d4a51fcd570a6e5bd08b11f458ac5fda55bdfffcabb08fa9461a5ed",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/remote_memory_block.py",
+      "sha256": "7a8c7e6c2f59a658b0430de066e88f92ef3fa10f6c18d78a7eb48e336a4dc89b",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/sysinfo.py",
+      "sha256": "3602df890dd735a4469daa7349f61269fc27e66cb6e058c4d6e1d353ae8fe153",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/taskbar.py",
+      "sha256": "be31cd01d39a430c99bea25a2ccbcc07bb5e24130e78281779e749a59ad91a9e",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/__init__.py",
+      "sha256": "0d95ec868f16ee70560d2c3941bfaa6a8f423697cec1308a3adc46d1d251828b",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/_menux.py",
+      "sha256": "e08379a1eff3e540d97855bb3bc124f794db8624c7a19d0bd2a7578bb4458368",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/allcontrols.py",
+      "sha256": "82aa98458a418d91a338acb0e817d3e78753ef17d2a05728c238581e81b1e66f",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/asianhotkey.py",
+      "sha256": "ffb20889ff664428a546f0dc39597fc8f24c05cad9e39d8f1acfa1a92cb615a5",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/comboboxdroppedheight.py",
+      "sha256": "36c85a0f5ad7b73c0c0748095999ab8de0f6e1202d38d9c39564a6bc4beea136",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/comparetoreffont.py",
+      "sha256": "1a0f3a95175edf2b6e6a444f9a5ace72435c29879a9f46e6d806ba7bee458105",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/leadtrailspaces.py",
+      "sha256": "802d8a629eabc6c210f167704e2b2918a657bea4fb834549e9c3711706455b5f",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/miscvalues.py",
+      "sha256": "55d0a8d5f7f286710ba34394656ed818bee8c90cc0d20892c1a46f5a2a282276",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/missalignment.py",
+      "sha256": "62643663c2e2dc3d77eb9026ff29374ec8967bebe24b1d174d4a8ceb2ffeefd9",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/missingextrastring.py",
+      "sha256": "83145c984c26c81bcd96e9be8c06905c5776f58f3265e3f97d2fd2ad95f444d7",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/overlapping.py",
+      "sha256": "cca9bb8f4c0ae29388f0180441ab6d13bd14732d7c63155fc4249218093cf192",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/repeatedhotkey.py",
+      "sha256": "eb114dce7633cc879ba645f674b516eab2244ce0487b995ad6a568862de3fbe0",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/translation.py",
+      "sha256": "d2a544b21e36baabb52b930365f710ba73e781245a9cf7d22e02fdf409f55bc8",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/tests/truncation.py",
+      "sha256": "303e544ca9d5b593d9c9f3f7123c7964c043ac3618d3cf71634e5af1232d3237",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/timings.py",
+      "sha256": "e7c73dc4d3831392e3418361aa82e96cb7cd789f4bbb427c1992f0d9ddad90c6",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/uia_defines.py",
+      "sha256": "89028dba4d3663f28dee6710381d044336699c283c115ed3b5ad86689b27ddc1",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/uia_element_info.py",
+      "sha256": "83613d3b8a92c976268fcd0ca850fb98e8a7fe71d7a3033ff9f54954ed2857cf",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/win32_element_info.py",
+      "sha256": "6c9f4220fe113dd18865507f1da65083667ff76406da1598c3568692806d4f12",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/win32_hooks.py",
+      "sha256": "fe81b6bae32cc25b3ef63c5a1a6fd7440b2d33a13d4b7f1c43a673044a22620d",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/win32defines.py",
+      "sha256": "ce5b6ee2e128637f7b3812c3288fd5a3447bf7bd7dfeea873a32f442e4cedeb7",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/win32functions.py",
+      "sha256": "7c71de1bd900458ff76b4e6a5e823d85b2085ee6ba2a3dc8254bba9b2d16e85c",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/win32structures.py",
+      "sha256": "086c684ed33e7c7fc0cb1a711a1465dbc62c5497c13358efdff68b5170e8d278",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    },
+    {
+      "path": "pywinauto/xml_helpers.py",
+      "sha256": "4be1f0f2bab662288914c3a05bde1a59b5b94c889a94b54be6a3b8a9f30896cb",
+      "statements": [
+        {
+          "line": 2,
+          "text": "# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

@@ -1,0 +1,84 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/multipart/__init__.py",
+      "member": "multipart/__init__.py",
+      "sha256": "81b63b5bd35476c1596afa7e88a42ba0de05c689df66ace89242d6e41de39d9d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/multipart/decoders.py",
+      "member": "multipart/decoders.py",
+      "sha256": "5ef900c1353d5053e25e4734864be8bc77f45ba1f7bcafb689e5a585abf4da14",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/multipart/exceptions.py",
+      "member": "multipart/exceptions.py",
+      "sha256": "e83fd7fac7a23a63009487a21a53c652cf3ebe972f20625e4327053036f57fb0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/multipart/multipart.py",
+      "member": "multipart/multipart.py",
+      "sha256": "f1f0c7d788ff54c6eb721ff9f309738badd7340446bfcd2439903237bd9a1bb0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart/__init__.py",
+      "member": "python_multipart/__init__.py",
+      "sha256": "aabe42368f87e12de550253ad7f876fc57334ae51d8f32bfd44e1a6b4ea414fa",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart/decoders.py",
+      "member": "python_multipart/decoders.py",
+      "sha256": "7499b0491c68c1de57a77b3ce9a22953c7ff639e4aaf41f87f9c20bd27227443",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart/exceptions.py",
+      "member": "python_multipart/exceptions.py",
+      "sha256": "53494d063851e1d408f7bcd5d36690a542d06c38e32eac9693dd21e4dac2c560",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart/multipart.py",
+      "member": "python_multipart/multipart.py",
+      "sha256": "3b3cb7649a83cc96ba7f80a0b22538c4ef4339be4f3d5c944ab4fbd9185f9fa2",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart/py.typed",
+      "member": "python_multipart/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart-0.0.32.dist-info/METADATA",
+      "member": "python_multipart-0.0.32.dist-info/METADATA",
+      "sha256": "e9d399d7dea5eddf0e4d24b5c24687a82e7e50bf2c2b30f8f8a06a64d887dd86",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart-0.0.32.dist-info/WHEEL",
+      "member": "python_multipart-0.0.32.dist-info/WHEEL",
+      "sha256": "99f7cfcbcc019d9427d959c9514e6313df4ab316927e2c8c1d5f58b7468b571b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart-0.0.32.dist-info/licenses/LICENSE.txt",
+      "member": "python_multipart-0.0.32.dist-info/licenses/LICENSE.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_multipart-0.0.32.dist-info/RECORD",
+      "member": "python_multipart-0.0.32.dist-info/RECORD",
+      "sha256": "4e738efd15b92779335bad395dfa34ff4a0deefb0e459d988af28a7342042c0b",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23",
+  "wheel": "python_multipart-0.0.32-py3-none-any.whl"
+}

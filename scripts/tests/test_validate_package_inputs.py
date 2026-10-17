@@ -17,6 +17,21 @@ VERSION = "0.5.0"
 TARGET = "aarch64-apple-darwin"
 
 
+@pytest.mark.parametrize("architecture", ["x86_64", "aarch64"])
+def test_linux_profile_legal_review_binds_embedded_appimage_runtime(architecture):
+    profile = f"linux-{architecture}"
+    names = package.profile_source_inputs(profile)
+    assert "packaging/linux/runtime.json" in names
+    assert package.profile_from_inputs(names, f"{architecture}-unknown-linux-gnu") == profile
+    assert package.profile_from_inputs(names - {"packaging/linux/runtime.json"},
+                                       f"{architecture}-unknown-linux-gnu") is None
+
+
+@pytest.mark.parametrize("system", ["windows", "macos", "wsl"])
+def test_non_appimage_profiles_do_not_bind_linux_runtime(system):
+    assert "packaging/linux/runtime.json" not in package.profile_source_inputs(f"{system}-x86_64")
+
+
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(package.canonical_json(value))
@@ -98,6 +113,14 @@ def test_reviewed_text_input_accepts_only_exact_windows_line_endings():
     assert not package.source_input_matches("payload.zip", raw.replace(b"\n", b"\r\n"), expected)
     assert not package.source_input_matches("Cargo.lock", b"first\rsecond\r\n", expected)
     assert not package.source_input_matches("Cargo.lock", b"changed\r\n", expected)
+
+
+def test_refuses_unregistered_path_source_even_when_old_inventory_still_matches(bundle):
+    _, source, *_ = bundle
+    manifest = source / "Cargo.toml"
+    manifest.write_text(manifest.read_text() + '\n[patch.crates-io]\nunknown = { path = "vendor/unknown" }\n')
+    with pytest.raises(package.PackageInputError, match="patched Cargo source binding"):
+        validate(bundle)
 
 
 def test_canonical_text_sha256_is_checkout_independent():
