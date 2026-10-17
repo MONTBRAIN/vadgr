@@ -777,18 +777,53 @@ mod platform {
             })
     }
 
-    pub fn open_path(path: &Path) -> Result<()> {
-        let status = Command::new("explorer.exe")
-            .arg(path)
-            .status()
-            .context("opening the installed legal notices")?;
-        ensure!(status.success(), "Windows could not open the legal notices");
+    /// Decide the outcome of opening a folder, given whether the process
+    /// started.
+    ///
+    /// `explorer.exe` reports nothing through its exit code: it returns a
+    /// nonzero status even when it opens the folder. Reading that status as
+    /// the outcome told the owner "Windows could not open the legal notices"
+    /// every time, while Windows had in fact opened them. What can honestly be
+    /// checked is that the target exists and that the process started.
+    fn opened(path: &Path, started: std::io::Result<std::process::ExitStatus>) -> Result<()> {
+        ensure!(
+            path.exists(),
+            "the installed legal notices are not at {}",
+            path.display()
+        );
+        started.context("opening the installed legal notices")?;
         Ok(())
+    }
+
+    pub fn open_path(path: &Path) -> Result<()> {
+        opened(path, Command::new("explorer.exe").arg(path).status())
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
+        use std::os::windows::process::ExitStatusExt;
+
+        #[test]
+        fn an_explorer_exit_code_is_not_the_outcome() {
+            // explorer.exe returns 1 even when it opens the folder, so a
+            // nonzero status must not be reported to the owner as a failure.
+            let present = std::env::temp_dir();
+            assert!(opened(&present, Ok(std::process::ExitStatus::from_raw(1))).is_ok());
+        }
+
+        #[test]
+        fn a_missing_folder_is_still_a_failure() {
+            let missing = std::env::temp_dir().join("vadgr-no-such-legal-folder");
+            assert!(opened(&missing, Ok(std::process::ExitStatus::from_raw(0))).is_err());
+        }
+
+        #[test]
+        fn a_process_that_never_started_is_a_failure() {
+            let present = std::env::temp_dir();
+            let failed = std::io::Error::new(std::io::ErrorKind::NotFound, "no explorer.exe");
+            assert!(opened(&present, Err(failed)).is_err());
+        }
 
         #[test]
         fn only_a_guid_can_reach_windows_installer() {
