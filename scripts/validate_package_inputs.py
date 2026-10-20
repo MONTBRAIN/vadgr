@@ -433,9 +433,12 @@ def render_rtf(text: str) -> bytes:
     `**` to the reader as literal characters, so the markup is rendered here,
     once, and every profile derives its TERMS.rtf from the same bytes.
 
-    No font or colour table is emitted on purpose: the installer theme owns
-    both, in light and in dark, and a table here would override the theme and
-    fix one of those two appearances to the wrong colours.
+    No font or colour table is emitted on purpose. The Richedit control
+    supplies its own, and on Windows it renders this document as black text on
+    a white page whatever the surrounding installer theme is. Writing colours
+    into the document would fight that rather than follow it, and would fix one
+    appearance for every host. Only bold, size and paragraph shape are set
+    here, which the control honours.
     """
     result = [RTF_HEADER]
     for index, (kind, level, lines) in enumerate(rtf_blocks(text)):

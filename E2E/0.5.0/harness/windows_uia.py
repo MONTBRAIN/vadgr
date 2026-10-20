@@ -28,6 +28,7 @@ from pywinauto.uia_defines import IUIA
 from pywinauto.uia_defines import NoPatternInterfaceError
 
 PW_CLIENTONLY = 0x00000001
+PW_RENDERFULLCONTENT = 0x00000002
 SW_SHOW = 5
 SW_RESTORE = 9
 BI_RGB = 0
@@ -286,7 +287,24 @@ def invoke(element, action: str, text: str | None, window=None):
         raise SystemExit(f"unsupported action: {action}")
 
 
-def capture_client(hwnd: int, destination: Path):
+def capture_client(hwnd: int, destination: Path, full_content: bool = False,
+                   whole_window: bool = False):
+    """Capture one window's own pixels, with no other window in the image.
+
+    Two corrections over the obvious implementation, both measured on this
+    product:
+
+    `PrintWindow` draws the **whole window**, frame included, whatever flag it
+    is given. Sizing the bitmap from `GetClientRect` therefore captures the
+    client's width and height starting at the frame's top left, which crops the
+    content and shifts every element rectangle. The bitmap is sized from
+    `GetWindowRect` and the client area is cropped out afterwards.
+
+    The flag differs per surface. The composited egui console returns an empty
+    client unless `PW_RENDERFULLCONTENT` is passed, and the Burn bootstrapper,
+    a classic window with child controls, returns an empty client when it *is*
+    passed. Neither renders with the other's flag, so the caller chooses.
+    """
     user32 = ctypes.windll.user32
     try:
         user32.SetProcessDpiAwarenessContext(PER_MONITOR_AWARE_V2)
@@ -294,19 +312,20 @@ def capture_client(hwnd: int, destination: Path):
         pass
     gdi32 = ctypes.windll.gdi32
     rectangle = wintypes.RECT()
-    if not user32.GetClientRect(hwnd, ctypes.byref(rectangle)):
+    if not user32.GetWindowRect(hwnd, ctypes.byref(rectangle)):
         raise ctypes.WinError()
     width = rectangle.right - rectangle.left
     height = rectangle.bottom - rectangle.top
     if width <= 0 or height <= 0:
-        raise SystemExit("window has no client area")
+        raise SystemExit("window has no area to capture")
     window_dc = user32.GetDC(hwnd)
     memory_dc = gdi32.CreateCompatibleDC(window_dc)
     bitmap = gdi32.CreateCompatibleBitmap(window_dc, width, height)
     previous = gdi32.SelectObject(memory_dc, bitmap)
     try:
-        if not user32.PrintWindow(hwnd, memory_dc, PW_CLIENTONLY):
-            raise SystemExit("PrintWindow(PW_CLIENTONLY) failed")
+        flags = PW_RENDERFULLCONTENT if full_content else 0
+        if not user32.PrintWindow(hwnd, memory_dc, flags):
+            raise SystemExit(f"PrintWindow failed with flags {flags}")
         class BitmapInfoHeader(ctypes.Structure):
             _fields_ = [
                 ("size", wintypes.DWORD), ("width", wintypes.LONG),
@@ -327,8 +346,29 @@ def capture_client(hwnd: int, destination: Path):
         if not gdi32.GetDIBits(memory_dc, bitmap, 0, height, data,
                                ctypes.byref(header), DIB_RGB_COLORS):
             raise ctypes.WinError()
+        image = Image.frombuffer("RGBA", (width, height), data, "raw", "BGRA", 0, 1)
+        if not whole_window:
+            # Map the client area through the window origin, because the bitmap
+            # starts at the frame rather than at the client.
+            client = wintypes.RECT()
+            if not user32.GetClientRect(hwnd, ctypes.byref(client)):
+                raise ctypes.WinError()
+            origin = wintypes.POINT(0, 0)
+            if not user32.ClientToScreen(hwnd, ctypes.byref(origin)):
+                raise ctypes.WinError()
+            left = origin.x - rectangle.left
+            top = origin.y - rectangle.top
+            image = image.crop((left, top, left + (client.right - client.left),
+                                top + (client.bottom - client.top)))
+        # A blank capture used to be filed as evidence and then had to be
+        # retaken. An image with one colour is never a rendered surface.
+        if len(image.convert("RGB").getcolors(maxcolors=2) or []) == 1:
+            raise SystemExit(
+                "the capture is a single flat colour, so the surface did not render; "
+                "try the other content flag"
+            )
         destination.parent.mkdir(parents=True, exist_ok=True)
-        Image.frombuffer("RGBA", (width, height), data, "raw", "BGRA", 0, 1).save(destination)
+        image.save(destination)
     finally:
         gdi32.SelectObject(memory_dc, previous)
         gdi32.DeleteObject(bitmap)
@@ -363,6 +403,10 @@ def main() -> int:
             command.add_argument("--text")
         if name == "capture":
             command.add_argument("--output", type=Path, required=True)
+            # The composited egui console renders only with the full-content
+            # flag; the Burn bootstrapper renders only without it.
+            command.add_argument("--full-content", action="store_true")
+            command.add_argument("--whole-window", action="store_true")
     args = parser.parse_args()
     if args.command == "windows":
         print(json.dumps(windows(), indent=2))
@@ -390,7 +434,8 @@ def main() -> int:
         invoke(element, args.action, args.text, window)
         print(json.dumps({"before": before, "action": args.action}, indent=2))
     elif args.command == "capture":
-        capture_client(int(window.handle), args.output)
+        capture_client(int(window.handle), args.output,
+                       args.full_content, args.whole_window)
         print(json.dumps({"output": str(args.output), "handle": int(window.handle)}))
     return 0
 
