@@ -195,10 +195,10 @@ pub fn purge_owner_state() -> Result<()> {
 fn purge_roots(state: Option<PathBuf>, config: Option<PathBuf>) -> Result<Vec<PathBuf>> {
     let state = state.ok_or_else(|| anyhow!("the Vadgr state root is unavailable"))?;
     let mut roots = vec![state];
-    if let Some(config) = config {
-        if !roots.contains(&config) {
-            roots.push(config);
-        }
+    // The two roots are the same directory on a platform that does not
+    // separate them, and purging it twice would fail on the second pass.
+    if let Some(config) = config.filter(|root| !roots.contains(root)) {
+        roots.push(config);
     }
     for root in &roots {
         ensure!(
