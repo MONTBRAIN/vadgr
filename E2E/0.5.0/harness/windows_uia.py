@@ -24,6 +24,7 @@ except (AttributeError, OSError):
 from comtypes import COMError
 from PIL import Image
 from pywinauto import Desktop
+from pywinauto.uia_defines import IUIA
 from pywinauto.uia_defines import NoPatternInterfaceError
 
 PW_CLIENTONLY = 0x00000001
@@ -208,7 +209,48 @@ def select_element(
     return matches[0]
 
 
-def invoke(element, action: str, text: str | None):
+def require_input_ownership(element, window):
+    """Refuse to send real input unless this window will receive it.
+
+    A key or mouse event goes to whatever holds focus, never to the element it
+    was aimed at. On 2026-10-17 a helper focused a field by name, did not check
+    which application held focus, and sent keystrokes into an unrelated
+    programmer tool that happened to be in front. So this proves all three
+    before any event: the target window is the foreground window, the focused
+    element belongs to that window's process, and the focused element is the
+    one that was selected.
+
+    A pattern call needs none of this, because it is delivered to the element
+    itself and cannot reach another application. Prefer `invoke`.
+    """
+    user32 = ctypes.windll.user32
+    expected = int(window.handle)
+    foreground = int(user32.GetForegroundWindow())
+    if foreground != expected:
+        raise SystemExit(
+            f"refusing to send input: the foreground window is {foreground}, "
+            f"not the target {expected}. Use the invoke action instead."
+        )
+    expected_pid = wintypes.DWORD()
+    user32.GetWindowThreadProcessId(expected, ctypes.byref(expected_pid))
+    try:
+        focused = IUIA().iuia.GetFocusedElement()
+    except Exception as error:  # noqa: BLE001 - any failure here must refuse
+        raise SystemExit(f"refusing to send input: no focused element ({error})")
+    if int(focused.CurrentProcessId) != int(expected_pid.value):
+        raise SystemExit(
+            "refusing to send input: the focused element belongs to process "
+            f"{int(focused.CurrentProcessId)}, not {int(expected_pid.value)}"
+        )
+    selected = element.element_info
+    if focused.CurrentName != selected.name:
+        raise SystemExit(
+            f"refusing to send input: the focused element is "
+            f"{focused.CurrentName!r}, not {selected.name!r}"
+        )
+
+
+def invoke(element, action: str, text: str | None, window=None):
     if action == "invoke":
         element.iface_invoke.Invoke()
     elif action == "click":
@@ -217,12 +259,20 @@ def invoke(element, action: str, text: str | None):
         # Keep discovery and targeting semantic, then use the element's bounded
         # native input fallback instead of screen coordinates supplied by a
         # human or image recognition.
+        #
+        # This is a real mouse event at the element's screen position, so it
+        # lands on whatever window is in front of that position.
+        require_input_ownership(element, window)
         element.click_input()
     elif action == "press-enter":
         # Exercise the semantic keyboard route used by screen-reader users.
         # This also avoids a provider-specific Invoke action on custom-drawn
         # controls while retaining UIA-based element discovery and focus.
         element.set_focus()
+        # set_focus can fail silently on a window that cannot take foreground,
+        # and the keystroke would then go to whatever did, so the proof comes
+        # after the focus attempt rather than before it.
+        require_input_ownership(element, window)
         element.type_keys("{ENTER}")
     elif action == "toggle":
         element.iface_toggle.Toggle()
@@ -337,7 +387,7 @@ def main() -> int:
             args.enabled_only,
         )
         before = element_row(element)
-        invoke(element, args.action, args.text)
+        invoke(element, args.action, args.text, window)
         print(json.dumps({"before": before, "action": args.action}, indent=2))
     elif args.command == "capture":
         capture_client(int(window.handle), args.output)
