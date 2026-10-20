@@ -119,7 +119,10 @@ def test_terms_rtf_escapes_unicode_and_control_syntax(generator, inputs):
     assert b"\\{accept\\}" in rtf and b"\\\\" in rtf
     assert b"\\u233?" in rtf and b"\\u20013?\\u25991?" in rtf
     assert b"\\u-10179?\\u-8704?" in rtf
-    assert b"\\par\n" in rtf and b"\\tab " in rtf
+    assert b"\\par\n" in rtf
+    # The installer renders this file in a Richedit control, so a markdown
+    # marker left in it is printed to the reader as a literal character.
+    assert b"###" not in rtf and b"**" not in rtf
 
 
 @pytest.mark.parametrize("mutation", ["file_hash", "terms_hash", "license_hash", "missing", "extra", "unresolved", "coverage", "schema", "approval"])

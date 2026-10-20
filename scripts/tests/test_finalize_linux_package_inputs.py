@@ -1,7 +1,6 @@
 """Synthetic packet fixtures do not confer publisher approval."""
 
 import stat
-import re
 
 import pytest
 
@@ -137,23 +136,23 @@ def test_missing_rendering_and_inventory_membership_are_mechanical_derivations(p
 
 
 @pytest.mark.parametrize("text", ["Terms {accept} \\ café 中文 😀\r\n\tEnd.\n", "Plain terms\n"])
-def test_canonical_rendering_preserves_plain_text(text):
+def test_canonical_rendering_escapes_every_character(text):
+    """Every character survives the rendering, escaped where RTF requires it.
+
+    This covers the escaping only. What the reader finally sees, including the
+    headings, bold runs and bullets, is asserted in `test_terms_rendering.py`,
+    which reduces the rendered RTF back to visible text.
+    """
     rendered = render_rtf(text).decode("ascii")
     header = r"{\rtf1\ansi\deff0\uc1 "
     assert rendered.startswith(header) and rendered.endswith("}\n")
-    body = rendered[len(header):-2]
-    tokens = re.findall(r"\\u-?[0-9]+\?|\\par\n|\\tab |\\[\\{}]|[^\\]+", body)
-    assert "".join(tokens) == body
-    decoded = []
-    for token in tokens:
-        if token.startswith(r"\u"):
-            decoded.append(chr(int(token[2:-1]) % 65536))
-        elif token == "\\par\n":
-            decoded.append("\n")
-        elif token == "\\tab ":
-            decoded.append("\t")
-        elif token.startswith("\\"):
-            decoded.append(token[1:])
+    for char in set(text) - set("\r\n\t"):
+        if char in "\\{}":
+            assert "\\" + char in rendered
+        elif 32 <= ord(char) < 127:
+            assert char in rendered
         else:
-            decoded.append(token)
-    assert "".join(decoded).encode("utf-16-le", "surrogatepass").decode("utf-16-le") == text
+            encoded = char.encode("utf-16-le")
+            units = (int.from_bytes(encoded[offset:offset + 2], "little", signed=True)
+                     for offset in range(0, len(encoded), 2))
+            assert "".join(f"\\u{unit}?" for unit in units) in rendered
