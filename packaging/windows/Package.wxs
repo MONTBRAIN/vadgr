@@ -37,16 +37,34 @@
     </StandardDirectory>
 
     <Feature Id="Complete" Title="Vadgr" Level="1">
-      <ComponentGroupRef Id="PrivatePayload" />
       <ComponentRef Id="VadgrBackend" />
       <ComponentRef Id="VadgrApplication" />
-      <ComponentRef Id="PackageMetadata" />
-      <ComponentGroupRef Id="LegalPayload" />
-      <ComponentGroupRef Id="SbomPayload" />
       <ComponentRef Id="InstallFolderCleanup" />
       <ComponentRef Id="StartMenuEntry" />
       <ComponentRef Id="StartupEntry" />
       <ComponentRef Id="PackageCacheCleanup" />
+      <!--
+        Repair force-reinstalls this feature and nothing else.
+
+        Windows Installer protects an unversioned file whose modification date
+        is later than its creation date: it reads that as the owner's own data
+        and leaves it alone. Every repair mode except `a` honours that rule, so
+        a Repair of an edited package-owned notice reported success and
+        restored nothing. `a` is required, and a feature is the only thing that
+        bounds which files it rewrites.
+
+        The two executables stay in the parent feature on purpose. The console
+        that asks for a repair is itself running `vadgr.exe`, and Windows
+        cannot replace a running image, so forcing them fails the whole
+        transaction with 1603 and `Error 1310`. They are version-compared by
+        the second, unforced repair pass instead.
+      -->
+      <Feature Id="OwnedFiles" Title="Vadgr files" Level="1">
+        <ComponentGroupRef Id="PrivatePayload" />
+        <ComponentRef Id="PackageMetadata" />
+        <ComponentGroupRef Id="LegalPayload" />
+        <ComponentGroupRef Id="SbomPayload" />
+      </Feature>
     </Feature>
 
     <Component Id="VadgrBackend" Directory="INSTALLFOLDER" Guid="{CE560AD1-3C47-4BE8-9844-A34E1F2A65B0}">

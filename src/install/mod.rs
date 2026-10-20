@@ -446,6 +446,95 @@ fn valid_sha256(value: &str) -> bool {
 /// The Windows setup theme is read by the bootstrapper at run time, so a layout
 /// mistake in it reaches the owner as a wrong frame rather than a build error.
 /// These checks read the shipped theme itself.
+/// What Repair is allowed to force, read from the MSI authoring.
+///
+/// Repair force-reinstalls one feature, because Windows Installer leaves an
+/// edited unversioned file alone under every other mode. That makes the
+/// feature's membership a correctness boundary rather than packaging detail:
+/// a running executable inside it fails the whole transaction with 1603, and a
+/// package-owned data file outside it is a file Repair silently will not
+/// restore. Both mistakes are one moved line, so the line is asserted here.
+#[cfg(test)]
+mod windows_repair_scope_tests {
+    const PACKAGE: &str = include_str!("../../packaging/windows/Package.wxs");
+    const FORCED_FEATURE: &str = "OwnedFiles";
+
+    /// The references inside the named feature, in authoring order.
+    fn members(feature: &str) -> Vec<String> {
+        let opening = format!("<Feature Id=\"{feature}\"");
+        let mut inside = false;
+        let mut out = Vec::new();
+        for line in PACKAGE.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with(&opening) {
+                inside = true;
+                continue;
+            }
+            if !inside {
+                continue;
+            }
+            if trimmed.starts_with("</Feature>") {
+                break;
+            }
+            for tag in ["<ComponentRef Id=\"", "<ComponentGroupRef Id=\""] {
+                if let Some(rest) = trimmed.strip_prefix(tag) {
+                    out.push(rest.split('"').next().unwrap_or("").to_owned());
+                }
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn the_forced_feature_exists() {
+        assert!(
+            PACKAGE.contains(&format!("<Feature Id=\"{FORCED_FEATURE}\"")),
+            "the repair names this feature, so the package has to declare it"
+        );
+    }
+
+    #[test]
+    fn every_owned_data_payload_is_forced() {
+        let forced = members(FORCED_FEATURE);
+        for required in [
+            "LegalPayload",
+            "SbomPayload",
+            "PrivatePayload",
+            "PackageMetadata",
+        ] {
+            assert!(
+                forced.iter().any(|member| member == required),
+                "{required} is outside the forced feature, so Repair will not restore it \
+                 once its content changes"
+            );
+        }
+    }
+
+    #[test]
+    fn neither_running_executable_is_forced() {
+        let forced = members(FORCED_FEATURE);
+        for refused in ["VadgrBackend", "VadgrApplication"] {
+            assert!(
+                !forced.iter().any(|member| member == refused),
+                "{refused} holds a running image, and forcing it fails the repair with 1603"
+            );
+        }
+    }
+
+    #[test]
+    fn the_executables_are_still_installed() {
+        // Moving them out of the forced feature must not drop them from the
+        // package, which would uninstall the product instead of repairing it.
+        let complete = members("Complete");
+        for required in ["VadgrBackend", "VadgrApplication"] {
+            assert!(
+                complete.iter().any(|member| member == required),
+                "{required} left the package altogether"
+            );
+        }
+    }
+}
+
 #[cfg(test)]
 mod windows_theme_tests {
     const THEME: &str = include_str!("../../packaging/windows/VadgrTheme.xml");
@@ -794,8 +883,89 @@ mod platform {
         Ok(())
     }
 
+    /// The MSI feature that holds every package-owned file except the two
+    /// executables. Repair forces this one, and only this one.
+    const OWNED_FILES_FEATURE: &str = "OwnedFiles";
+
     pub fn repair(receipt: &InstallReceipt) -> Result<()> {
-        run_msiexec(receipt, "/fa", false)
+        repair_with(
+            receipt,
+            stop_installed_daemon,
+            run_repair,
+            start_installed_daemon,
+        )
+    }
+
+    /// Rewrite the files the package owns, then the entries it owns.
+    ///
+    /// Windows Installer protects an unversioned file whose modification date
+    /// is later than its creation date: it reads that as the owner's own data
+    /// and leaves it alone. Every repair mode except `a` honours that rule,
+    /// which is why a Repair that reported success restored nothing after a
+    /// package-owned notice was edited. `a` is therefore required, and the
+    /// feature is what bounds it: `OwnedFiles` carries the data files, and the
+    /// two executables are deliberately outside it, because the console that
+    /// asks for the repair is itself running `vadgr.exe` and Windows cannot
+    /// replace a running image. Forcing them instead fails the whole
+    /// transaction with 1603 and `Error 1310`.
+    ///
+    /// The second call takes no `a`, so it rewrites the registry entries and
+    /// the shortcuts while the executables are only version-compared, which
+    /// leaves the running ones untouched.
+    fn run_repair(receipt: &InstallReceipt) -> Result<()> {
+        run_msiexec_with(
+            receipt,
+            "/i",
+            &[
+                ("REINSTALL", OWNED_FILES_FEATURE),
+                ("REINSTALLMODE", "amus"),
+            ],
+        )?;
+        run_msiexec(receipt, "/fomus", false)
+    }
+
+    /// Stop the daemon, repair, then start it again.
+    ///
+    /// The daemon holds files the repair rewrites, including the private
+    /// runtime, so stopping it first is what lets the repair finish. Starting
+    /// it again is not conditional on the repair succeeding: leaving the owner
+    /// with a stopped daemon is a worse outcome than a repair that failed and
+    /// said so, and the repair's own error is still what gets reported.
+    fn repair_with(
+        receipt: &InstallReceipt,
+        stop: impl FnOnce(&Path) -> Result<()>,
+        repair: impl FnOnce(&InstallReceipt) -> Result<()>,
+        start: impl FnOnce(&Path) -> Result<()>,
+    ) -> Result<()> {
+        ensure!(
+            receipt.package_kind == "msi",
+            "this is not a Windows MSI installation"
+        );
+        stop(&receipt.install_root)?;
+        let repaired = repair(receipt);
+        let restarted = start(&receipt.install_root);
+        repaired?;
+        restarted
+    }
+
+    /// Ask the installed product to start through its own public command.
+    fn start_installed_daemon(install_root: &Path) -> Result<()> {
+        let binary = install_root.join("vadgr.exe");
+        ensure!(
+            binary.is_file(),
+            "the repaired installation has no Vadgr daemon to start"
+        );
+        let status = Command::new(&binary)
+            .arg("start")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .context("starting the installed Vadgr daemon")?;
+        ensure!(
+            status.success(),
+            "the installed Vadgr daemon could not be started after the repair"
+        );
+        Ok(())
     }
 
     pub fn uninstall(receipt: &InstallReceipt, purge_owner_state: bool) -> Result<()> {
@@ -935,6 +1105,19 @@ mod platform {
     }
 
     fn run_msiexec(receipt: &InstallReceipt, verb: &str, purge_owner_state: bool) -> Result<()> {
+        let properties: &[(&str, &str)] = if purge_owner_state {
+            &[("PURGEOWNERDATA", "1")]
+        } else {
+            &[]
+        };
+        run_msiexec_with(receipt, verb, properties)
+    }
+
+    fn run_msiexec_with(
+        receipt: &InstallReceipt,
+        verb: &str,
+        properties: &[(&str, &str)],
+    ) -> Result<()> {
         ensure!(
             receipt.package_kind == "msi",
             "this is not a Windows MSI installation"
@@ -949,8 +1132,8 @@ mod platform {
         );
         let mut command = Command::new("msiexec.exe");
         command.args([verb, product_code, "/passive", "/norestart"]);
-        if purge_owner_state {
-            command.arg("PURGEOWNERDATA=1");
+        for (name, value) in properties {
+            command.arg(format!("{name}={value}"));
         }
         let status = command.status().context("starting Windows Installer")?;
         ensure!(status.success(), "Windows Installer returned {status}");
@@ -1093,6 +1276,96 @@ mod platform {
             assert!(
                 !ran.get(),
                 "starting the uninstaller anyway is what deletes owner data and then rolls back"
+            );
+        }
+
+        #[test]
+        fn the_daemon_is_stopped_before_the_repair_and_started_after_it() {
+            let order = std::cell::RefCell::new(Vec::new());
+            repair_with(
+                &msi_receipt(),
+                |root| {
+                    assert!(root.ends_with("Vadgr"), "the installed root is passed on");
+                    order.borrow_mut().push("stop");
+                    Ok(())
+                },
+                |_| {
+                    order.borrow_mut().push("repair");
+                    Ok(())
+                },
+                |_| {
+                    order.borrow_mut().push("start");
+                    Ok(())
+                },
+            )
+            .expect("the repair sequence completes");
+            assert_eq!(
+                order.into_inner(),
+                ["stop", "repair", "start"],
+                "a running daemon holds the files the repair has to rewrite"
+            );
+        }
+
+        #[test]
+        fn a_failed_repair_still_starts_the_daemon_again() {
+            let started = std::cell::Cell::new(false);
+            let result = repair_with(
+                &msi_receipt(),
+                |_| Ok(()),
+                |_| Err(anyhow!("Windows Installer returned exit code: 1603")),
+                |_| {
+                    started.set(true);
+                    Ok(())
+                },
+            );
+            assert!(
+                started.get(),
+                "leaving the owner with a stopped daemon is worse than a failed repair"
+            );
+            assert_eq!(
+                result.unwrap_err().to_string(),
+                "Windows Installer returned exit code: 1603",
+                "the repair's own failure is what the owner is told about"
+            );
+        }
+
+        #[test]
+        fn a_daemon_that_will_not_stop_cancels_the_repair() {
+            let repaired = std::cell::Cell::new(false);
+            let result = repair_with(
+                &msi_receipt(),
+                |_| Err(anyhow!("the installed Vadgr daemon could not be stopped")),
+                |_| {
+                    repaired.set(true);
+                    Ok(())
+                },
+                |_| Ok(()),
+            );
+            assert!(result.is_err());
+            assert!(
+                !repaired.get(),
+                "repairing while the daemon holds the private runtime fails the transaction"
+            );
+        }
+
+        #[test]
+        fn a_non_msi_receipt_is_refused_before_the_daemon_stops() {
+            let mut receipt = msi_receipt();
+            receipt.package_kind = "appimage".to_owned();
+            let stopped = std::cell::Cell::new(false);
+            let result = repair_with(
+                &receipt,
+                |_| {
+                    stopped.set(true);
+                    Ok(())
+                },
+                |_| Ok(()),
+                |_| Ok(()),
+            );
+            assert!(result.is_err());
+            assert!(
+                !stopped.get(),
+                "nothing is stopped for a package it cannot repair"
             );
         }
     }
