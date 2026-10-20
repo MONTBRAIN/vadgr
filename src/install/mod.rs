@@ -535,6 +535,91 @@ mod windows_repair_scope_tests {
     }
 }
 
+/// Every label is tall enough for the font it is drawn in.
+///
+/// The installer theme sizes each label box by hand, and a box shorter than
+/// the font's line height cuts the bottom off every descender in it. The
+/// wordmark and all five page titles did exactly that: "vadgr.", "Setting up
+/// Vadgr" and "Vadgr is ready." were drawn with the tails of their `g` and `y`
+/// sliced flat.
+///
+/// It survived a visual pass that measured contrast and clipping, because that
+/// check asked whether an element's box was clipped by its container. Here the
+/// box was the right size and the glyphs inside it were not, which is a
+/// different question and needs its own check.
+#[cfg(test)]
+mod windows_theme_metrics_tests {
+    const THEME: &str = include_str!("../../packaging/windows/VadgrTheme.xml");
+
+    /// Segoe UI, from its own head and hhea tables: 2048 units to the em,
+    /// 2210 units of ascent and 514 of descent. A font drawn at `n` pixels
+    /// therefore needs `n * (2210 + 514) / 2048` pixels of box to show all of
+    /// itself, which is just over `1.33 * n`.
+    const UNITS_PER_EM: i32 = 2048;
+    const ASCENT_UNITS: i32 = 2210;
+    const DESCENT_UNITS: i32 = 514;
+
+    fn required_height(font_pixels: i32) -> i32 {
+        let units = font_pixels * (ASCENT_UNITS + DESCENT_UNITS);
+        (units + UNITS_PER_EM - 1) / UNITS_PER_EM
+    }
+
+    fn attribute(line: &str, name: &str) -> Option<i32> {
+        let marker = format!("{name}=\"");
+        let rest = line.split_once(&marker)?.1;
+        rest.split('"').next()?.parse().ok()
+    }
+
+    /// Each font id and the pixel height it is declared with.
+    fn fonts() -> Vec<(i32, i32)> {
+        THEME
+            .lines()
+            .filter(|line| line.trim_start().starts_with("<Font "))
+            .filter_map(|line| {
+                let id = attribute(line, "Id")?;
+                // A negative height is the character height in pixels, which
+                // is how every font in this theme is declared.
+                Some((id, attribute(line, "Height")?.abs()))
+            })
+            .collect()
+    }
+
+    #[test]
+    fn every_label_box_fits_the_font_it_uses() {
+        let fonts = fonts();
+        assert!(!fonts.is_empty(), "the theme declares no fonts");
+        let mut checked = 0;
+        for line in THEME.lines() {
+            let trimmed = line.trim();
+            if !trimmed.starts_with("<Label ") {
+                continue;
+            }
+            let Some(font_id) = attribute(trimmed, "FontId") else {
+                continue;
+            };
+            let Some(height) = attribute(trimmed, "Height") else {
+                continue;
+            };
+            // A negative height is measured from the opposite edge and grows
+            // with the window, so it is never the constraint.
+            if height <= 0 {
+                continue;
+            }
+            let Some((_, pixels)) = fonts.iter().find(|(id, _)| *id == font_id) else {
+                continue;
+            };
+            let required = required_height(*pixels);
+            assert!(
+                height >= required,
+                "a label drawn in font {font_id} at {pixels}px needs {required}px \
+                 and has {height}px, so it cuts off every descender: {trimmed}"
+            );
+            checked += 1;
+        }
+        assert!(checked >= 20, "only {checked} labels were checked");
+    }
+}
+
 #[cfg(test)]
 mod windows_theme_tests {
     const THEME: &str = include_str!("../../packaging/windows/VadgrTheme.xml");

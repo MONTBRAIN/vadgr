@@ -10,7 +10,7 @@
 
   <Window Width="760" Height="540" HexStyle="100a0000" FontId="0" Caption="Vadgr setup">
     <Label X="188" Y="0" Width="1" Height="540" FontId="6" DisablePrefix="yes"> </Label>
-    <Label X="28" Y="34" Width="130" Height="34" FontId="1" DisablePrefix="yes">vadgr.</Label>
+    <Label X="28" Y="34" Width="130" Height="38" FontId="1" DisablePrefix="yes">vadgr.</Label>
     <Label X="28" Y="75" Width="145" Height="18" FontId="3" DisablePrefix="yes">LOCAL MACHINE AGENT</Label>
     <Label X="28" Y="122" Width="145" Height="24" FontId="2" DisablePrefix="yes">Your machine,</Label>
     <Label X="28" Y="148" Width="145" Height="24" FontId="2" DisablePrefix="yes">ready when</Label>
@@ -32,7 +32,7 @@
       <Label X="28" Y="332" Width="145" Height="20" FontId="3" DisablePrefix="yes">2   Install</Label>
       <Label X="28" Y="364" Width="145" Height="20" FontId="3" DisablePrefix="yes">3   Finish</Label>
       <Label X="220" Y="28" Width="500" Height="18" FontId="3" DisablePrefix="yes">BEFORE INSTALLATION</Label>
-      <Label X="220" Y="51" Width="500" Height="32" FontId="1" DisablePrefix="yes">Distribution terms</Label>
+      <Label X="220" Y="51" Width="500" Height="38" FontId="1" DisablePrefix="yes">Distribution terms</Label>
       <Label X="220" Y="89" Width="500" Height="20" FontId="3" DisablePrefix="yes">Read these terms before Vadgr changes this machine.</Label>
       <Label X="220" Y="124" Width="-34" Height="-128" FontId="0" HexStyle="800000" DisablePrefix="yes" />
       <Richedit Name="EulaRichedit" X="221" Y="125" Width="-35" Height="-129" TabStop="yes" FontId="0" />
@@ -48,7 +48,7 @@
       <Label X="28" Y="332" Width="145" Height="20" FontId="0" DisablePrefix="yes">2   Install</Label>
       <Label X="28" Y="364" Width="145" Height="20" FontId="3" DisablePrefix="yes">3   Finish</Label>
       <Label X="220" Y="28" Width="500" Height="18" FontId="3" DisablePrefix="yes">INSTALLING</Label>
-      <Label X="220" Y="51" Width="-34" Height="32" FontId="1" DisablePrefix="yes">Setting up Vadgr</Label>
+      <Label X="220" Y="51" Width="-34" Height="38" FontId="1" DisablePrefix="yes">Setting up Vadgr</Label>
       <Label X="220" Y="89" Width="-34" Height="20" FontId="3" DisablePrefix="yes">Your current installation stays available until setup is ready.</Label>
       <Label X="220" Y="144" Width="125" Height="20" FontId="3" DisablePrefix="yes">Current package</Label>
       <Label Name="OverallProgressPackageText" X="350" Y="144" Width="-34" Height="20" FontId="0" DisablePrefix="yes">Preparing...</Label>
@@ -60,7 +60,7 @@
       <Label X="28" Y="300" Width="145" Height="20" FontId="0" DisablePrefix="yes">1   Terms</Label>
       <Label X="28" Y="332" Width="145" Height="20" FontId="3" DisablePrefix="yes">2   Install</Label>
       <Label X="28" Y="364" Width="145" Height="20" FontId="3" DisablePrefix="yes">3   Finish</Label>
-      <Label X="220" Y="31" Width="-34" Height="32" FontId="1" DisablePrefix="yes">Vadgr is installed</Label>
+      <Label X="220" Y="29" Width="-34" Height="38" FontId="1" DisablePrefix="yes">Vadgr is installed</Label>
       <Label X="220" Y="67" Width="-34" Height="20" FontId="3" DisablePrefix="yes">Repair package files or remove the installed application.</Label>
       <Button Name="ModifyUpdateButton" X="34" Y="-28" Width="190" Height="32" TabStop="yes" EnableCondition="WixStdBAUpdateAvailable" HideWhenDisabled="yes">Install available update</Button>
       <Button Name="RepairButton" X="-406" Y="-28" Width="116" Height="32" TabStop="yes" HideWhenDisabled="yes">Repair</Button>
@@ -73,7 +73,7 @@
       <Label X="28" Y="332" Width="145" Height="20" FontId="3" DisablePrefix="yes">2   Install</Label>
       <Label X="28" Y="364" Width="145" Height="20" FontId="0" DisablePrefix="yes">3   Finish</Label>
       <Label X="220" Y="28" Width="500" Height="18" FontId="3" DisablePrefix="yes">INSTALLATION COMPLETE</Label>
-      <Label X="220" Y="51" Width="-34" Height="32" FontId="1" DisablePrefix="yes">
+      <Label X="220" Y="51" Width="-34" Height="38" FontId="1" DisablePrefix="yes">
         <Text>Vadgr is ready.</Text>
         <Text Condition="WixBundleAction = 4">Vadgr was removed. Owner data was preserved.</Text>
         <Text Condition="WixBundleAction = 8">Vadgr was repaired.</Text>
@@ -89,7 +89,7 @@
       <Label X="28" Y="300" Width="145" Height="20" FontId="3" DisablePrefix="yes">1   Terms</Label>
       <Label X="28" Y="332" Width="145" Height="20" FontId="3" DisablePrefix="yes">2   Install</Label>
       <Label X="28" Y="364" Width="145" Height="20" FontId="0" DisablePrefix="yes">3   Finish</Label>
-      <Label X="220" Y="31" Width="-34" Height="32" FontId="1" DisablePrefix="yes">Setup could not finish</Label>
+      <Label X="220" Y="29" Width="-34" Height="38" FontId="1" DisablePrefix="yes">Setup could not finish</Label>
       <Label X="220" Y="128" Width="-34" Height="42" FontId="4" DisablePrefix="yes">Setup selected no incomplete replacement. If Vadgr was already installed, that working installation remains available.</Label>
       <Hypertext Name="FailureLogFileLink" X="220" Y="184" Width="-34" Height="35" FontId="0" TabStop="yes" HideWhenDisabled="yes">Open the setup log</Hypertext>
       <Hypertext Name="FailureMessageText" X="220" Y="230" Width="-34" Height="80" FontId="0" TabStop="yes" HideWhenDisabled="yes" />
