@@ -60,21 +60,11 @@ jobs:
         run: cargo test --locked
       - name: Lint
         run: cargo clippy --locked --all-targets --features native-gui,macos-cua-host,release-verifier -- -D warnings
-      - name: Test and lint the Linux development qualification feature
+      - name: Test and lint the Linux development feature
         if: runner.os == 'Linux'
         shell: bash
         run: |
           set -euo pipefail
-          # One workflow file has to be valid on every head it runs on. The
-          # trusted producer refuses a candidate whose required check workflow
-          # differs from the default branch, so this step cannot assume the
-          # feature exists: it is skipped on a head that does not define it,
-          # and runs everywhere it does.
-          defines_feature="import json,sys; p=[x for x in json.load(sys.stdin)['packages'] if x['name']=='vadgr-daemon']; sys.exit(0 if p and 'linux-unsigned-qualification' in p[0]['features'] else 1)"
-          if ! cargo metadata --no-deps --format-version 1 | python3 -c "$defines_feature"; then
-            echo 'This head does not define linux-unsigned-qualification. Nothing to test.'
-            exit 0
-          fi
           export VADGR_QUALIFICATION_SOURCE_COMMIT="$(git rev-parse HEAD)"
           export VADGR_QUALIFICATION_SOURCE_TREE="$(git rev-parse HEAD^{tree})"
           export VADGR_RELEASE_PROFILE=linux-x86_64
