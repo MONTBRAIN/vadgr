@@ -151,10 +151,12 @@ def write(payload, architecture, source_commit, root):
         recorded.get("package_kind") == "msi",
         "the install receipt does not describe a Windows MSI installation",
     )
-    require(
-        recorded.get("manifest_sha256") is None and recorded.get("release_sequence") is None,
-        "a development installation carries no release manifest or sequence",
-    )
+    # The shipped receipt is the release form. A development installation is
+    # not a release with one extra field: it carries no release manifest and no
+    # release sequence, and the daemon's own mode check reads exactly that. So
+    # the development form is written here rather than refused.
+    for field in ("manifest_sha256", "release_sequence"):
+        recorded.pop(field, None)
     recorded["development_receipt_sha256"] = hashlib.sha256(bytes_written).hexdigest()
     install.write_bytes(canonical_json(recorded))
     require(
@@ -174,6 +176,10 @@ def check(payload):
         recorded.get("development_receipt_sha256")
         == digest(payload / "development-receipt.json"),
         "the install receipt does not record this development receipt",
+    )
+    require(
+        recorded.get("manifest_sha256") is None and recorded.get("release_sequence") is None,
+        "a development installation carries no release manifest or sequence",
     )
     print("the payload matches its development receipt")
 

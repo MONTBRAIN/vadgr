@@ -262,6 +262,26 @@ fn an_installation_recording_no_development_receipt_is_refused() {
 }
 
 #[test]
+fn a_receipt_claiming_release_and_development_standing_is_refused() {
+    for field in ["manifest_sha256", "release_sequence"] {
+        let fixture = Fixture::new();
+        let bytes = fixture.development_receipt(|_| {});
+        fixture.install_receipt(&sha256_hex(&bytes), |receipt| {
+            receipt[field] = if field == "release_sequence" {
+                json!(500)
+            } else {
+                json!("a".repeat(64))
+            };
+        });
+        let refusal = fixture.refusal();
+        assert!(
+            refusal.contains("no release manifest or sequence"),
+            "{field}: {refusal}"
+        );
+    }
+}
+
+#[test]
 fn a_signed_package_kind_is_refused() {
     let fixture = Fixture::new();
     let bytes = fixture.development_receipt(|_| {});

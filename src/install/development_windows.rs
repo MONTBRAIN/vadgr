@@ -131,6 +131,13 @@ fn verify_installed_runtime_at(
             && installed.package_kind == "msi",
         "development installation receipt differs"
     );
+    // A development installation is not a release with one extra field. A
+    // receipt that claimed both standings would let one installation answer to
+    // whichever check asked first.
+    ensure!(
+        installed.manifest_sha256.is_none() && installed.release_sequence.is_none(),
+        "a development installation carries no release manifest or sequence"
+    );
     let digest = installed
         .development_receipt_sha256
         .as_deref()

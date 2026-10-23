@@ -164,13 +164,34 @@ def test_another_commit_is_refused(payload, source):
     assert "source commit differs" in result.stderr
 
 
-def test_a_release_install_receipt_is_refused(payload, source):
+def test_the_release_form_becomes_the_development_form(payload, source):
     root, commit = source
+    # This is the shipped receipt's shape: a release sequence and an update
+    # origin. A development installation carries neither release field, and the
+    # daemon's own mode check reads exactly that, so the producer rewrites it.
     write(payload, "install-receipt.json", json.dumps({
         "schema": 1, "version": "0.5.0", "package_kind": "msi",
-        "manifest_sha256": "a" * 64, "release_sequence": 1,
+        "product_code": "{CEFD8482-734F-403D-B9BB-5ABD06A2A79E}",
+        "release_sequence": 500, "manifest_sha256": None,
+        "update_origin": "https://example.invalid/latest",
     }).encode())
-    result = run("write", payload, root, commit)
+    assert run("write", payload, root, commit).returncode == 0
+    recorded = json.loads((payload / "install-receipt.json").read_bytes())
+    assert "release_sequence" not in recorded and "manifest_sha256" not in recorded
+    assert recorded["development_receipt_sha256"]
+    # Everything that is not a release claim survives untouched.
+    assert recorded["product_code"] == "{CEFD8482-734F-403D-B9BB-5ABD06A2A79E}"
+    assert recorded["update_origin"] == "https://example.invalid/latest"
+    assert run("check", payload).returncode == 0
+
+
+def test_a_restored_release_claim_fails_the_check(payload, source):
+    root, commit = source
+    assert run("write", payload, root, commit).returncode == 0
+    recorded = json.loads((payload / "install-receipt.json").read_bytes())
+    recorded["release_sequence"] = 500
+    write(payload, "install-receipt.json", json.dumps(recorded).encode())
+    result = run("check", payload)
     assert result.returncode == 1
     assert "no release manifest or sequence" in result.stderr
 
