@@ -1,0 +1,164 @@
+### Vadgr packaged distribution terms
+
+**Version 1.0**
+
+#### 1. Parties and scope
+
+These terms are between you and **Victor Santiago Montaño Díaz, an individual
+publishing under the Montbrain name** (the **Publisher**), for this packaged
+copy of Vadgr.
+
+- Publisher location: Pasto, Nariño, Colombia
+- Support: support@montbrain.ai
+- Privacy: privacy@montbrain.ai
+
+The included NOTICE identifies the applicable copyright holder. These contact
+details do not state that Montbrain is an incorporated company.
+
+These terms apply only to this packaged distribution and its installer. They do
+not replace the open-source licences that apply to Vadgr or its third-party
+components.
+
+#### 2. Acceptance
+
+Select **I have read and accept these terms** and then **Install Vadgr** only if
+you agree to this version. Select **Cancel** if you do not agree. Cancelling
+before installation does not install Vadgr or set it to start with your
+computer.
+
+The installer records the accepted terms version and its cryptographic hash.
+If the terms change, the installer asks you to accept the new version before it
+installs that version of Vadgr.
+
+#### 3. Open-source licences
+
+Vadgr is open-source software licensed under the Apache License, Version 2.0.
+That licence grants your rights to use, reproduce, modify and distribute Vadgr.
+These terms do not reduce those rights or restrict a use that the Apache License
+permits.
+
+The complete Apache License 2.0 and NOTICE are included with this copy.
+Third-party components remain subject to their own included licences and
+notices.
+
+#### 4. Computer access and your instructions
+
+Vadgr can act on your computer with the permissions, accounts, providers,
+paired devices and tools you connect. Depending on your instructions and
+permissions, Vadgr can:
+
+- read, create, change and delete files;
+- control applications, enter text and select controls;
+- use signed-in websites and connected services;
+- send information or communicate with other people and services; and
+- start actions that have financial, legal or other external effects.
+
+Model output and computer-control actions can be incorrect, incomplete or
+unexpected. You decide what Vadgr may do and when a person must approve an
+action. You are responsible for reviewing important actions, keeping backups,
+protecting credentials and recovery information, and using Vadgr only with
+computers, accounts, data and services that you are authorized to use.
+
+#### 5. Connected providers and services
+
+Vadgr does not include a model-provider service. You connect a model provider
+or local model separately. A connected provider receives the prompts and task
+context needed to answer. Its own terms, privacy practices, limits and charges
+apply.
+
+The same rule applies to tools, websites, accounts, network products and other
+services that you connect. The Publisher does not control those third parties
+and does not pay or refund their charges. A provider can refuse a request under
+its own rules.
+
+#### 6. Data and network connections
+
+Vadgr stores its settings, credentials, paired-device information and task
+history on your computer. This version does not require a Publisher-operated
+cloud service and does not send product telemetry to the Publisher.
+
+Data leaves your computer when a feature requires it. Prompts and relevant task
+context go to the model provider you selected. Tool requests go to the tools
+and services you connected. Paired-device traffic uses the connection method
+you selected.
+
+The built-in connection first tries a direct encrypted path. It can use a relay
+when a direct path is unavailable. A relay cannot read the end-to-end encrypted
+Vadgr content. It can observe connection information, including network
+addresses, endpoint public keys, connection times and traffic volume. If you
+select Tailscale, your Tailscale configuration and Tailscale's terms apply.
+
+An update check or download contacts the update source configured in this copy
+or the source you select. That source can observe normal request information,
+including your network address and the request time. Normal use, local settings,
+offline repair and uninstall do not require access to a source-code repository.
+
+#### 7. Security and availability
+
+No security control removes all risks from computer control. A person or
+process with access to your computer, credentials, pairing information or
+providers can act with the authority those items give. Use the narrowest
+permissions that work. Revoke a lost device or credential. Keep your operating
+system and Vadgr updated. Keep backups outside Vadgr.
+
+Network paths, relays, model providers, websites and local applications can be
+unavailable or can change. Vadgr can therefore fail to start, continue or
+complete a task. The Publisher does not promise that another provider or path
+will complete a failed task.
+
+#### 8. Updates and support
+
+This packaged copy does not include a paid subscription, hosted account,
+service level or individual support unless the Publisher gives you a separate
+written offer that says so. These terms do not exclude an update, security or
+conformity duty that applicable law makes mandatory.
+
+You control whether to install a later version. If a later version has changed
+terms, you can reject them and stop that installation. Rejecting new terms does
+not remove rights that the Apache License 2.0 already grants for a copy you
+received.
+
+#### 9. Warranty
+
+Sections 7 and 8 of the Apache License 2.0 contain the warranty disclaimer and
+liability limit for Vadgr. To the maximum extent permitted by applicable law,
+Vadgr is provided **AS IS**, without warranties or conditions of any kind.
+
+Some laws give consumers warranties, guarantees or remedies that a contract
+cannot exclude. These terms do not exclude, restrict or change those mandatory
+rights.
+
+#### 10. Limitation of liability
+
+To the maximum extent permitted by applicable law, the limits in section 8 of
+the Apache License 2.0 apply to claims arising from Vadgr or the inability to
+use it. A limitation does not apply where the law does not permit it, including
+any liability that applicable law makes non-excludable.
+
+#### 11. Stopping use and uninstalling
+
+You can stop Vadgr, revoke paired devices and credentials, disable launch at
+login, or uninstall Vadgr without contacting the Publisher. Uninstall keeps
+your settings and data by default. Deleting that data requires a separate,
+explicit action.
+
+Stopping use or uninstalling does not remove rights already granted by the
+Apache License 2.0. Clauses that by their nature apply after uninstall remain
+in effect, including the licence, warranty and liability clauses.
+
+#### 12. General terms
+
+The accepted version of these terms, the Apache License 2.0, NOTICE,
+third-party notices and software-component inventory are installed with Vadgr
+and remain available offline.
+
+If a court or other competent authority finds one part of these terms invalid
+or unenforceable, the remaining parts continue to apply to the extent permitted
+by law. A failure to enforce one part is not a waiver of the right to enforce it
+later.
+
+These terms and the included open-source licences form the complete agreement
+about this packaged distribution. The laws of Colombia govern these terms,
+without regard to a rule that would select another law. This choice does not
+remove any mandatory consumer right, governing-law rule or forum rule that
+applies where you live.

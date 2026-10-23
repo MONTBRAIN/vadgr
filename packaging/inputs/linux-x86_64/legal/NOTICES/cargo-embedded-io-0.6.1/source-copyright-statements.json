@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d",
+  "original_statement_files": [
+    {
+      "path": "embedded-io-0.6.1/LICENSE-MIT",
+      "sha256": "47674f8b7d98c232c6f81346c4cfe48933d913a9e257d7a522ad9f42e3dd61e1",
+      "size": 1067,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 The embedded-io authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,222 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/__init__.py",
+      "member": "httpx2/__init__.py",
+      "sha256": "b5843ba043e53b93fc23cb7380f45a133da09c1b6be09cf0f3185814c558e593",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/__version__.py",
+      "member": "httpx2/__version__.py",
+      "sha256": "5d6283371e1364d24692e3babefd7a46f7d5f2585d81d3086d0f01b74711e144",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_alias.py",
+      "member": "httpx2/_alias.py",
+      "sha256": "12f9fa4b7056ba0cdde578030183ac41fe39fed010a6069ee0927a53a9f4d81c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_api.py",
+      "member": "httpx2/_api.py",
+      "sha256": "d2ced6f8f3e68f0bfd9d4e9ac4584fedcf95498155e2639d64995f17685c2de9",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_auth.py",
+      "member": "httpx2/_auth.py",
+      "sha256": "a81359e88fc3ad63cb2d945ad28653e9c0f734fe4dac6e9fe8a44451d84aba0a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_client.py",
+      "member": "httpx2/_client.py",
+      "sha256": "902d9655b0e3af54e1504e96fc60caa4b78f7f5fcf04a0963501dfddeb071981",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_config.py",
+      "member": "httpx2/_config.py",
+      "sha256": "b08e8ebbee03f2545fa637062a60d9332c2c49af79730c50a40c48cf541c60fc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_content.py",
+      "member": "httpx2/_content.py",
+      "sha256": "970731ffe23338f2c172fb9393703fff35af5fa4de9c269bdba932a4215eb211",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_decoders.py",
+      "member": "httpx2/_decoders.py",
+      "sha256": "0b8efd1921d42d3fb1173dd1af94f0674b949f68a1fda7dece7ed0720a087c00",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_exceptions.py",
+      "member": "httpx2/_exceptions.py",
+      "sha256": "ebd4cf6601ef4e49235753f4cb90d254e983931c0246c2a109f85dfea4d36957",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_main.py",
+      "member": "httpx2/_main.py",
+      "sha256": "44f25979bed9f501a9b26fc621c090e30571453e1de3e6d3ca64af905b2707cf",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_models.py",
+      "member": "httpx2/_models.py",
+      "sha256": "d139d0c54a1acd65995f693d876441e55fe418ef2799f647ec6361f695b0d4d6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_multipart.py",
+      "member": "httpx2/_multipart.py",
+      "sha256": "92c80825aac02ef3bb11c80399ce34197e86c953ba5c6d1f6accde8577516938",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_sse.py",
+      "member": "httpx2/_sse.py",
+      "sha256": "219d4b7fa36b82865aec53f9fa7fd584a864d1e1181643d9b4e0bc8392694029",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_status_codes.py",
+      "member": "httpx2/_status_codes.py",
+      "sha256": "d025a9b83d5dc3c3d8aedf5fedea59d1b6594049e6a9efb3e852bf23321e875e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_types.py",
+      "member": "httpx2/_types.py",
+      "sha256": "a55113363051d8ea16b3dfac63bb514c040cf2c671f3e90dc19e038d97046195",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_urlparse.py",
+      "member": "httpx2/_urlparse.py",
+      "sha256": "5fefeb2c3b02f5030819cd455ebf435514d8b0b2c1fd239d6823ad176f834480",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_urls.py",
+      "member": "httpx2/_urls.py",
+      "sha256": "d9fc06bca6d76d9e099738c51de8b6af245b5c6c2e6c5e386c3e8d46d4001756",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_utils.py",
+      "member": "httpx2/_utils.py",
+      "sha256": "bddcd8b2244004f0c3619ba2ac7ed6c592e8075aa9c046c81ac58016fb7d8787",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/py.typed",
+      "member": "httpx2/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_transports/__init__.py",
+      "member": "httpx2/_transports/__init__.py",
+      "sha256": "7bae70f57e1130af4eff443a90faa95ebd628de11fe9bf716e5e0a7eb0180c22",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_transports/asgi.py",
+      "member": "httpx2/_transports/asgi.py",
+      "sha256": "3d67b882dc3c97636a2b956eb01e2ea6bb3a978e9f2787b02d7f055043a8cee9",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_transports/base.py",
+      "member": "httpx2/_transports/base.py",
+      "sha256": "298e730556dd1ba81edac13e8f464ac89d42d4b5816551d09ce83405d43a89d1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_transports/default.py",
+      "member": "httpx2/_transports/default.py",
+      "sha256": "8fc43a2882d471aff751366a7f28e91c5e31831a4b29aa3bb4e66931a2148e97",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_transports/mock.py",
+      "member": "httpx2/_transports/mock.py",
+      "sha256": "dcb668c0dfd85db5decc0d8fe03e20dbd6c27a64e24f91abf14fef06fc6d831b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/_transports/wsgi.py",
+      "member": "httpx2/_transports/wsgi.py",
+      "sha256": "479500a44ff15ef97707028c82890de62ad789719115b3abb537622971440642",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/websockets/__init__.py",
+      "member": "httpx2/websockets/__init__.py",
+      "sha256": "2bae9dd997339741306b47b2d10d844f1e6eb73547ea7e46e89db6991dc66d5d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/websockets/_api.py",
+      "member": "httpx2/websockets/_api.py",
+      "sha256": "9469d4861be03ad200007c0ef439e4a4d9ddd6f1d86f2f24a5f24227baf31b17",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/websockets/_exceptions.py",
+      "member": "httpx2/websockets/_exceptions.py",
+      "sha256": "e0b8b8f85e8ee60d1a23a00896fa4e2944a459d332e6b114226efe766b98c829",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/websockets/_ping.py",
+      "member": "httpx2/websockets/_ping.py",
+      "sha256": "33a5e66daa74d7e95d9757a37a39a48c96c180ad6e9418fefe8694a0a722aab3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2/websockets/_transport.py",
+      "member": "httpx2/websockets/_transport.py",
+      "sha256": "49bf06eaf808f23cb82b2f7566b6f5e118b4d6ab13c7d39ca8af98cc7a50c629",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2-2.12.0.dist-info/METADATA",
+      "member": "httpx2-2.12.0.dist-info/METADATA",
+      "sha256": "3dd7f2c6bed53e5c9109cca84c57802610d4eb2ff1dfb87db393b8d0cfa33483",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2-2.12.0.dist-info/WHEEL",
+      "member": "httpx2-2.12.0.dist-info/WHEEL",
+      "sha256": "ccec20e2307acd7da453dd7437e70c6b08e2bc3ead3bc3445af135da37b56d59",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2-2.12.0.dist-info/entry_points.txt",
+      "member": "httpx2-2.12.0.dist-info/entry_points.txt",
+      "sha256": "dee899a2b4509500053681da0f1b8cb2691d8eddeb5139ae073f35b4b5c57506",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2-2.12.0.dist-info/licenses/LICENSE.md",
+      "member": "httpx2-2.12.0.dist-info/licenses/LICENSE.md",
+      "sha256": "7e7d6dbaf7fe160d39fd6e84fd02c33cab96bcbea34d36998d545bceb4a19c30",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/httpx2-2.12.0.dist-info/RECORD",
+      "member": "httpx2-2.12.0.dist-info/RECORD",
+      "sha256": "6c6262fe3f230bc5ada6ecbd00d1bdd6782b8fb4674e0b11393a68fc4bae19c8",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "cc8b6eecb8661c146b8f89a60e97456ee086e91a784ed31ac450c3a9e613dd36",
+  "wheel": "httpx2-2.12.0-py3-none-any.whl"
+}

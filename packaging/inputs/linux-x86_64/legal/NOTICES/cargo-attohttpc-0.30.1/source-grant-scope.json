@@ -1,0 +1,7 @@
+{
+  "archive_sha256": "16e2cdb6d5ed835199484bb92bb8b3edd526effe995c61732580439c1a67e2e9",
+  "basis": [
+    "The unchanged exact source archive is retained for MPL-2.0 source-form delivery. Final package must include this archive and inform recipients of its location."
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

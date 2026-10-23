@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "5d0bca838442ec211fa11de3a8b0e0e8f3a4522575b5c4c06ed722e005036f26",
+  "original_statement_files": [
+    {
+      "path": "num_enum-0.7.6/LICENSE-BSD",
+      "sha256": "0be96d891d00e0ae0df75d7f3289b12871c000a1f5ac744f3b570768d4bb277c",
+      "size": 1484,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018, Daniel Wagner-Hall"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

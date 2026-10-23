@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "e64eb721ca85a34323425f4041adc5d82704d3782d5f8f03793bc012419dce23",
+  "original_statement_files": [
+    {
+      "path": "font-types-0.12.4/LICENSE-APACHE",
+      "sha256": "eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0",
+      "size": 9701,
+      "statements": [
+        {
+          "line": 55,
+          "text": "Copyright 2019 Fontations Developers"
+        }
+      ]
+    },
+    {
+      "path": "font-types-0.12.4/LICENSE-MIT",
+      "sha256": "7b4c9a3946dfcea7967582760e963e27799e225dcf20565c8ef55324bb017427",
+      "size": 1065,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Fontations Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

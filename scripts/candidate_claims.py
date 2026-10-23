@@ -79,14 +79,16 @@ def validate_authorization(auth, bound=False):
     require(auth["repository"] == REPOSITORY and auth["run_attempt"] == 1
             and type(auth["run_attempt"]) is int, "repository or attempt refused")
     require(type(auth["schema"]) is int and auth["schema"] == 1 and auth["version"] == "0.5.0"
-            and isinstance(auth["branch"], str) and auth["branch"] not in {"", "master"}
-            and (auth["pull_request"] is None or positive(auth["pull_request"])), "preflight identity refused")
+            and auth["branch"] == "master" and positive(auth["pull_request"]),
+            "preflight identity refused")
     require(all(isinstance(auth[field], str) and re.fullmatch(r"[0-9]+(?:\.[0-9]+){2}", auth[field])
                 for field in ("cua_version", "python_version"))
             and all(hashed(auth[field]) for field in ("legal_approval_sha256", "rules_digest"))
             and isinstance(auth["required_checks"], list) and auth["required_checks"], "preflight policy refused")
     require(all(hashed(auth[field], 40) for field in ("source_sha", "source_tree", "trusted_sha")),
             "source identity is not immutable")
+    require(auth["source_sha"] == auth["trusted_sha"],
+            "candidate source is not the exact merged trusted commit")
     require(hashed(auth["input_digest"]) and archive_digest(auth["unsigned_artifact_digest"]),
             "input digest refused")
     require(all(positive(auth[field]) for field in ("run_id", "unsigned_artifact_id", "budget")),

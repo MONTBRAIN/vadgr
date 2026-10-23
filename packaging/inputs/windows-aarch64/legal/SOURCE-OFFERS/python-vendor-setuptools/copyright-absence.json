@@ -1,0 +1,24 @@
+{
+  "archive_sha256": "4a889585cf0ce38aa4c009aeb580d6164cbb21cf22dc83235a1df7106cba8e3e",
+  "component_tree_sha256": "8a1062ef1068804a2e21457e48b35cb1e22f2af005a4d8a4debde0d886f585f4",
+  "eligible_for_reviewed_NONE": true,
+  "files": [
+    {
+      "normalized_sha256": "fe2a9817987f862eaced948f0468c7f51d2fedfc48c5c505b246a49a3870e9a5",
+      "path": "LICENSE",
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "status": "complete-standard-boilerplate",
+      "template": "MIT-standard-grant-without-owner-statement"
+    },
+    {
+      "path": "__init__.py",
+      "sha256": "bdb4c9d3faee5201b1423944aacaee16688d3d5ca1dadf6afb3c930d3d39df12",
+      "size": 124451,
+      "status": "decoded-no-ownership-markers"
+    }
+  ],
+  "meaning": "No original copyright information detected under this complete-member audit. Not public domain; license rights and duties still apply. Exact package review approval remains mandatory.",
+  "method": "complete-decoded-observed-source-tree-v1",
+  "schema": 1
+}

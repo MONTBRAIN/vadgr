@@ -1,0 +1,32 @@
+{
+  "accounted_grants": [
+    "Apache-2.0",
+    "MIT"
+  ],
+  "archive_sha256": "c8dddc5b1924b9a59fba420166160ca2c4663a4e01803e52eda33070f56d63c8",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "94fa1b5b1279ead8b10ffdcba53ec5b5face07c3995ad2ae9658a520c975f203"
+  },
+  "expression": "Apache-2.0 AND MIT",
+  "observed_cargo_features": [
+    "client",
+    "transport-async-rw",
+    "transport-child-process"
+  ],
+  "reason": "The complete upstream transition notice explicitly retains MIT for unconsented contributions. Both code grants are retained conjunctively without assuming universal relicensing. The separate CC-BY-4.0 documentation statement remains in the notice; this runtime code proposal does not license documentation redistribution.",
+  "source_files": [
+    {
+      "path": "rmcp-3.1.2/.cargo_vcs_info.json",
+      "sha256": "196df6308e0965b7de990bb100ceac5736a447a0bc794ff8db697af01196e2b5",
+      "size": 105
+    },
+    {
+      "path": "000-LICENSE",
+      "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "size": 12227,
+      "source_url": "https://raw.githubusercontent.com/modelcontextprotocol/rust-sdk/02c62aef2e331e5cf79c06c744eb1eb052cc8ebd/LICENSE"
+    }
+  ],
+  "status": "source-scope-proposal-not-package-approval"
+}

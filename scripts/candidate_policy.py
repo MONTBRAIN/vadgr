@@ -2,7 +2,7 @@
 """Trusted, secret-free source preflight for a held release candidate.
 
 Only the copy on the approved default branch may execute in protected jobs.
-The feature checkout provides data, never this program or its dependencies.
+The product checkout provides data, never this trusted program or its dependencies.
 """
 
 from __future__ import annotations
@@ -162,6 +162,34 @@ def require_pull_requests(pulls: list, branch: str, sha: str) -> int | None:
     return item["number"]
 
 
+def require_merged_pull_requests(pulls: list, sha: str) -> int:
+    require(isinstance(pulls, list), "merged pull request response is invalid")
+    matches = [item for item in pulls if item.get("state") == "closed"
+               and item.get("merged_at") and item.get("merge_commit_sha") == sha
+               and item.get("base", {}).get("ref") == BASE]
+    require(len(matches) == 1, "exact merged implementation pull request is missing or ambiguous")
+    item = matches[0]
+    require(type(item.get("number")) is int and item["number"] > 0,
+            "merged implementation pull request identity is invalid")
+    for end in ("head", "base"):
+        require(item[end]["repo"]["full_name"] == REPOSITORY
+                and item[end]["repo"]["fork"] is False, "forked pull request refused")
+    return item["number"]
+
+
+def require_master_protection(rules: list) -> None:
+    require(isinstance(rules, list) and rules, "no effective branch rules found")
+    kinds = {rule.get("type") for rule in rules}
+    require({"deletion", "non_fast_forward", "pull_request", "required_status_checks"}
+            <= kinds, "protected master rules are incomplete")
+    pull_rules = [rule for rule in rules if rule.get("type") == "pull_request"]
+    require(len(pull_rules) == 1, "protected master pull request rule is ambiguous")
+    parameters = pull_rules[0].get("parameters", {})
+    require(type(parameters.get("required_approving_review_count")) is int
+            and parameters["required_approving_review_count"] >= 1,
+            "protected master requires no approving review")
+
+
 def require_checks(rules: list, checks: list, statuses: list, sha: str) -> list[dict]:
     required = set()
     require(isinstance(rules, list) and rules, "no effective branch rules found")
@@ -217,7 +245,7 @@ def require_checks(rules: list, checks: list, statuses: list, sha: str) -> list[
 
 
 def require_trusted_workflows(root: Path, sha: str, rows: list) -> None:
-    """A feature checkout must not redefine the required GitHub Actions jobs."""
+    """A product checkout must not redefine the required GitHub Actions jobs."""
     names = {name for _, _, _, name in rows}
     trusted_root = Path(__file__).resolve().parents[1]
     for name in TRUSTED_WORKFLOWS:
@@ -229,7 +257,8 @@ def require_trusted_workflows(root: Path, sha: str, rows: list) -> None:
 
 
 def require_trusted_check_runs(selected: list[dict], checks: list[dict],
-                               sha: str, branch: str) -> list[dict]:
+                               sha: str, branch: str,
+                               event: str | None = None) -> list[dict]:
     """Bind every passing check to a specific, current workflow and its actual job."""
     indexed = {check["id"]: check for check in checks if type(check.get("id")) is int}
     workflows: dict[str, int] = {}
@@ -266,6 +295,7 @@ def require_trusted_check_runs(selected: list[dict], checks: list[dict],
                 run_record.get("head_sha") == sha and
                 run_record.get("head_branch") == branch and
                 run_record.get("event") in ("push", "pull_request") and
+                (event is None or run_record.get("event") == event) and
                 run_record.get("run_attempt") == 1 and
                 run_record.get("status") == "completed" and
                 run_record.get("conclusion") == "success" and
@@ -459,7 +489,8 @@ def materialize(root: Path, sha: str, rows: list[tuple[str, str, str, str]], tar
 def preflight(args) -> dict:
     root = args.source_root.resolve()
     sha, branch = args.source_sha, args.branch
-    require(SHA.fullmatch(sha) is not None and branch == "feature/0.5.0-distribution",
+    trusted_sha = os.environ.get("GITHUB_SHA", "")
+    require(SHA.fullmatch(sha) is not None and branch == BASE and sha == trusted_sha,
             "candidate source or branch is not permitted")
     require(args.version == "0.5.0" and CANDIDATE.fullmatch(args.candidate_id) is not None
             and args.architecture in ("x64", "arm64"), "candidate identity is invalid")
@@ -482,14 +513,15 @@ def preflight(args) -> dict:
     remote = github(f"git/commits/{sha}")
     require(remote["sha"] == sha and remote["tree"]["sha"] == tree,
             "remote source tree mismatch")
-    pulls = pages(f"pulls?state=open&head={quote('MONTBRAIN:' + branch, safe='')}&base=master&per_page=100")
-    pull = require_pull_requests(pulls, branch, sha)
+    pulls = pages(f"commits/{sha}/pulls?per_page=100")
+    pull = require_merged_pull_requests(pulls, sha)
     rules = pages("rules/branches/master?per_page=100")
+    require_master_protection(rules)
     checks = pages(f"commits/{sha}/check-runs?filter=all&per_page=100", "check_runs")
     status_pages = github(f"commits/{sha}/status?per_page=100")
     require(status_pages["sha"] == sha, "commit statuses source mismatch")
     required = require_checks(rules, checks, status_pages["statuses"], sha)
-    required = require_trusted_check_runs(required, checks, sha, branch)
+    required = require_trusted_check_runs(required, checks, sha, branch, event="push")
     def blob(name):
         return git(root, "show", f"{sha}:{name}")
     cargo = tomllib.loads(blob("Cargo.toml"))
@@ -552,9 +584,8 @@ def preflight(args) -> dict:
     read_branch()
     rules_again = pages("rules/branches/master?per_page=100")
     require(rules_again == rules, "effective rules changed during validation")
-    if pull is not None:
-        fresh = github(f"pulls/{pull}")
-        require_pull_requests([fresh], branch, sha)
+    fresh = github(f"pulls/{pull}")
+    require_merged_pull_requests([fresh], sha)
     if args.materialize:
         materialize(root, sha, rows, args.materialize.resolve())
     return {"schema": 1, "repository": REPOSITORY, "branch": branch,
@@ -565,7 +596,7 @@ def preflight(args) -> dict:
             "cua_inputs": cua_inputs,
             "legal_approval_sha256": hashlib.sha256(json.dumps(approval, sort_keys=True).encode()).hexdigest(),
             **({"legal_approval": approval} if "release_profile" in cua_inputs else {}),
-            "trusted_sha": os.environ.get("GITHUB_SHA", ""), "required_checks": required,
+            "trusted_sha": trusted_sha, "required_checks": required,
             "rules_digest": hashlib.sha256(json.dumps(rules, sort_keys=True).encode()).hexdigest()}
 
 
@@ -589,8 +620,8 @@ def main() -> int:
                 and SHA.fullmatch(os.environ.get("GITHUB_SHA", "")) is not None,
                 "trusted workflow identity is invalid")
         result = preflight(args)
-        require(result["trusted_sha"] != result["source_sha"],
-                "candidate may not be the trusted bootstrap itself")
+        require(result["trusted_sha"] == result["source_sha"],
+                "candidate must use the exact merged trusted source")
         args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     except (Refused, PackageInputError, OSError, ValueError, TypeError, KeyError, IndexError,
             subprocess.SubprocessError) as exc:

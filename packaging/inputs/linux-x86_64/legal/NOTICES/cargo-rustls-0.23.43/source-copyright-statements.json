@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "0283386ce02abc0151e1761d08802dfe86c173b0b494af5cbc086574e453da06",
+  "original_statement_files": [
+    {
+      "path": "rustls-0.23.43/LICENSE-ISC",
+      "sha256": "7cfafc877eccc46c0e346ccbaa5c51bb6b894d2b818e617d970211e232785ad4",
+      "size": 775,
+      "statements": [
+        {
+          "line": 2,
+          "text": "Copyright (c) 2016, Joseph Birr-Pixton <jpixton@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "rustls-0.23.43/LICENSE-MIT",
+      "sha256": "709e3175b4212f7b13aa93971c9f62ff8c69ec45ad8c6532a7e0c41d7a7d6f8c",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 Joseph Birr-Pixton <jpixton@gmail.com>"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,21 @@
+name: Legacy release path disabled
+
+# Never rebuild or re-sign from a tag. Only the protected default-branch
+# candidate producer may create held attestations; a future release workflow
+# must promote exact qualified, already signed candidate bytes.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  refuse-legacy-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require exact held-artifact promotion
+        run: |
+          echo 'Tag-triggered rebuild and signing are disabled. Use the reviewed held-candidate promotion workflow.' >&2
+          exit 1

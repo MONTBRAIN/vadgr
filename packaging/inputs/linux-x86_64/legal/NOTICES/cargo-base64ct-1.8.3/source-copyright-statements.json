@@ -1,0 +1,32 @@
+{
+  "archive_sha256": "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06",
+  "original_statement_files": [
+    {
+      "path": "base64ct-1.8.3/LICENSE-MIT",
+      "sha256": "2d1c57bff28344b9e698f51063bc8509799cc4c99a4e0cf2aa3f7e7c3e1f9a9d",
+      "size": 1148,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Steve \"Sc00bz\" Thomas (steve at tobtu dot com)"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2021-2025 The RustCrypto Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "base64ct-1.8.3/src/lib.rs",
+      "sha256": "ebb6d9fe0d1199bb6aefaecb4e44524358c99d0db8d82e39b01a0b27f084b087",
+      "size": 2817,
+      "statements": [
+        {
+          "line": 70,
+          "text": "//! Copyright (c) 2014 Steve \"Sc00bz\" Thomas (steve at tobtu dot com)."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

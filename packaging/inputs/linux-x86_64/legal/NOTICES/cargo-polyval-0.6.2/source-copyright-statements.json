@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "9d1fe60d06143b2430aa532c94cfe9e29783047f06c0d7fd359a9a51b729fa25",
+  "original_statement_files": [
+    {
+      "path": "polyval-0.6.2/LICENSE-MIT",
+      "sha256": "a291b6910744d262a9e953c3b5868d74510e20161359f649a11e1791fde84fcd",
+      "size": 1070,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019-2023 RustCrypto Developers"
+        }
+      ]
+    },
+    {
+      "path": "polyval-0.6.2/src/backend/soft32.rs",
+      "sha256": "a69ff75e5e5d4d99adaa31025d82464aa34aafd83464dfc82e4932d85b28d096",
+      "size": 9305,
+      "statements": [
+        {
+          "line": 6,
+          "text": "//! Copyright (c) 2016 Thomas Pornin <pornin@bolet.org>"
+        }
+      ]
+    },
+    {
+      "path": "polyval-0.6.2/src/backend/soft64.rs",
+      "sha256": "c51a6ebea44e3a74da58094b622266983ad21debd3974f2b9e0b2bd5bb5def91",
+      "size": 6836,
+      "statements": [
+        {
+          "line": 6,
+          "text": "//! Copyright (c) 2016 Thomas Pornin <pornin@bolet.org>"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

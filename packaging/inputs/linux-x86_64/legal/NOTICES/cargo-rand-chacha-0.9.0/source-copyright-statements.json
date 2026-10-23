@@ -1,0 +1,58 @@
+{
+  "archive_sha256": "d3022b5f1df60f26e1ffddd6c66e8aa15de382ae63b3a0c1bfc0e4d3e3f325cb",
+  "original_statement_files": [
+    {
+      "path": "rand_chacha-0.9.0/LICENSE-MIT",
+      "sha256": "209fbbe0ad52d9235e37badf9cadfe4dbdc87203179c0899e738b39ade42177b",
+      "size": 1117,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2018 Developers of the Rand project"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "rand_chacha-0.9.0/src/chacha.rs",
+      "sha256": "8b7fb696f491afe9ca5830e5ed66f418f0cb6bee40dafb4e4d2404c50523a33a",
+      "size": 24181,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_chacha-0.9.0/src/guts.rs",
+      "sha256": "33d284279f5bacc5951a46de693a77758b662c341ef05bd8a4bcda84f34863a6",
+      "size": 9113,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 The CryptoCorrosion Contributors"
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2020 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_chacha-0.9.0/src/lib.rs",
+      "sha256": "a3eddc972be141f04118957200d23ec8b783ca53b382c0d886a9436229c8bec4",
+      "size": 4130,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "29fcf32e6c73d1079f83ab4d782de2d81620346a5f38c6237a86a22f8368980a",
+  "original_statement_files": [
+    {
+      "path": "ed25519-3.0.0/LICENSE-APACHE",
+      "sha256": "78779d420019e6b4630376af8e86b6b335ee8a2f89ede6e0411e0469a326aaa4",
+      "size": 10846,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2018-2022 RustCrypto Developers"
+        }
+      ]
+    },
+    {
+      "path": "ed25519-3.0.0/LICENSE-MIT",
+      "sha256": "9aa4f92bfcde293ebeca9e2379fa18d1d61f000977da144c7b74c2986c9b6466",
+      "size": 1070,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2026 RustCrypto Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

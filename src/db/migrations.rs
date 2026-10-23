@@ -1,6 +1,6 @@
 use rusqlite::{Connection, Error};
 
-const CURRENT_VERSION: i64 = 2;
+const CURRENT_VERSION: i64 = 3;
 
 const MIGRATION_ONE: &str = r#"
 CREATE TABLE provider_connections (
@@ -60,10 +60,20 @@ CREATE TABLE device_peers (
 CREATE INDEX idx_device_peers_device ON device_peers(device_id);
 "#;
 
+const MIGRATION_THREE: &str = r#"
+ALTER TABLE machine_settings ADD COLUMN machine_id TEXT NOT NULL DEFAULT '';
+ALTER TABLE machine_settings ADD COLUMN name TEXT NOT NULL DEFAULT '';
+ALTER TABLE machine_settings ADD COLUMN role_prompt TEXT NOT NULL DEFAULT '';
+ALTER TABLE machine_settings ADD COLUMN autonomy_mode TEXT NOT NULL DEFAULT 'default';
+ALTER TABLE machine_settings ADD COLUMN workspace TEXT;
+ALTER TABLE machine_settings ADD COLUMN granted_skills TEXT NOT NULL DEFAULT '[]';
+ALTER TABLE machine_settings ADD COLUMN granted_mcp_servers TEXT NOT NULL DEFAULT '["control-plane","vadgr-computer-use"]';
+"#;
+
 /// The ladder, in order. `apply` runs every rung above the stored version,
 /// so a version-one database takes rung two alone and is never re-run
 /// through rung one.
-const MIGRATIONS: [(i64, &str); 2] = [(1, MIGRATION_ONE), (2, MIGRATION_TWO)];
+const MIGRATIONS: [(i64, &str); 3] = [(1, MIGRATION_ONE), (2, MIGRATION_TWO), (3, MIGRATION_THREE)];
 
 pub fn apply(conn: &Connection) -> rusqlite::Result<()> {
     let version: i64 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;

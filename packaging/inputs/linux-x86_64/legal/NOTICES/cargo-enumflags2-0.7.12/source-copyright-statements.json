@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "1027f7680c853e056ebcec683615fb6fbbc07dbaa13b4d5d9442b146ded4ecef",
+  "original_statement_files": [
+    {
+      "path": "enumflags2-0.7.12/LICENSE-APACHE",
+      "sha256": "41ba8a366e4129d0b7551f8b98211f59635b2e30c0a3c7845e828e2a7ce42064",
+      "size": 9715,
+      "statements": [
+        {
+          "line": 56,
+          "text": "Copyright 2017-2023 Maik Klein, Maja K\u0105dzio\u0142ka"
+        }
+      ]
+    },
+    {
+      "path": "enumflags2-0.7.12/LICENSE-MIT",
+      "sha256": "2e3edd2716fb15616e867bd53f724f0906732242e9ae76bb1faad1d88f7eeebd",
+      "size": 1077,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017-2023 Maik Klein, Maja K\u0105dzio\u0142ka"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,1837 @@
+//! Installed-package status and native lifecycle adapters.
+//!
+//! This module reads package-owned metadata. It does not infer installation
+//! ownership from a checkout and it does not open daemon state.
+
+use anyhow::{Context, Result, anyhow, ensure};
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::io::Read;
+use std::path::{Path, PathBuf};
+
+mod archive;
+mod manifest;
+pub use archive::validate_tar_gz;
+mod update;
+pub(crate) use manifest::verify_cua_attestation;
+pub use manifest::{Artifact, ReleaseManifest, VerifiedArtifact, VerifiedManifest, current_target};
+pub use update::{
+    UpdateCheck, apply_update, apply_update_from, check_for_updates, check_for_updates_from,
+};
+#[cfg(all(target_os = "linux", feature = "linux-unsigned-qualification"))]
+mod development;
+#[cfg(all(target_os = "linux", feature = "linux-unsigned-qualification"))]
+pub(crate) use development::verify_installed_runtime;
+#[cfg(all(target_os = "windows", feature = "windows-unsigned-qualification"))]
+mod development_windows;
+#[cfg(all(target_os = "windows", feature = "windows-unsigned-qualification"))]
+pub(crate) use development_windows::verify_installed_runtime;
+#[cfg(target_os = "linux")]
+mod linux;
+#[cfg(target_os = "linux")]
+mod linux_package;
+#[cfg(target_os = "linux")]
+pub use linux::{
+    InstallPhase, install_appimage, install_appimage_with_progress,
+    keep_inherited_descriptors_from_children, rollback_appimage,
+};
+#[cfg(target_os = "linux")]
+pub(crate) use linux_package::VerifiedLinuxPackage;
+
+const RECEIPT_NAME: &str = "install-receipt.json";
+const ACCEPTANCE_NAME: &str = "terms-acceptance.json";
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct TermsAcceptance {
+    pub schema: u32,
+    pub terms_version: String,
+    pub terms_sha256: String,
+    pub accepted_at: String,
+    pub installer_version: String,
+    pub installer_artifact_sha256: String,
+    pub install_scope: String,
+    pub installation_id: String,
+    pub assent_method: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct InstallReceipt {
+    pub schema: u32,
+    pub version: String,
+    #[serde(skip)]
+    pub install_root: PathBuf,
+    pub package_kind: String,
+    #[serde(default)]
+    pub product_code: Option<String>,
+    #[serde(default)]
+    pub release_sequence: Option<u64>,
+    #[serde(default)]
+    pub manifest_sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub development_receipt_sha256: Option<String>,
+    #[serde(default)]
+    pub update_origin: Option<String>,
+    #[serde(default)]
+    pub publisher: Option<String>,
+    #[serde(default)]
+    pub rollback_vehicle: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, Serialize)]
+pub struct InstallStatus {
+    pub installed: bool,
+    pub version: String,
+    pub package_kind: Option<String>,
+    pub install_root: Option<PathBuf>,
+    pub launch_at_login: bool,
+    pub update_state: String,
+    pub lifecycle_available: bool,
+    pub legal_available: bool,
+    pub update_available: bool,
+    pub rollback_available: bool,
+}
+
+pub fn status() -> Result<InstallStatus> {
+    let Some(receipt) = read_receipt()? else {
+        return Ok(InstallStatus {
+            version: env!("CARGO_PKG_VERSION").to_owned(),
+            update_state: "Development build".to_owned(),
+            ..Default::default()
+        });
+    };
+    let legal_available = platform::legal_path(&receipt).is_dir();
+    Ok(InstallStatus {
+        installed: true,
+        version: receipt.version.clone(),
+        package_kind: Some(receipt.package_kind.clone()),
+        install_root: Some(receipt.install_root.clone()),
+        launch_at_login: platform::launch_at_login()?,
+        update_state: if receipt.development_receipt_sha256.is_some() {
+            crate::build_policy::UNSIGNED_WARNING.to_owned()
+        } else {
+            "No signed update was checked".to_owned()
+        },
+        lifecycle_available: matches!(receipt.package_kind.as_str(), "msi" | "pkg" | "appimage"),
+        legal_available,
+        update_available: update::origin(&receipt, None).is_ok(),
+        rollback_available: platform::rollback_available(&receipt),
+    })
+}
+
+pub fn set_launch_at_login(enabled: bool) -> Result<()> {
+    let receipt = require_receipt()?;
+    platform::set_launch_at_login(enabled, &receipt.install_root)
+}
+
+pub fn repair() -> Result<()> {
+    let receipt = require_receipt()?;
+    platform::repair(&receipt)
+}
+
+pub fn rollback() -> Result<()> {
+    let receipt = require_receipt()?;
+    platform::rollback(&receipt)
+}
+
+#[cfg(target_os = "windows")]
+pub fn cache_install_vehicle(source: &Path) -> Result<()> {
+    let receipt = require_receipt()?;
+    platform::cache_install_vehicle(&receipt, source)
+}
+
+#[cfg(not(target_os = "windows"))]
+pub fn cache_install_vehicle(_source: &Path) -> Result<()> {
+    Err(anyhow!(
+        "only the committed Windows MSI transaction retains a setup vehicle"
+    ))
+}
+
+pub fn verify_install_vehicle(source: &Path) -> Result<()> {
+    let receipt = require_receipt()?;
+    ensure!(
+        source.is_absolute() && source.is_file(),
+        "the package vehicle is unavailable"
+    );
+    let kind = match receipt.package_kind.as_str() {
+        "msi" => "burn",
+        "pkg" => "pkg",
+        other => return Err(anyhow!("{other} has no native package vehicle")),
+    };
+    update::verify_native_vehicle(source, kind, receipt.publisher.as_deref())
+}
+
+pub fn uninstall(purge_owner_state: bool) -> Result<()> {
+    let receipt = require_receipt()?;
+    platform::uninstall(&receipt, purge_owner_state)
+}
+
+/// Delete only the resolved default Vadgr owner-state root.
+///
+/// The public console owns the separate typed confirmation. These path checks
+/// remain mandatory so a broken package cannot turn uninstall into a broad
+/// recursive delete.
+pub fn purge_owner_state() -> Result<()> {
+    ensure!(
+        std::env::var_os("VADGR_STATE_HOME").is_none(),
+        "the package uninstaller refuses to delete an overridden state root"
+    );
+    ensure!(
+        std::env::var_os("VADGR_CONFIG_HOME").is_none(),
+        "the package uninstaller refuses to delete an overridden configuration root"
+    );
+    let config = crate::config::Config::from_env()
+        .map_err(|error| anyhow!("resolving Vadgr state: {error}"))?;
+    for root in purge_roots(
+        config.state_home,
+        crate::computer_use_setup::config_home().ok(),
+    )? {
+        remove_owner_root(&root)?;
+    }
+    Ok(())
+}
+
+/// The roots an explicit purge removes.
+///
+/// The confirmation promises settings as well as credentials, pairings and
+/// journals, and the settings file does not live in the state root: on Windows
+/// it is in the configuration root under Roaming. A purge that took the state
+/// root alone left `settings.json` behind after the owner had typed the
+/// confirmation phrase.
+fn purge_roots(state: Option<PathBuf>, config: Option<PathBuf>) -> Result<Vec<PathBuf>> {
+    let state = state.ok_or_else(|| anyhow!("the Vadgr state root is unavailable"))?;
+    let mut roots = vec![state];
+    // The two roots are the same directory on a platform that does not
+    // separate them, and purging it twice would fail on the second pass.
+    if let Some(config) = config.filter(|root| !roots.contains(root)) {
+        roots.push(config);
+    }
+    for root in &roots {
+        ensure!(
+            safe_default_state_root(root),
+            "the resolved owner path {} is not a Vadgr default",
+            root.display()
+        );
+    }
+    Ok(roots)
+}
+
+fn remove_owner_root(root: &Path) -> Result<()> {
+    if !root.exists() {
+        return Ok(());
+    }
+    ensure!(
+        !std::fs::symlink_metadata(root)?.file_type().is_symlink(),
+        "an owner root is a link"
+    );
+    std::fs::remove_dir_all(root).context("deleting a Vadgr owner root")
+}
+
+fn safe_default_state_root(path: &Path) -> bool {
+    if !path.is_absolute() || path.parent().is_none() {
+        return false;
+    }
+    let parts = path
+        .components()
+        .filter_map(|part| part.as_os_str().to_str())
+        .collect::<Vec<_>>();
+    if parts.len() < 3 {
+        return false;
+    }
+    parts
+        .last()
+        .is_some_and(|part| part.eq_ignore_ascii_case("vadgr"))
+        || parts.last().is_some_and(|part| *part == "state")
+            && parts
+                .get(parts.len().saturating_sub(2))
+                .is_some_and(|part| part.eq_ignore_ascii_case("vadgr"))
+}
+
+pub fn open_legal() -> Result<()> {
+    let receipt = require_receipt()?;
+    let legal = platform::legal_path(&receipt);
+    ensure!(legal.is_dir(), "the installed legal notices are missing");
+    platform::open_path(&legal)
+}
+
+pub fn terms_acceptance() -> Result<Option<TermsAcceptance>> {
+    read_acceptance(&acceptance_path()?)
+}
+
+pub fn terms_acceptance_in(state_root: &Path) -> Result<Option<TermsAcceptance>> {
+    ensure!(
+        state_root.is_absolute(),
+        "the Vadgr state root must be absolute"
+    );
+    read_acceptance(&state_root.join(ACCEPTANCE_NAME))
+}
+
+fn read_acceptance(path: &Path) -> Result<Option<TermsAcceptance>> {
+    if !path.is_file() {
+        return Ok(None);
+    }
+    let record: TermsAcceptance = serde_json::from_slice(
+        &std::fs::read(path).context("reading the terms acceptance record")?,
+    )
+    .context("parsing the terms acceptance record")?;
+    ensure!(
+        record.schema == 1,
+        "the terms acceptance schema is unsupported"
+    );
+    ensure!(
+        valid_sha256(&record.terms_sha256) && valid_sha256(&record.installer_artifact_sha256),
+        "the terms acceptance record contains an invalid digest"
+    );
+    ensure!(
+        record.install_scope == "user",
+        "the terms acceptance scope is unsupported"
+    );
+    Ok(Some(record))
+}
+
+pub fn record_terms_acceptance(
+    terms_version: &str,
+    installer_version: &str,
+    terms_file: &Path,
+    installer_file: &Path,
+) -> Result<TermsAcceptance> {
+    record_terms_acceptance_at(
+        &acceptance_path()?,
+        terms_version,
+        installer_version,
+        terms_file,
+        installer_file,
+    )
+}
+
+fn record_terms_acceptance_at(
+    acceptance_path: &Path,
+    terms_version: &str,
+    installer_version: &str,
+    terms_file: &Path,
+    installer_file: &Path,
+) -> Result<TermsAcceptance> {
+    ensure!(
+        !terms_version.trim().is_empty(),
+        "the accepted terms version is empty"
+    );
+    ensure!(
+        !installer_version.trim().is_empty(),
+        "the installer version is empty"
+    );
+    ensure!(terms_file.is_file(), "the installed terms file is missing");
+    ensure!(
+        installer_file.is_file(),
+        "the installation vehicle is missing"
+    );
+    let terms_sha256 = sha256_file(terms_file)?;
+    let installer_artifact_sha256 = sha256_file(installer_file)?;
+    let previous = read_acceptance(acceptance_path)?;
+    if let Some(previous) = previous.as_ref()
+        && previous.terms_version == terms_version
+        && previous.terms_sha256 == terms_sha256
+    {
+        return Ok(previous.clone());
+    }
+    ensure!(
+        previous.as_ref().is_none_or(|record| {
+            record.terms_version != terms_version || record.terms_sha256 == terms_sha256
+        }),
+        "the accepted terms bytes changed without a new version"
+    );
+    let installation_id = previous
+        .map(|record| record.installation_id)
+        .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+    let record = TermsAcceptance {
+        schema: 1,
+        terms_version: terms_version.to_owned(),
+        terms_sha256,
+        accepted_at: time::OffsetDateTime::now_utc()
+            .format(&time::format_description::well_known::Rfc3339)
+            .expect("UTC time has an RFC 3339 representation"),
+        installer_version: installer_version.to_owned(),
+        installer_artifact_sha256,
+        install_scope: "user".to_owned(),
+        installation_id,
+        assent_method: "unchecked_checkbox_then_install".to_owned(),
+    };
+    write_acceptance(acceptance_path, &record)?;
+    Ok(record)
+}
+
+fn acceptance_path() -> Result<PathBuf> {
+    let config = crate::config::Config::from_env()
+        .map_err(|error| anyhow!("resolving Vadgr state: {error}"))?;
+    let root = config
+        .state_home
+        .ok_or_else(|| anyhow!("the Vadgr state root is unavailable"))?;
+    Ok(root.join(ACCEPTANCE_NAME))
+}
+
+fn write_acceptance(path: &Path, record: &TermsAcceptance) -> Result<()> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| anyhow!("the terms acceptance path has no parent"))?;
+    crate::private_fs::create_dir_all(parent).context("creating the Vadgr state root")?;
+    let temporary = parent.join(format!(".{ACCEPTANCE_NAME}.{}.tmp", uuid::Uuid::new_v4()));
+    let bytes = serde_json::to_vec_pretty(record)?;
+    std::fs::write(&temporary, bytes).context("writing the terms acceptance candidate")?;
+    crate::private_fs::harden(&temporary).context("protecting the terms acceptance candidate")?;
+    if let Err(error) = commit_file(&temporary, path) {
+        let _ = std::fs::remove_file(&temporary);
+        return Err(error).context("committing the terms acceptance record");
+    }
+    crate::private_fs::harden(path).context("protecting the terms acceptance record")
+}
+
+#[cfg(not(target_os = "windows"))]
+fn commit_file(source: &Path, destination: &Path) -> std::io::Result<()> {
+    std::fs::rename(source, destination)
+}
+
+#[cfg(target_os = "windows")]
+fn commit_file(source: &Path, destination: &Path) -> std::io::Result<()> {
+    use std::os::windows::ffi::OsStrExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        MOVEFILE_REPLACE_EXISTING, MOVEFILE_WRITE_THROUGH, MoveFileExW,
+    };
+
+    let source = source
+        .as_os_str()
+        .encode_wide()
+        .chain(std::iter::once(0))
+        .collect::<Vec<_>>();
+    let destination = destination
+        .as_os_str()
+        .encode_wide()
+        .chain(std::iter::once(0))
+        .collect::<Vec<_>>();
+    // SAFETY: both buffers are NUL-terminated and live for the call. The two
+    // paths were built below the same resolved state directory.
+    let moved = unsafe {
+        MoveFileExW(
+            source.as_ptr(),
+            destination.as_ptr(),
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH,
+        )
+    };
+    if moved == 0 {
+        Err(std::io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+
+pub(crate) fn sha256_file(path: &Path) -> Result<String> {
+    let mut file = std::fs::File::open(path)
+        .with_context(|| format!("opening {} for verification", path.display()))?;
+    let mut digest = Sha256::new();
+    let mut buffer = [0_u8; 64 * 1024];
+    loop {
+        let read = file
+            .read(&mut buffer)
+            .with_context(|| format!("reading {} for verification", path.display()))?;
+        if read == 0 {
+            break;
+        }
+        digest.update(&buffer[..read]);
+    }
+    let digest = digest.finalize();
+    let mut encoded = String::with_capacity(64);
+    for byte in digest {
+        use std::fmt::Write as _;
+        write!(&mut encoded, "{byte:02x}").expect("writing to a string cannot fail");
+    }
+    Ok(encoded)
+}
+
+fn valid_sha256(value: &str) -> bool {
+    value.len() == 64 && value.chars().all(|character| character.is_ascii_hexdigit())
+}
+
+/// The Windows setup theme is read by the bootstrapper at run time, so a layout
+/// mistake in it reaches the owner as a wrong frame rather than a build error.
+/// These checks read the shipped theme itself.
+/// What Repair is allowed to force, read from the MSI authoring.
+///
+/// Repair force-reinstalls one feature, because Windows Installer leaves an
+/// edited unversioned file alone under every other mode. That makes the
+/// feature's membership a correctness boundary rather than packaging detail:
+/// a running executable inside it fails the whole transaction with 1603, and a
+/// package-owned data file outside it is a file Repair silently will not
+/// restore. Both mistakes are one moved line, so the line is asserted here.
+#[cfg(test)]
+mod windows_repair_scope_tests {
+    const PACKAGE: &str = include_str!("../../packaging/windows/Package.wxs");
+    const FORCED_FEATURE: &str = "OwnedFiles";
+
+    /// The references inside the named feature, in authoring order.
+    fn members(feature: &str) -> Vec<String> {
+        let opening = format!("<Feature Id=\"{feature}\"");
+        let mut inside = false;
+        let mut out = Vec::new();
+        for line in PACKAGE.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with(&opening) {
+                inside = true;
+                continue;
+            }
+            if !inside {
+                continue;
+            }
+            if trimmed.starts_with("</Feature>") {
+                break;
+            }
+            for tag in ["<ComponentRef Id=\"", "<ComponentGroupRef Id=\""] {
+                if let Some(rest) = trimmed.strip_prefix(tag) {
+                    out.push(rest.split('"').next().unwrap_or("").to_owned());
+                }
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn the_forced_feature_exists() {
+        assert!(
+            PACKAGE.contains(&format!("<Feature Id=\"{FORCED_FEATURE}\"")),
+            "the repair names this feature, so the package has to declare it"
+        );
+    }
+
+    #[test]
+    fn every_owned_data_payload_is_forced() {
+        let forced = members(FORCED_FEATURE);
+        for required in [
+            "LegalPayload",
+            "SbomPayload",
+            "PrivatePayload",
+            "PackageMetadata",
+        ] {
+            assert!(
+                forced.iter().any(|member| member == required),
+                "{required} is outside the forced feature, so Repair will not restore it \
+                 once its content changes"
+            );
+        }
+    }
+
+    #[test]
+    fn neither_running_executable_is_forced() {
+        let forced = members(FORCED_FEATURE);
+        for refused in ["VadgrBackend", "VadgrApplication"] {
+            assert!(
+                !forced.iter().any(|member| member == refused),
+                "{refused} holds a running image, and forcing it fails the repair with 1603"
+            );
+        }
+    }
+
+    #[test]
+    fn the_executables_are_still_installed() {
+        // Moving them out of the forced feature must not drop them from the
+        // package, which would uninstall the product instead of repairing it.
+        let complete = members("Complete");
+        for required in ["VadgrBackend", "VadgrApplication"] {
+            assert!(
+                complete.iter().any(|member| member == required),
+                "{required} left the package altogether"
+            );
+        }
+    }
+}
+
+/// Every label is tall enough for the font it is drawn in.
+///
+/// The installer theme sizes each label box by hand, and a box shorter than
+/// the font's line height cuts the bottom off every descender in it. The
+/// wordmark and all five page titles did exactly that: "vadgr.", "Setting up
+/// Vadgr" and "Vadgr is ready." were drawn with the tails of their `g` and `y`
+/// sliced flat.
+///
+/// It survived a visual pass that measured contrast and clipping, because that
+/// check asked whether an element's box was clipped by its container. Here the
+/// box was the right size and the glyphs inside it were not, which is a
+/// different question and needs its own check.
+#[cfg(test)]
+mod windows_theme_metrics_tests {
+    const THEME: &str = include_str!("../../packaging/windows/VadgrTheme.xml");
+
+    /// Segoe UI, from its own head and hhea tables: 2048 units to the em,
+    /// 2210 units of ascent and 514 of descent. A font drawn at `n` pixels
+    /// therefore needs `n * (2210 + 514) / 2048` pixels of box to show all of
+    /// itself, which is just over `1.33 * n`.
+    const UNITS_PER_EM: i32 = 2048;
+    const ASCENT_UNITS: i32 = 2210;
+    const DESCENT_UNITS: i32 = 514;
+
+    fn required_height(font_pixels: i32) -> i32 {
+        let units = font_pixels * (ASCENT_UNITS + DESCENT_UNITS);
+        (units + UNITS_PER_EM - 1) / UNITS_PER_EM
+    }
+
+    fn attribute(line: &str, name: &str) -> Option<i32> {
+        let marker = format!("{name}=\"");
+        let rest = line.split_once(&marker)?.1;
+        rest.split('"').next()?.parse().ok()
+    }
+
+    /// Each font id and the pixel height it is declared with.
+    fn fonts() -> Vec<(i32, i32)> {
+        THEME
+            .lines()
+            .filter(|line| line.trim_start().starts_with("<Font "))
+            .filter_map(|line| {
+                let id = attribute(line, "Id")?;
+                // A negative height is the character height in pixels, which
+                // is how every font in this theme is declared.
+                Some((id, attribute(line, "Height")?.abs()))
+            })
+            .collect()
+    }
+
+    #[test]
+    fn every_label_box_fits_the_font_it_uses() {
+        let fonts = fonts();
+        assert!(!fonts.is_empty(), "the theme declares no fonts");
+        let mut checked = 0;
+        for line in THEME.lines() {
+            let trimmed = line.trim();
+            if !trimmed.starts_with("<Label ") {
+                continue;
+            }
+            let Some(font_id) = attribute(trimmed, "FontId") else {
+                continue;
+            };
+            let Some(height) = attribute(trimmed, "Height") else {
+                continue;
+            };
+            // A negative height is measured from the opposite edge and grows
+            // with the window, so it is never the constraint.
+            if height <= 0 {
+                continue;
+            }
+            let Some((_, pixels)) = fonts.iter().find(|(id, _)| *id == font_id) else {
+                continue;
+            };
+            let required = required_height(*pixels);
+            assert!(
+                height >= required,
+                "a label drawn in font {font_id} at {pixels}px needs {required}px \
+                 and has {height}px, so it cuts off every descender: {trimmed}"
+            );
+            checked += 1;
+        }
+        assert!(checked >= 20, "only {checked} labels were checked");
+    }
+}
+
+#[cfg(test)]
+mod windows_theme_tests {
+    const THEME: &str = include_str!("../../packaging/windows/VadgrTheme.xml");
+    const STEPS: [&str; 3] = ["1   Terms", "2   Install", "3   Finish"];
+
+    /// Every label the theme declares, as (page, font id, height, text).
+    fn labels() -> Vec<(String, String, i32, String)> {
+        let mut page = String::from("window");
+        let mut out = Vec::new();
+        for line in THEME.lines() {
+            let trimmed = line.trim();
+            if let Some(rest) = trimmed.strip_prefix("<Page Name=\"") {
+                page = rest.split('"').next().unwrap_or("").to_owned();
+                continue;
+            }
+            if trimmed.starts_with("</Page>") {
+                page = String::from("window");
+                continue;
+            }
+            if !trimmed.starts_with("<Label ") {
+                continue;
+            }
+            let attr = |name: &str| -> Option<String> {
+                trimmed
+                    .split_once(&format!("{name}=\""))
+                    .and_then(|(_, rest)| rest.split('"').next())
+                    .map(str::to_owned)
+            };
+            let text = trimmed
+                .split_once('>')
+                .map(|(_, rest)| rest.trim_end_matches("</Label>"))
+                .unwrap_or("")
+                .to_owned();
+            out.push((
+                page.clone(),
+                attr("FontId").unwrap_or_default(),
+                attr("Height").and_then(|h| h.parse().ok()).unwrap_or(0),
+                text,
+            ));
+        }
+        out
+    }
+
+    #[test]
+    fn the_step_list_is_per_page_so_the_current_step_can_change() {
+        // Declared on the window, the list is painted identically on every
+        // page, so Terms stayed the current step while setup was installing
+        // and after it had finished.
+        for (page, _, _, text) in labels() {
+            if STEPS.contains(&text.as_str()) {
+                assert_ne!(
+                    page, "window",
+                    "the step list must belong to a page, not to the window"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn each_page_marks_its_own_step_as_the_current_one() {
+        let current = ["Install", "Progress", "Modify", "Success", "Failure"];
+        for page in current {
+            let on_page: Vec<_> = labels()
+                .into_iter()
+                .filter(|(p, _, _, text)| p == page && STEPS.contains(&text.as_str()))
+                .collect();
+            assert_eq!(on_page.len(), 3, "page {page} must show all three steps");
+            let highlighted: Vec<_> = on_page
+                .iter()
+                .filter(|(_, font, _, _)| font == "0")
+                .map(|(_, _, _, text)| text.clone())
+                .collect();
+            assert_eq!(
+                highlighted.len(),
+                1,
+                "page {page} must mark exactly one step as current, found {highlighted:?}"
+            );
+            let want = match page {
+                "Progress" => "2   Install",
+                "Success" | "Failure" => "3   Finish",
+                _ => "1   Terms",
+            };
+            assert_eq!(highlighted[0], want, "page {page} marks the wrong step");
+        }
+    }
+
+    #[test]
+    fn the_brand_description_box_holds_every_line_it_wraps_to() {
+        let (_, _, height, text) = labels()
+            .into_iter()
+            .find(|(_, _, _, text)| text.starts_with("Installs Vadgr"))
+            .expect("the brand description label");
+        // Font 3 is declared at 12 pixels, which the control draws on about a
+        // 18 pixel line. The box is 145 wide and the text wraps to three lines
+        // at that width, so 42 pixels cut the last line in half.
+        let line_height = 18;
+        let characters_per_line = 24;
+        let lines = text.len().div_ceil(characters_per_line) as i32;
+        assert!(
+            height >= lines * line_height,
+            "the brand description wraps to about {lines} lines, which needs at least              {} pixels, but the box is {height}",
+            lines * line_height
+        );
+    }
+}
+
+#[cfg(test)]
+mod purge_scope_tests {
+    use super::*;
+
+    fn absolute(parts: &[&str]) -> PathBuf {
+        let mut path = if cfg!(windows) {
+            PathBuf::from("C:\\")
+        } else {
+            PathBuf::from("/")
+        };
+        for part in parts {
+            path.push(part);
+        }
+        path
+    }
+
+    #[test]
+    fn an_explicit_purge_takes_the_configuration_root_as_well() {
+        // The settings file lives in the configuration root, so a purge that
+        // took the state root alone left it behind.
+        let state = absolute(&["Users", "owner", "AppData", "Local", "Vadgr"]);
+        let config = absolute(&["Users", "owner", "AppData", "Roaming", "vadgr"]);
+        let roots = purge_roots(Some(state.clone()), Some(config.clone())).expect("both roots");
+        assert!(roots.contains(&state), "the state root must be removed");
+        assert!(
+            roots.contains(&config),
+            "the configuration root must be removed"
+        );
+    }
+
+    #[test]
+    fn one_root_serving_both_is_removed_once() {
+        let shared = absolute(&["Users", "owner", "AppData", "Local", "Vadgr"]);
+        let roots = purge_roots(Some(shared.clone()), Some(shared)).expect("one root");
+        assert_eq!(roots.len(), 1);
+    }
+
+    #[test]
+    fn a_root_that_is_not_a_vadgr_default_is_refused() {
+        let state = absolute(&["Users", "owner", "AppData", "Local", "Vadgr"]);
+        let wrong = absolute(&["Users", "owner", "Documents"]);
+        assert!(purge_roots(Some(state), Some(wrong)).is_err());
+    }
+
+    #[test]
+    fn a_missing_state_root_is_refused() {
+        assert!(purge_roots(None, None).is_err());
+    }
+}
+
+#[cfg(test)]
+mod acceptance_tests {
+    use super::*;
+
+    #[test]
+    fn acceptance_is_idempotent_and_a_new_version_keeps_the_installation_identity() {
+        let root = tempfile::tempdir().unwrap();
+        let acceptance = root.path().join(ACCEPTANCE_NAME);
+        let terms = root.path().join("TERMS.txt");
+        let installer = root.path().join("setup.exe");
+        std::fs::write(&terms, "reviewed terms one").unwrap();
+        std::fs::write(&installer, "installer one").unwrap();
+
+        let first =
+            record_terms_acceptance_at(&acceptance, "1.0", "0.5.0", &terms, &installer).unwrap();
+        std::fs::write(&installer, "a later copy of the same vehicle").unwrap();
+        let repeated =
+            record_terms_acceptance_at(&acceptance, "1.0", "0.5.0", &terms, &installer).unwrap();
+        assert_eq!(repeated.accepted_at, first.accepted_at);
+        assert_eq!(
+            repeated.installer_artifact_sha256,
+            first.installer_artifact_sha256
+        );
+
+        std::fs::write(&terms, "reviewed terms two").unwrap();
+        let next =
+            record_terms_acceptance_at(&acceptance, "2.0", "0.6.0", &terms, &installer).unwrap();
+        assert_eq!(next.installation_id, first.installation_id);
+        assert_ne!(next.terms_sha256, first.terms_sha256);
+        assert_eq!(
+            read_acceptance(&acceptance).unwrap().unwrap().terms_version,
+            "2.0"
+        );
+    }
+
+    #[test]
+    fn changed_terms_bytes_need_a_new_version() {
+        let root = tempfile::tempdir().unwrap();
+        let acceptance = root.path().join(ACCEPTANCE_NAME);
+        let terms = root.path().join("TERMS.txt");
+        let installer = root.path().join("setup.exe");
+        std::fs::write(&terms, "first").unwrap();
+        std::fs::write(&installer, "installer").unwrap();
+        record_terms_acceptance_at(&acceptance, "1.0", "0.5.0", &terms, &installer).unwrap();
+
+        std::fs::write(&terms, "silently changed").unwrap();
+        let error = record_terms_acceptance_at(&acceptance, "1.0", "0.5.0", &terms, &installer)
+            .unwrap_err();
+        assert!(error.to_string().contains("without a new version"));
+    }
+}
+
+fn require_receipt() -> Result<InstallReceipt> {
+    let receipt = read_receipt()?
+        .ok_or_else(|| anyhow!("package lifecycle is unavailable in this development build"))?;
+    #[cfg(target_os = "linux")]
+    if receipt.package_kind == "appimage" {
+        linux_package::ensure_receipt_mode(&receipt)?;
+    }
+    ensure!(
+        receipt.development_receipt_sha256.is_none()
+            || cfg!(all(
+                target_os = "linux",
+                feature = "linux-unsigned-qualification"
+            )),
+        "this build cannot modify an unsigned development installation"
+    );
+    Ok(receipt)
+}
+
+fn read_receipt() -> Result<Option<InstallReceipt>> {
+    let path = receipt_path()?;
+    let Some(parent) = path.parent() else {
+        return Err(anyhow!("the install receipt path has no parent"));
+    };
+    if !path.exists() {
+        return Ok(None);
+    }
+    let bytes = std::fs::read(&path).context("reading the install receipt")?;
+    let mut receipt: InstallReceipt =
+        serde_json::from_slice(&bytes).context("parsing the install receipt")?;
+    ensure!(
+        receipt.schema == 1,
+        "the install receipt schema is unsupported"
+    );
+    let expected = dunce::canonicalize(parent).context("resolving the executable directory")?;
+    ensure!(expected.is_absolute(), "the install root is not absolute");
+    receipt.install_root = expected;
+    Ok(Some(receipt))
+}
+
+fn receipt_path() -> Result<PathBuf> {
+    if let Some(root) = std::env::var_os("VADGR_INSTALL_ROOT") {
+        let root = PathBuf::from(root);
+        ensure!(
+            root.is_absolute(),
+            "the declared install root is not absolute"
+        );
+        return Ok(root.join(RECEIPT_NAME));
+    }
+    let executable = std::env::current_exe().context("finding the Vadgr executable")?;
+    let directory = executable
+        .parent()
+        .ok_or_else(|| anyhow!("the Vadgr executable has no parent directory"))?;
+    Ok(directory.join(RECEIPT_NAME))
+}
+
+#[cfg(target_os = "windows")]
+mod platform {
+    use super::*;
+    use std::process::{Command, Stdio};
+
+    const RUN_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Run";
+    const RUN_VALUE: &str = "Vadgr";
+    const UNINSTALL_KEY: &str = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall";
+    const BUNDLE_UPGRADE_CODE: &str = "{A34B6A27-D376-4CC4-A08A-F201470A3E38}";
+
+    pub fn legal_path(receipt: &InstallReceipt) -> PathBuf {
+        receipt.install_root.join("legal")
+    }
+
+    pub fn rollback_available(receipt: &InstallReceipt) -> bool {
+        receipt
+            .rollback_vehicle
+            .as_deref()
+            .is_some_and(|relative| receipt.install_root.join(relative).is_file())
+    }
+
+    pub fn rollback(receipt: &InstallReceipt) -> Result<()> {
+        super::update::launch_retained_native(receipt)
+    }
+
+    pub fn cache_install_vehicle(receipt: &InstallReceipt, source: &Path) -> Result<()> {
+        ensure!(
+            source.is_absolute() && source.is_file(),
+            "the setup source is unavailable"
+        );
+        let publisher = receipt
+            .publisher
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .ok_or_else(|| anyhow!("the expected Authenticode publisher is not configured"))?;
+        super::update::verify_native_vehicle(source, "burn", Some(publisher))?;
+        let cache = receipt.install_root.join("cache");
+        std::fs::create_dir_all(&cache).context("creating the setup cache")?;
+        let current = cache.join("current-setup.exe");
+        let previous = cache.join("previous-setup.exe");
+        if current.is_file() {
+            let previous_candidate =
+                cache.join(format!(".previous-setup.{}.tmp", uuid::Uuid::new_v4()));
+            std::fs::copy(&current, &previous_candidate)
+                .context("staging the prior setup for rollback")?;
+            super::update::verify_native_vehicle(&previous_candidate, "burn", Some(publisher))?;
+            commit_file(&previous_candidate, &previous)
+                .context("retaining the prior setup for rollback")?;
+        }
+        let candidate = cache.join(format!(".current-setup.{}.tmp", uuid::Uuid::new_v4()));
+        std::fs::copy(source, &candidate).context("staging the current setup cache")?;
+        super::update::verify_native_vehicle(&candidate, "burn", Some(publisher))?;
+        commit_file(&candidate, &current).context("committing the current setup cache")
+    }
+
+    pub fn launch_at_login() -> Result<bool> {
+        let status = Command::new("reg.exe")
+            .args(["query", RUN_KEY, "/v", RUN_VALUE])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .context("reading the Vadgr Startup Apps entry")?;
+        Ok(status.success())
+    }
+
+    pub fn set_launch_at_login(enabled: bool, install_root: &Path) -> Result<()> {
+        let executable = install_root.join("vadgr-app.exe");
+        ensure!(
+            executable.is_file(),
+            "the installed Vadgr executable is missing"
+        );
+        let status = if enabled {
+            let command = format!("\"{}\" --daemon", executable.display());
+            Command::new("reg.exe")
+                .args(["add", RUN_KEY, "/v", RUN_VALUE, "/t", "REG_SZ", "/d"])
+                .arg(command)
+                .arg("/f")
+                .status()
+        } else {
+            Command::new("reg.exe")
+                .args(["delete", RUN_KEY, "/v", RUN_VALUE, "/f"])
+                .status()
+        }
+        .context("changing the Vadgr Startup Apps entry")?;
+        ensure!(status.success(), "Windows refused the Startup Apps change");
+        Ok(())
+    }
+
+    /// The MSI feature that holds every package-owned file except the two
+    /// executables. Repair forces this one, and only this one.
+    const OWNED_FILES_FEATURE: &str = "OwnedFiles";
+
+    pub fn repair(receipt: &InstallReceipt) -> Result<()> {
+        repair_with(
+            receipt,
+            stop_installed_daemon,
+            run_repair,
+            start_installed_daemon,
+        )
+    }
+
+    /// Rewrite the files the package owns, then the entries it owns.
+    ///
+    /// Windows Installer protects an unversioned file whose modification date
+    /// is later than its creation date: it reads that as the owner's own data
+    /// and leaves it alone. Every repair mode except `a` honours that rule,
+    /// which is why a Repair that reported success restored nothing after a
+    /// package-owned notice was edited. `a` is therefore required, and the
+    /// feature is what bounds it: `OwnedFiles` carries the data files, and the
+    /// two executables are deliberately outside it, because the console that
+    /// asks for the repair is itself running `vadgr.exe` and Windows cannot
+    /// replace a running image. Forcing them instead fails the whole
+    /// transaction with 1603 and `Error 1310`.
+    ///
+    /// The second call takes no `a`, so it rewrites the registry entries and
+    /// the shortcuts while the executables are only version-compared, which
+    /// leaves the running ones untouched.
+    fn run_repair(receipt: &InstallReceipt) -> Result<()> {
+        run_msiexec_with(
+            receipt,
+            "/i",
+            &[
+                ("REINSTALL", OWNED_FILES_FEATURE),
+                ("REINSTALLMODE", "amus"),
+            ],
+        )?;
+        run_msiexec(receipt, "/fomus", false)
+    }
+
+    /// Stop the daemon, repair, then start it again.
+    ///
+    /// The daemon holds files the repair rewrites, including the private
+    /// runtime, so stopping it first is what lets the repair finish. Starting
+    /// it again is not conditional on the repair succeeding: leaving the owner
+    /// with a stopped daemon is a worse outcome than a repair that failed and
+    /// said so, and the repair's own error is still what gets reported.
+    fn repair_with(
+        receipt: &InstallReceipt,
+        stop: impl FnOnce(&Path) -> Result<()>,
+        repair: impl FnOnce(&InstallReceipt) -> Result<()>,
+        start: impl FnOnce(&Path) -> Result<()>,
+    ) -> Result<()> {
+        ensure!(
+            receipt.package_kind == "msi",
+            "this is not a Windows MSI installation"
+        );
+        stop(&receipt.install_root)?;
+        let repaired = repair(receipt);
+        let restarted = start(&receipt.install_root);
+        repaired?;
+        restarted
+    }
+
+    /// Ask the installed product to start through its own public command.
+    fn start_installed_daemon(install_root: &Path) -> Result<()> {
+        let binary = install_root.join("vadgr.exe");
+        ensure!(
+            binary.is_file(),
+            "the repaired installation has no Vadgr daemon to start"
+        );
+        let status = Command::new(&binary)
+            .arg("start")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .context("starting the installed Vadgr daemon")?;
+        ensure!(
+            status.success(),
+            "the installed Vadgr daemon could not be started after the repair"
+        );
+        Ok(())
+    }
+
+    pub fn uninstall(receipt: &InstallReceipt, purge_owner_state: bool) -> Result<()> {
+        uninstall_with(
+            receipt,
+            purge_owner_state,
+            stop_installed_daemon,
+            registered_bundle_path,
+            |setup, arguments| {
+                let status = Command::new(setup)
+                    .args(arguments)
+                    .status()
+                    .context("starting the Vadgr uninstaller")?;
+                ensure!(status.success(), "Vadgr setup returned {status}");
+                Ok(())
+            },
+        )
+    }
+
+    /// Stop the installed daemon, then hand the removal to the setup bundle.
+    ///
+    /// Windows keeps a running executable locked, and the daemon holds both
+    /// `vadgr.exe` and the state database. An uninstall that leaves it running
+    /// fails inside `PurgeOwnerState`, which cannot delete the open database;
+    /// Windows Installer then rolls the transaction back *after* that action has
+    /// already removed the acceptance record and the stored credentials, so the
+    /// owner loses data and keeps the package. Stopping first is what makes the
+    /// removal succeed, so it has to happen before the bundle runs, not beside it.
+    /// `locate` is a seam: finding the registered bundle reads the machine, so
+    /// a test that could not substitute it only passed on a machine that
+    /// happened to have Vadgr installed.
+    fn uninstall_with(
+        receipt: &InstallReceipt,
+        purge_owner_state: bool,
+        stop: impl FnOnce(&Path) -> Result<()>,
+        locate: impl FnOnce() -> Result<PathBuf>,
+        run: impl FnOnce(&Path, &[&str]) -> Result<()>,
+    ) -> Result<()> {
+        ensure!(
+            receipt.package_kind == "msi",
+            "this is not a Windows MSI installation"
+        );
+        stop(&receipt.install_root)?;
+        let setup = locate()?;
+        run(&setup, &bundle_uninstall_args(purge_owner_state))
+    }
+
+    /// Ask the installed product to stop through its own public command.
+    ///
+    /// The pid and port records belong to the CLI, so the daemon library asks
+    /// the installed binary rather than keeping a second copy of that logic.
+    fn stop_installed_daemon(install_root: &Path) -> Result<()> {
+        let binary = install_root.join("vadgr.exe");
+        if !binary.is_file() {
+            // Nothing installed to stop; the caller's own checks report that.
+            return Ok(());
+        }
+        let status = Command::new(&binary)
+            .arg("stop")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .context("stopping the installed Vadgr daemon")?;
+        ensure!(
+            status.success(),
+            "the installed Vadgr daemon could not be stopped before removal"
+        );
+        Ok(())
+    }
+
+    fn bundle_uninstall_args(purge_owner_state: bool) -> Vec<&'static str> {
+        let mut arguments = vec!["/uninstall", "/quiet", "/norestart"];
+        if purge_owner_state {
+            arguments.push("PurgeOwnerData=1");
+        }
+        arguments
+    }
+
+    fn registered_bundle_path() -> Result<PathBuf> {
+        let listed = Command::new("reg.exe")
+            .args(["query", UNINSTALL_KEY])
+            .output()
+            .context("listing installed Windows applications")?;
+        ensure!(
+            listed.status.success(),
+            "Windows could not list installed applications"
+        );
+        for line in String::from_utf8_lossy(&listed.stdout).lines() {
+            let key = line.trim();
+            if !key.starts_with(r"HKEY_CURRENT_USER\") {
+                continue;
+            }
+            let Some(upgrade_code) = registry_value(key, "BundleUpgradeCode")? else {
+                continue;
+            };
+            if !upgrade_code.eq_ignore_ascii_case(BUNDLE_UPGRADE_CODE) {
+                continue;
+            }
+            let cached = registry_value(key, "BundleCachePath")?
+                .ok_or_else(|| anyhow!("the registered Vadgr setup has no cache path"))?;
+            let cached = dunce::canonicalize(PathBuf::from(cached))
+                .context("resolving the registered Vadgr setup")?;
+            let local = std::env::var_os("LOCALAPPDATA")
+                .map(PathBuf::from)
+                .ok_or_else(|| anyhow!("LOCALAPPDATA is unavailable"))?;
+            let package_cache = dunce::canonicalize(local.join("Package Cache"))
+                .context("resolving the Windows package cache")?;
+            ensure!(
+                cached.starts_with(&package_cache) && cached.is_file(),
+                "the registered Vadgr setup is outside the Windows package cache"
+            );
+            return Ok(cached);
+        }
+        Err(anyhow!("the registered Vadgr setup was not found"))
+    }
+
+    fn registry_value(key: &str, name: &str) -> Result<Option<String>> {
+        let output = Command::new("reg.exe")
+            .args(["query", key, "/v", name])
+            .output()
+            .with_context(|| format!("reading the {name} registry value"))?;
+        if !output.status.success() {
+            return Ok(None);
+        }
+        for line in String::from_utf8_lossy(&output.stdout).lines() {
+            let line = line.trim();
+            if !line.starts_with(name) {
+                continue;
+            }
+            for marker in ["REG_SZ", "REG_MULTI_SZ"] {
+                if let Some((_, value)) = line.split_once(marker) {
+                    return Ok(Some(value.trim().to_owned()));
+                }
+            }
+        }
+        Ok(None)
+    }
+
+    fn run_msiexec(receipt: &InstallReceipt, verb: &str, purge_owner_state: bool) -> Result<()> {
+        let properties: &[(&str, &str)] = if purge_owner_state {
+            &[("PURGEOWNERDATA", "1")]
+        } else {
+            &[]
+        };
+        run_msiexec_with(receipt, verb, properties)
+    }
+
+    fn run_msiexec_with(
+        receipt: &InstallReceipt,
+        verb: &str,
+        properties: &[(&str, &str)],
+    ) -> Result<()> {
+        ensure!(
+            receipt.package_kind == "msi",
+            "this is not a Windows MSI installation"
+        );
+        let product_code = receipt
+            .product_code
+            .as_deref()
+            .ok_or_else(|| anyhow!("the Windows product code is missing"))?;
+        ensure!(
+            valid_product_code(product_code),
+            "the Windows product code is invalid"
+        );
+        let mut command = Command::new("msiexec.exe");
+        command.args([verb, product_code, "/passive", "/norestart"]);
+        for (name, value) in properties {
+            command.arg(format!("{name}={value}"));
+        }
+        let status = command.status().context("starting Windows Installer")?;
+        ensure!(status.success(), "Windows Installer returned {status}");
+        Ok(())
+    }
+
+    fn valid_product_code(value: &str) -> bool {
+        value.len() == 38
+            && value.starts_with('{')
+            && value.ends_with('}')
+            && value[1..37].chars().enumerate().all(|(index, character)| {
+                matches!(index, 8 | 13 | 18 | 23) && character == '-'
+                    || !matches!(index, 8 | 13 | 18 | 23) && character.is_ascii_hexdigit()
+            })
+    }
+
+    /// Decide the outcome of opening a folder, given whether the process
+    /// started.
+    ///
+    /// `explorer.exe` reports nothing through its exit code: it returns a
+    /// nonzero status even when it opens the folder. Reading that status as
+    /// the outcome told the owner "Windows could not open the legal notices"
+    /// every time, while Windows had in fact opened them. What can honestly be
+    /// checked is that the target exists and that the process started.
+    fn opened(path: &Path, started: std::io::Result<std::process::ExitStatus>) -> Result<()> {
+        ensure!(
+            path.exists(),
+            "the installed legal notices are not at {}",
+            path.display()
+        );
+        started.context("opening the installed legal notices")?;
+        Ok(())
+    }
+
+    pub fn open_path(path: &Path) -> Result<()> {
+        opened(path, Command::new("explorer.exe").arg(path).status())
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use std::os::windows::process::ExitStatusExt;
+
+        #[test]
+        fn an_explorer_exit_code_is_not_the_outcome() {
+            // explorer.exe returns 1 even when it opens the folder, so a
+            // nonzero status must not be reported to the owner as a failure.
+            let present = std::env::temp_dir();
+            assert!(opened(&present, Ok(std::process::ExitStatus::from_raw(1))).is_ok());
+        }
+
+        #[test]
+        fn a_missing_folder_is_still_a_failure() {
+            let missing = std::env::temp_dir().join("vadgr-no-such-legal-folder");
+            assert!(opened(&missing, Ok(std::process::ExitStatus::from_raw(0))).is_err());
+        }
+
+        #[test]
+        fn a_process_that_never_started_is_a_failure() {
+            let present = std::env::temp_dir();
+            let failed = std::io::Error::new(std::io::ErrorKind::NotFound, "no explorer.exe");
+            assert!(opened(&present, Err(failed)).is_err());
+        }
+
+        #[test]
+        fn only_a_guid_can_reach_windows_installer() {
+            assert!(valid_product_code("{12345678-1234-1234-1234-123456789ABC}"));
+            assert!(!valid_product_code("/quiet C:\\owner"));
+            assert!(!valid_product_code("12345678-1234-1234-1234-123456789ABC"));
+        }
+
+        #[test]
+        fn purge_is_an_explicit_burn_variable() {
+            assert_eq!(
+                bundle_uninstall_args(true),
+                ["/uninstall", "/quiet", "/norestart", "PurgeOwnerData=1"]
+            );
+            assert_eq!(
+                bundle_uninstall_args(false),
+                ["/uninstall", "/quiet", "/norestart"]
+            );
+        }
+
+        fn msi_receipt() -> InstallReceipt {
+            InstallReceipt {
+                schema: 1,
+                version: "0.5.0".to_owned(),
+                install_root: PathBuf::from(r"C:\Users\owner\AppData\Local\Programs\Vadgr"),
+                package_kind: "msi".to_owned(),
+                product_code: Some("{CEFD8482-734F-403D-B9BB-5ABD06A2A79E}".to_owned()),
+                release_sequence: Some(500),
+                manifest_sha256: None,
+                development_receipt_sha256: None,
+                update_origin: None,
+                publisher: None,
+                rollback_vehicle: None,
+            }
+        }
+
+        #[test]
+        fn the_daemon_is_stopped_before_the_uninstaller_runs() {
+            let order = std::cell::RefCell::new(Vec::new());
+            uninstall_with(
+                &msi_receipt(),
+                true,
+                |root| {
+                    assert!(root.ends_with("Vadgr"), "the installed root is passed on");
+                    order.borrow_mut().push("stop");
+                    Ok(())
+                },
+                || Ok(PathBuf::from("setup.exe")),
+                |_, _| {
+                    order.borrow_mut().push("run");
+                    Ok(())
+                },
+            )
+            .expect("the uninstall sequence completes");
+            assert_eq!(
+                order.into_inner(),
+                ["stop", "run"],
+                "a daemon still holding the database makes PurgeOwnerState fail, \
+                 and the rollback does not give the deleted owner data back"
+            );
+        }
+
+        #[test]
+        fn a_daemon_that_will_not_stop_cancels_the_uninstall() {
+            let ran = std::cell::Cell::new(false);
+            let result = uninstall_with(
+                &msi_receipt(),
+                true,
+                |_| Err(anyhow!("the installed Vadgr daemon could not be stopped")),
+                || Ok(PathBuf::from("setup.exe")),
+                |_, _| {
+                    ran.set(true);
+                    Ok(())
+                },
+            );
+            assert!(result.is_err(), "the removal does not start blind");
+            assert!(
+                !ran.get(),
+                "starting the uninstaller anyway is what deletes owner data and then rolls back"
+            );
+        }
+
+        #[test]
+        fn the_daemon_is_stopped_before_the_repair_and_started_after_it() {
+            let order = std::cell::RefCell::new(Vec::new());
+            repair_with(
+                &msi_receipt(),
+                |root| {
+                    assert!(root.ends_with("Vadgr"), "the installed root is passed on");
+                    order.borrow_mut().push("stop");
+                    Ok(())
+                },
+                |_| {
+                    order.borrow_mut().push("repair");
+                    Ok(())
+                },
+                |_| {
+                    order.borrow_mut().push("start");
+                    Ok(())
+                },
+            )
+            .expect("the repair sequence completes");
+            assert_eq!(
+                order.into_inner(),
+                ["stop", "repair", "start"],
+                "a running daemon holds the files the repair has to rewrite"
+            );
+        }
+
+        #[test]
+        fn a_failed_repair_still_starts_the_daemon_again() {
+            let started = std::cell::Cell::new(false);
+            let result = repair_with(
+                &msi_receipt(),
+                |_| Ok(()),
+                |_| Err(anyhow!("Windows Installer returned exit code: 1603")),
+                |_| {
+                    started.set(true);
+                    Ok(())
+                },
+            );
+            assert!(
+                started.get(),
+                "leaving the owner with a stopped daemon is worse than a failed repair"
+            );
+            assert_eq!(
+                result.unwrap_err().to_string(),
+                "Windows Installer returned exit code: 1603",
+                "the repair's own failure is what the owner is told about"
+            );
+        }
+
+        #[test]
+        fn a_daemon_that_will_not_stop_cancels_the_repair() {
+            let repaired = std::cell::Cell::new(false);
+            let result = repair_with(
+                &msi_receipt(),
+                |_| Err(anyhow!("the installed Vadgr daemon could not be stopped")),
+                |_| {
+                    repaired.set(true);
+                    Ok(())
+                },
+                |_| Ok(()),
+            );
+            assert!(result.is_err());
+            assert!(
+                !repaired.get(),
+                "repairing while the daemon holds the private runtime fails the transaction"
+            );
+        }
+
+        #[test]
+        fn a_non_msi_receipt_is_refused_before_the_daemon_stops() {
+            let mut receipt = msi_receipt();
+            receipt.package_kind = "appimage".to_owned();
+            let stopped = std::cell::Cell::new(false);
+            let result = repair_with(
+                &receipt,
+                |_| {
+                    stopped.set(true);
+                    Ok(())
+                },
+                |_| Ok(()),
+                |_| Ok(()),
+            );
+            assert!(result.is_err());
+            assert!(
+                !stopped.get(),
+                "nothing is stopped for a package it cannot repair"
+            );
+        }
+    }
+}
+
+#[cfg(target_os = "linux")]
+mod platform {
+    use super::*;
+    use std::process::{Command, Stdio};
+
+    const AUTOSTART_FILE: &str = "com.montbrain.vadgr.desktop";
+
+    pub fn legal_path(receipt: &InstallReceipt) -> PathBuf {
+        receipt.install_root.join("legal")
+    }
+
+    pub fn rollback_available(_receipt: &InstallReceipt) -> bool {
+        super::linux::rollback_available().unwrap_or(false)
+    }
+
+    pub fn rollback(_receipt: &InstallReceipt) -> Result<()> {
+        super::linux::rollback_appimage().map(|_| ())
+    }
+
+    fn home() -> Result<PathBuf> {
+        std::env::var_os("HOME")
+            .map(PathBuf::from)
+            .filter(|path| path.is_absolute())
+            .ok_or_else(|| anyhow!("HOME is unavailable or not absolute"))
+    }
+
+    fn config_home() -> Result<PathBuf> {
+        Ok(std::env::var_os("XDG_CONFIG_HOME")
+            .map(PathBuf::from)
+            .filter(|path| path.is_absolute())
+            .unwrap_or(home()?.join(".config")))
+    }
+
+    fn autostart_path() -> Result<PathBuf> {
+        Ok(config_home()?.join("autostart").join(AUTOSTART_FILE))
+    }
+
+    pub fn launch_at_login() -> Result<bool> {
+        Ok(autostart_path()?.is_file())
+    }
+
+    pub fn set_launch_at_login(enabled: bool, install_root: &Path) -> Result<()> {
+        let path = autostart_path()?;
+        if !enabled {
+            if path.exists() {
+                std::fs::remove_file(path).context("removing the Vadgr XDG autostart entry")?;
+            }
+            return Ok(());
+        }
+        let app_image = install_root.join("Vadgr.AppImage");
+        ensure!(
+            app_image.is_file(),
+            "the installed Vadgr AppImage is missing"
+        );
+        let command = desktop_exec(&app_image, "--daemon")?;
+        let parent = path
+            .parent()
+            .ok_or_else(|| anyhow!("the XDG autostart path has no parent"))?;
+        std::fs::create_dir_all(parent).context("creating the XDG autostart directory")?;
+        write_atomic(
+            &path,
+            format!(
+                "[Desktop Entry]\nType=Application\nVersion=1.5\nName=Vadgr\nComment=Start the Vadgr machine daemon\nExec={command}\nTerminal=false\nX-GNOME-Autostart-enabled=true\n"
+            ),
+        )
+    }
+
+    pub fn repair(receipt: &InstallReceipt) -> Result<()> {
+        super::linux::repair(receipt)
+    }
+
+    pub fn uninstall(receipt: &InstallReceipt, purge_owner_state: bool) -> Result<()> {
+        super::linux::uninstall(receipt, purge_owner_state)
+    }
+
+    pub fn open_path(path: &Path) -> Result<()> {
+        let status = Command::new("xdg-open")
+            .arg(path)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .context("opening the installed legal notices")?;
+        ensure!(
+            status.success(),
+            "the desktop could not open the legal notices"
+        );
+        Ok(())
+    }
+
+    fn desktop_exec(path: &Path, argument: &str) -> Result<String> {
+        let raw = path
+            .to_str()
+            .ok_or_else(|| anyhow!("the installed AppImage path is not valid UTF-8"))?;
+        ensure!(
+            !raw.chars().any(char::is_control),
+            "the installed AppImage path contains a control character"
+        );
+        let escaped = raw
+            .replace('\\', "\\\\")
+            .replace('"', "\\\"")
+            .replace('`', "\\`")
+            .replace('$', "\\$");
+        Ok(format!("\"{escaped}\" {argument}"))
+    }
+
+    fn write_atomic(path: &Path, contents: String) -> Result<()> {
+        let parent = path
+            .parent()
+            .ok_or_else(|| anyhow!("the launch entry path has no parent"))?;
+        let temporary = parent.join(format!(".{AUTOSTART_FILE}.{}.tmp", uuid::Uuid::new_v4()));
+        std::fs::write(&temporary, contents).context("writing the XDG autostart candidate")?;
+        commit_file(&temporary, path).context("committing the XDG autostart entry")
+    }
+}
+
+#[cfg(target_os = "macos")]
+mod platform {
+    use super::*;
+    use std::process::{Command, Stdio};
+
+    fn helper(install_root: &Path) -> PathBuf {
+        install_root.join("../Helpers/vadgr-login-item")
+    }
+
+    pub fn legal_path(receipt: &InstallReceipt) -> PathBuf {
+        receipt.install_root.join("../Resources/legal")
+    }
+
+    pub fn rollback_available(receipt: &InstallReceipt) -> bool {
+        receipt.rollback_vehicle.is_some()
+            && std::env::var_os("HOME")
+                .map(PathBuf::from)
+                .filter(|path| path.is_absolute())
+                .is_some_and(|home| {
+                    home.join("Library/Application Support/vadgr/package-cache/previous.pkg")
+                        .is_file()
+                })
+    }
+
+    pub fn rollback(receipt: &InstallReceipt) -> Result<()> {
+        run_lifecycle(receipt, "rollback", false)
+    }
+
+    pub fn launch_at_login() -> Result<bool> {
+        let receipt = require_receipt()?;
+        let output = Command::new(helper(&receipt.install_root))
+            .arg("status")
+            .output()
+            .context("reading the Vadgr login-item state")?;
+        Ok(output.status.success() && String::from_utf8_lossy(&output.stdout).trim() == "enabled")
+    }
+
+    pub fn set_launch_at_login(enabled: bool, install_root: &Path) -> Result<()> {
+        let helper = helper(install_root);
+        ensure!(
+            helper.is_file(),
+            "the signed Vadgr login-item helper is missing"
+        );
+        let status = Command::new(helper)
+            .arg(if enabled { "enable" } else { "disable" })
+            .status()
+            .context("changing the Vadgr login item")?;
+        ensure!(
+            status.success(),
+            "macOS did not accept the login-item change"
+        );
+        Ok(())
+    }
+
+    pub fn repair(receipt: &InstallReceipt) -> Result<()> {
+        run_lifecycle(receipt, "repair", false)
+    }
+
+    pub fn uninstall(receipt: &InstallReceipt, purge_owner_state: bool) -> Result<()> {
+        run_lifecycle(receipt, "uninstall", purge_owner_state)
+    }
+
+    pub fn open_path(path: &Path) -> Result<()> {
+        let status = Command::new("open")
+            .arg(path)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .context("opening the installed legal notices")?;
+        ensure!(status.success(), "macOS could not open the legal notices");
+        Ok(())
+    }
+
+    fn run_lifecycle(receipt: &InstallReceipt, action: &str, purge: bool) -> Result<()> {
+        ensure!(
+            receipt.package_kind == "pkg",
+            "this is not a macOS package installation"
+        );
+        let helper = receipt.install_root.join("../Helpers/vadgr-lifecycle");
+        ensure!(
+            helper.is_file(),
+            "the signed package lifecycle helper is missing"
+        );
+        let mut command = Command::new(helper);
+        command.arg(action);
+        if purge {
+            command.arg("--purge-owner-state");
+        }
+        let mut child = command
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .env("NO_COLOR", "1")
+            .spawn()
+            .context("starting the macOS package lifecycle")?;
+        let mut stderr = child.stderr.take().expect("lifecycle stderr is piped");
+        let mut diagnostic = Vec::new();
+        // Drain even oversized output so the helper cannot block on a full
+        // pipe. Only this bounded prefix is retained, never logged verbatim.
+        let read_result = stderr
+            .by_ref()
+            .take(8192)
+            .read_to_end(&mut diagnostic)
+            .and_then(|_| std::io::copy(&mut stderr, &mut std::io::sink()));
+        let status = child
+            .wait()
+            .context("waiting for the macOS package lifecycle")?;
+        if !status.success()
+            && read_result.is_ok()
+            && let Some(reason) = lifecycle_failure(&diagnostic)
+        {
+            return Err(anyhow!(
+                "the macOS package lifecycle returned {status}: {reason}"
+            ));
+        }
+        ensure!(
+            status.success(),
+            "the macOS package lifecycle returned {status}"
+        );
+        Ok(())
+    }
+
+    fn lifecycle_failure(stderr: &[u8]) -> Option<&'static str> {
+        // These are complete product-owned messages, not arbitrary subprocess
+        // diagnostics. Paths, OS error details and additional text stay private.
+        const REASONS: &[&str] = &[
+            "the expected Developer ID Installer identity is not configured",
+            "macOS rejected the package signature",
+            "the macOS package publisher does not match the installed identity",
+            "macOS rejected the notarized package",
+            "The retained signed repair package is missing.",
+            "No retained signed rollback package is available.",
+            "The vadgr command link belongs to another installation.",
+            "the package vehicle is unavailable",
+            "the package uninstaller refuses to delete an overridden state root",
+            "the resolved owner-state path is not a Vadgr default",
+            "the owner-state root is a link",
+        ];
+        let text = String::from_utf8_lossy(stderr);
+        text.split_inclusive('\n')
+            .filter(|line| line.ends_with('\n') || stderr.len() < 8192)
+            .find_map(|line| {
+                let line = line.trim();
+                let line = line.strip_prefix("Error: ").unwrap_or(line);
+                REASONS.iter().copied().find(|reason| *reason == line)
+            })
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use std::os::unix::fs::PermissionsExt;
+
+        // Each case starts with its own package tree and a harmless helper.
+        // No installed package, owner state or platform UI is used.
+        fn lifecycle(script: &str) -> Result<()> {
+            let root = tempfile::tempdir().unwrap();
+            let install_root = root.path().join("Contents/MacOS");
+            std::fs::create_dir_all(&install_root).unwrap();
+            let helpers = root.path().join("Contents/Helpers");
+            std::fs::create_dir_all(&helpers).unwrap();
+            let helper = helpers.join("vadgr-lifecycle");
+            std::fs::write(&helper, format!("#!/bin/sh\n{script}\n")).unwrap();
+            std::fs::set_permissions(&helper, std::fs::Permissions::from_mode(0o755)).unwrap();
+            let receipt = InstallReceipt {
+                schema: 1,
+                version: "0.5.0".to_owned(),
+                install_root,
+                package_kind: "pkg".to_owned(),
+                product_code: None,
+                release_sequence: None,
+                manifest_sha256: None,
+                development_receipt_sha256: None,
+                update_origin: None,
+                publisher: None,
+                rollback_vehicle: None,
+            };
+            run_lifecycle(&receipt, "repair", false)
+        }
+
+        #[test]
+        fn macos_lifecycle_reports_known_trust_and_package_failures() {
+            for reason in [
+                "the expected Developer ID Installer identity is not configured",
+                "macOS rejected the package signature",
+                "the macOS package publisher does not match the installed identity",
+                "macOS rejected the notarized package",
+                "The retained signed repair package is missing.",
+                "No retained signed rollback package is available.",
+            ] {
+                for prefix in ["", "Error: "] {
+                    let error =
+                        lifecycle(&format!("printf '%s\\n' '{prefix}{reason}' >&2\nexit 1"))
+                            .unwrap_err()
+                            .to_string();
+                    assert!(error.ends_with(reason), "{error}");
+                }
+            }
+        }
+
+        #[test]
+        fn macos_lifecycle_does_not_surface_arbitrary_output() {
+            let error = lifecycle(
+                "printf '%s\\n' 'private stdout marker'\nprintf '%s\\n' 'private stderr marker' 'Error: macOS rejected the package signature: private suffix' >&2\nexit 1",
+            )
+            .unwrap_err()
+            .to_string();
+            assert_eq!(error, "the macOS package lifecycle returned exit status: 1");
+        }
+
+        #[test]
+        fn macos_lifecycle_success_ignores_stderr() {
+            lifecycle("printf '%s\\n' 'macOS rejected the package signature' >&2\nexit 0").unwrap();
+        }
+
+        #[test]
+        fn macos_lifecycle_ignores_stdout_and_drains_oversized_stderr() {
+            let error = lifecycle(
+                "printf '%s\\n' 'macOS rejected the package signature'\ni=0\nwhile [ \"$i\" -lt 10000 ]; do printf '%s\\n' 'unrelated diagnostic' >&2; i=$((i + 1)); done\nprintf '%s\\n' 'macOS rejected the package signature' >&2\nexit 1",
+            )
+            .unwrap_err()
+            .to_string();
+            assert_eq!(error, "the macOS package lifecycle returned exit status: 1");
+        }
+    }
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
+mod platform {
+    use super::*;
+    pub fn legal_path(receipt: &InstallReceipt) -> PathBuf {
+        receipt.install_root.join("legal")
+    }
+    pub fn rollback_available(_: &InstallReceipt) -> bool {
+        false
+    }
+    pub fn rollback(_: &InstallReceipt) -> Result<()> {
+        Err(anyhow!("this operating system is unsupported"))
+    }
+    pub fn launch_at_login() -> Result<bool> {
+        Err(anyhow!("this operating system is unsupported"))
+    }
+    pub fn set_launch_at_login(_: bool, _: &Path) -> Result<()> {
+        Err(anyhow!("this operating system is unsupported"))
+    }
+    pub fn repair(_: &InstallReceipt) -> Result<()> {
+        Err(anyhow!("this operating system is unsupported"))
+    }
+    pub fn uninstall(_: &InstallReceipt, _: bool) -> Result<()> {
+        Err(anyhow!("this operating system is unsupported"))
+    }
+    pub fn open_path(_: &Path) -> Result<()> {
+        Err(anyhow!("this operating system is unsupported"))
+    }
+}

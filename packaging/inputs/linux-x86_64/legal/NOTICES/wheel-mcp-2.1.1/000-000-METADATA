@@ -1,0 +1,46 @@
+Metadata-Version: 2.4
+Name: mcp
+Version: 2.1.1
+Summary: Model Context Protocol SDK
+Project-URL: Homepage, https://modelcontextprotocol.io
+Project-URL: Documentation, https://py.sdk.modelcontextprotocol.io/
+Project-URL: Repository, https://github.com/modelcontextprotocol/python-sdk
+Project-URL: Issues, https://github.com/modelcontextprotocol/python-sdk/issues
+Author: Model Context Protocol a Series of LF Projects, LLC.
+Maintainer-email: David Soria Parra <davidsp@anthropic.com>, Marcelo Trylesinski <marcelotryle@gmail.com>, Max Isbey <maxisbey@anthropic.com>, Felix Weinberger <fweinberger@anthropic.com>
+License: MIT
+License-File: LICENSE
+Keywords: automation,llm,mcp
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Requires-Python: >=3.10
+Requires-Dist: anyio>=4.10; python_version >= '3.14'
+Requires-Dist: anyio>=4.9; python_version < '3.14'
+Requires-Dist: httpx2>=2.5.0
+Requires-Dist: jsonschema>=4.20.0
+Requires-Dist: mcp-types==2.1.1
+Requires-Dist: opentelemetry-api>=1.28.0
+Requires-Dist: pydantic>=2.12.0
+Requires-Dist: pyjwt[crypto]>=2.10.1
+Requires-Dist: python-multipart>=0.0.9
+Requires-Dist: pywin32>=311; sys_platform == 'win32'
+Requires-Dist: sse-starlette>=3.0.0
+Requires-Dist: starlette>=0.27; python_version < '3.14'
+Requires-Dist: starlette>=0.48.0; python_version >= '3.14'
+Requires-Dist: typing-extensions>=4.13.0
+Requires-Dist: typing-inspection>=0.4.1
+Requires-Dist: uvicorn>=0.31.1; sys_platform != 'emscripten'
+Provides-Extra: cli
+Requires-Dist: python-dotenv>=1.0.0; extra == 'cli'
+Requires-Dist: typer>=0.16.0; extra == 'cli'
+Provides-Extra: rich
+Requires-Dist: rich>=13.9.4; extra == 'rich'
+Description-Content-Type: text/markdown
+

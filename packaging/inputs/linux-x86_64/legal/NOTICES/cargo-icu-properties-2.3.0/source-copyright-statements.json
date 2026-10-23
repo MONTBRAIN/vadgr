@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "7e7ca276ad3145661a65914e6daf131ca5120cd3dcee8f8f3214b8875184a148",
+  "original_statement_files": [
+    {
+      "path": "icu_properties-2.3.0/LICENSE",
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+      "size": 2195,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2020-2024 Unicode, Inc."
+        },
+        {
+          "line": 46,
+          "text": "ICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

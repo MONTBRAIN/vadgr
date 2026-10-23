@@ -5,14 +5,16 @@ unapproved x64 and native ARM64 observations before package approval. Its separa
 default-branch workflow has no signing or approval authority. Candidate preflight
 still requires the complete reviewed inputs described below.
 
-The manual candidate workflow runs only from the default branch. It builds an
-exact pushed source commit without signing credentials and validates the uploaded
-bytes independently. The source branch does not supply signing scripts or WiX
-projects to the protected signer.
+The manual candidate workflow runs only from the default branch. It builds the
+exact merged protected `master` commit without signing credentials and validates
+the uploaded bytes independently. An open implementation branch cannot become a
+production signing subject. Product source does not supply signing scripts or
+WiX projects to the protected signer.
 
-CI also runs on pushes to `feature/0.5.0-distribution`, so that exact source
-commit can earn required checks before a pull request exists. Other feature
-branches retain the pull-request trigger. This adds runner use, not secret access.
+CI also runs on pushes to `feature/0.5.0-distribution` for release-equivalent
+unsigned functional qualification. Those runs never satisfy the production
+candidate gate. The protected candidate requires successful post-merge `push`
+checks on the exact `master` commit. This adds runner use, not secret access.
 
 The authorization environment approves the exact artifact and quota. Before that
 approval, the ordinary workflow token qualifies both immutable claim namespaces.
@@ -76,7 +78,7 @@ GitHub token variables cleared. The build helpers refuse credentials and verify
 every wheel again offline before executing feature code. Read-only GitHub access
 can still exist in the hosted runner's action context; this is not absolute
 token isolation. Signing and write credentials remain on separate protected
-runners, which consume feature artifacts only as data. No job-scoped GitHub
+runners, which consume product artifacts only as data. No job-scoped GitHub
 token is restored to later upload or cleanup steps. Missing or partial
 inputs never select a development lock. These source gates are not signed
 installation qualification.
@@ -120,10 +122,10 @@ SBOM hashes. The candidate source must carry approved package inputs, the public
 root and the matching manifest schema. Missing approval is a hard refusal, not
 permission to sign fixture or unsigned release bytes.
 
-Held profile candidates may carry the canonical legal proposal on the exact
-feature source. Trusted tooling binds it into the immutable authorization
-artifact; direct owner approval in the protected environment supplies assent.
-The feature cannot change trusted code, roots, publisher identity or an existing
+Held profile candidates carry the canonical legal proposal on the exact merged
+source. Trusted tooling binds it into the immutable authorization artifact;
+direct owner approval in the protected environment supplies assent. Product
+source cannot change trusted code, roots, publisher identity or an existing
 trusted copy. No proposal field grants signing permission by itself.
 
 Protected `candidate-authorize` and `candidate-windows` approvals, successful

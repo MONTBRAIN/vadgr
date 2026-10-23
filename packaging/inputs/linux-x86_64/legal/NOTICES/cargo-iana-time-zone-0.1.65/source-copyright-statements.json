@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "e31bc9ad994ba00e440a8aa5c9ef0ec67d5cb5e5cb0cc7f8b744a35b389cc470",
+  "original_statement_files": [
+    {
+      "path": "iana-time-zone-0.1.65/LICENSE-APACHE",
+      "sha256": "696759d65dfe558ff7d9f031c76db19ec5c0767470fb67c4e8d990820d1e99c9",
+      "size": 10832,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2020 Andrew Straw"
+        }
+      ]
+    },
+    {
+      "path": "iana-time-zone-0.1.65/LICENSE-MIT",
+      "sha256": "da28ccc6b158fc2d8cccc74e99794b1cff1d29bd7bbeb019442fcf0c04c6cad9",
+      "size": 1059,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020 Andrew D. Straw"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

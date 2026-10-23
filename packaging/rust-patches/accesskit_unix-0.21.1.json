@@ -1,0 +1,181 @@
+{
+  "files": [
+    {
+      "bytes": 108,
+      "mode": 420,
+      "path": ".cargo_vcs_info.json",
+      "sha256": "d50d0de63665aea0ce0de5d60375c21e5aae620dc71cda6a4e5f177f36bc9f6c"
+    },
+    {
+      "bytes": 25239,
+      "mode": 420,
+      "path": "CHANGELOG.md",
+      "sha256": "62d01f1a4d8f2f5b4d5d8b7d3b465654ab8a2e27bb585b95b43fb33219f10b7b"
+    },
+    {
+      "bytes": 31767,
+      "mode": 420,
+      "path": "Cargo.lock",
+      "sha256": "680bcc3bee7a9ddb6f2079b32708e3754acd3704ddf760c1f55f6ff5381a3a12"
+    },
+    {
+      "bytes": 2036,
+      "mode": 420,
+      "path": "Cargo.toml",
+      "sha256": "ab0cae81d3a8888b2ae3a77ba307a6983519464be6449f9995990f110ba4731c"
+    },
+    {
+      "bytes": 1277,
+      "mode": 420,
+      "path": "Cargo.toml.orig",
+      "sha256": "56f7364306f30497dcc8025877a6f4146283f9a9b953cae9b4b1035dd3fbf413"
+    },
+    {
+      "bytes": 9723,
+      "mode": 420,
+      "path": "LICENSE-APACHE",
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    {
+      "bytes": 1023,
+      "mode": 420,
+      "path": "LICENSE-MIT",
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    {
+      "bytes": 1559,
+      "mode": 420,
+      "path": "LICENSE.chromium",
+      "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308"
+    },
+    {
+      "bytes": 2411,
+      "mode": 420,
+      "path": "PATCHES.md",
+      "sha256": "bd7cc64a2231f0d4e959419cc64b756ee06b68bc9caed2d454d9557e367a565f"
+    },
+    {
+      "bytes": 487,
+      "mode": 420,
+      "path": "README.md",
+      "sha256": "843382343abfe5052b670db006fa0fde3f8bf577ef9be8d200392d9b7c0a13cd"
+    },
+    {
+      "bytes": 8334,
+      "mode": 420,
+      "path": "src/adapter.rs",
+      "sha256": "2035e00e976c5d107ddf6af94f7e748ede19c5ec5df6054b47bb5dee6b23584d"
+    },
+    {
+      "bytes": 14988,
+      "mode": 420,
+      "path": "src/atspi/bus.rs",
+      "sha256": "ee33144cd0a3415419a96d65de202ee91a2ada21e1b439367488552f9f3ef878"
+    },
+    {
+      "bytes": 6621,
+      "mode": 420,
+      "path": "src/atspi/interfaces/accessible.rs",
+      "sha256": "ee24042d6a0c7c719facc3950336164d06e9d0589326d291e7ca8af2d3e677c4"
+    },
+    {
+      "bytes": 1453,
+      "mode": 420,
+      "path": "src/atspi/interfaces/action.rs",
+      "sha256": "7ffa334b1cace21aa567a074d0c1ba59dd2229449af02ffc329bfd4671940903"
+    },
+    {
+      "bytes": 1054,
+      "mode": 420,
+      "path": "src/atspi/interfaces/application.rs",
+      "sha256": "530316441ee42b415605f6f50526ac776d8ab038aff24dfa02d4352dedcf2db0"
+    },
+    {
+      "bytes": 2359,
+      "mode": 420,
+      "path": "src/atspi/interfaces/component.rs",
+      "sha256": "bb95115fe289aa2b92b6fce76a7a60df9a93a06a32281192aa4fdd6e75373fc3"
+    },
+    {
+      "bytes": 4364,
+      "mode": 420,
+      "path": "src/atspi/interfaces/editable_text.rs",
+      "sha256": "aa665ea4b598642d6a0094c978eb156c018adf1bf3004f727d265aad751af87b"
+    },
+    {
+      "bytes": 1930,
+      "mode": 420,
+      "path": "src/atspi/interfaces/hyperlink.rs",
+      "sha256": "9a53b1d164208963ed047326f12ab380700807a3338b8c76f4edd8a492cd35d8"
+    },
+    {
+      "bytes": 1142,
+      "mode": 420,
+      "path": "src/atspi/interfaces/mod.rs",
+      "sha256": "0fec52f8857ba05b8cd504494f6ea8e9d2e1ac35a8445a15927aceafe7f12daf"
+    },
+    {
+      "bytes": 2669,
+      "mode": 420,
+      "path": "src/atspi/interfaces/selection.rs",
+      "sha256": "980d556b2620de481146580744d80f3bde0631b148d1330aed268a0a5a6b7905"
+    },
+    {
+      "bytes": 4796,
+      "mode": 420,
+      "path": "src/atspi/interfaces/text.rs",
+      "sha256": "3e36eb6bdd8dcdb7d9831474aec4d0cc86ba281d65addbbb52e72aa165b64ed9"
+    },
+    {
+      "bytes": 1417,
+      "mode": 420,
+      "path": "src/atspi/interfaces/value.rs",
+      "sha256": "829dfa73ab581da1be9210c1a6a0361bbb8563fb8d49c7057557cc1ddefafbab"
+    },
+    {
+      "bytes": 404,
+      "mode": 420,
+      "path": "src/atspi/mod.rs",
+      "sha256": "0cedb0ba1137ed36e0a7bc7d154ab1846ffed870ca2b4d7db9a1b06f658a483c"
+    },
+    {
+      "bytes": 1341,
+      "mode": 420,
+      "path": "src/atspi/object_address.rs",
+      "sha256": "71f293f5de1c46e5e2a2503053baa3c1fe7c62c13cc7c957dbf2843dfa531e79"
+    },
+    {
+      "bytes": 2127,
+      "mode": 420,
+      "path": "src/atspi/object_id.rs",
+      "sha256": "39db6c1b1f5acd278a5b7551a683c197a730d7604a4d9b9c250fa5ffd10c37ca"
+    },
+    {
+      "bytes": 8246,
+      "mode": 420,
+      "path": "src/context.rs",
+      "sha256": "9a848d68eee83ca49eab29494fee2fab44c4a47951fc88498b03ed41e445f395"
+    },
+    {
+      "bytes": 4452,
+      "mode": 420,
+      "path": "src/executor.rs",
+      "sha256": "38e4a47fc2afd555d91d8e74156165d7da632c381e488a1c7693ed140ff278fa"
+    },
+    {
+      "bytes": 972,
+      "mode": 420,
+      "path": "src/lib.rs",
+      "sha256": "4416ce59366d321c3dbd29a1054c3ad6c426168c97f7b237ff3e818de6c3168c"
+    },
+    {
+      "bytes": 1616,
+      "mode": 420,
+      "path": "src/util.rs",
+      "sha256": "2a043a60ea1d76c5603d65d5a9844586f00d1d310902032214a10c70b80750c5"
+    }
+  ],
+  "name": "accesskit_unix",
+  "schema": 1,
+  "version": "0.21.1"
+}

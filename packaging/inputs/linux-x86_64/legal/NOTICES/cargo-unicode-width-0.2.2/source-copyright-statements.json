@@ -1,0 +1,87 @@
+{
+  "archive_sha256": "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254",
+  "original_statement_files": [
+    {
+      "path": "unicode-width-0.2.2/LICENSE-MIT",
+      "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "unicode-width-0.2.2/benches/benches.rs",
+      "sha256": "066d361583f911883791fd313c02556a2faf2854470dbbae328a6513ae035bb6",
+      "size": 3196,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "unicode-width-0.2.2/scripts/unicode.py",
+      "sha256": "c0d9718de758d5729cef3def36cf9fa2c853b53cffd28fc2471ae694db04ba77",
+      "size": 81780,
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright 2011-2025 The Rust Project Developers. See the COPYRIGHT"
+        },
+        {
+          "line": 1597,
+          "text": "\"\"\"// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "unicode-width-0.2.2/src/lib.rs",
+      "sha256": "be8917e1a821806c0ce7a392564c72731a5f7d02155429a37b08571ad246a0bf",
+      "size": 14583,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "unicode-width-0.2.2/src/tables.rs",
+      "sha256": "4c3e673da24634c269562ca4d3652b494542c78cafe56da69d23df9178adffd4",
+      "size": 1563226,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "unicode-width-0.2.2/tests/emoji-test.txt",
+      "sha256": "1d8a944f88d7952f7ef7c5167fef3c67995bcae24543949710231b03a201acda",
+      "size": 669326,
+      "statements": [
+        {
+          "line": 3,
+          "text": "# \u00a9 2025 Unicode\u00ae, Inc."
+        }
+      ]
+    },
+    {
+      "path": "unicode-width-0.2.2/tests/tests.rs",
+      "sha256": "10c40454f79c2b66ea99d2924df62c8afc3e13fb8cea835883d3c458b8076204",
+      "size": 21728,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2025 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

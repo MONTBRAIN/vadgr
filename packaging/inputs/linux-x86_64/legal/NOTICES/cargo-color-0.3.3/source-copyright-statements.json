@@ -1,0 +1,241 @@
+{
+  "archive_sha256": "2ec7c5eb7a16992b1904d76c517d170ab353b0e0b3d5a0c81a8a0cd1037893cf",
+  "original_statement_files": [
+    {
+      "path": "color-0.3.3/examples/gradient.rs",
+      "sha256": "cf49ce30a8837151d7458416fac725c0668a373f944405eeca293a43aaff6775",
+      "size": 1707,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/examples/interp.rs",
+      "sha256": "5ad30e33d6a315ae28e49d0fa476b258a1dbfe186237ed8a5ebad830a2e776f3",
+      "size": 1917,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/examples/parse.rs",
+      "sha256": "dcb63133cc9309377ce854a1785c9962515975fc53577768bfbbc941646d8eba",
+      "size": 870,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/make_x11_colors.py",
+      "sha256": "b118da572e26b71fc43dc26b8bc6d239d3cfcecfa2f7f7829d8b4eca9dfbeb98",
+      "size": 10593,
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright 2024 the Color Authors"
+        },
+        {
+          "line": 224,
+          "text": "print(\"\"\"// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/cache_key.rs",
+      "sha256": "4929e06b497d32521b6e8a2795e4506ac9f68ca8adc84fb6a945800be7d61335",
+      "size": 6790,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/chromaticity.rs",
+      "sha256": "a360be00070b03c55036e82d7a569f484250a748bc5cf502506aaa86aab918b2",
+      "size": 4328,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/color.rs",
+      "sha256": "3785748a3f350e227244d7f9d23193a36b2022fa7cf67f15dba396a1d3a83722",
+      "size": 38511,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/colorspace.rs",
+      "sha256": "6f1401f12ea44ebf57fe9858e01e54b8dccd7e7a846325bea3c9fcded8df6f4e",
+      "size": 72471,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/dynamic.rs",
+      "sha256": "08f1df53de95424d736d6e9bf9c266315f27619b87273b26f286b9c2643b1cec",
+      "size": 32437,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/flags.rs",
+      "sha256": "957fe4733395dc109f98f1dc94f770c9e8248c5262f21c313e65024a0258e69b",
+      "size": 6328,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/floatfuncs.rs",
+      "sha256": "083aa9d72fffa4f588dd1ad7e5fc06b33cca7057fcd1f1184c7c682fe754379e",
+      "size": 2203,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/gradient.rs",
+      "sha256": "59f78ee5df149ffa52ca7bd14206b02c995622823159d6419ac1b5171ea2b69d",
+      "size": 12844,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/impl_bytemuck.rs",
+      "sha256": "06b0988f045f314c429cd20ad7f94f6cd286bd425769f07266e2e3b076eb9f8a",
+      "size": 11007,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/lib.rs",
+      "sha256": "e64d6333cce88d410730bc12526b000634ff99884d6be5196ab58f22adad7e83",
+      "size": 9232,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/palette/css.rs",
+      "sha256": "8dcab4a625053b94f250b2c1eb0405a4fce422b635a253f70e44bd656b3a8ca3",
+      "size": 36149,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/palette/mod.rs",
+      "sha256": "3c9b9f70a1a82ed15ee53356a4d7e59332ad6872977ed80f647798193d6fc6e3",
+      "size": 134,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/parse.rs",
+      "sha256": "78230f696daf4e54bd1a63b45bad85566a8fdc1dd422b92aae8707b23221e208",
+      "size": 27477,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/rgba8.rs",
+      "sha256": "14e8088b550dcff1f4d2e0b08325b00328e627b1e036b2069708c69b42c93a60",
+      "size": 7417,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/serialize.rs",
+      "sha256": "c3ef486e4433d95d944c1dcabc5f10b942f2bc2857d129fe5d8bfb2740aef17c",
+      "size": 9282,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/tag.rs",
+      "sha256": "4ea12aab395d459db6f5722efbe6c07a79141ffc1a7be2f10abe81ae46636972",
+      "size": 16108,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    },
+    {
+      "path": "color-0.3.3/src/x11_colors.rs",
+      "sha256": "4007a30ca7624184341ad2449706956656b528c6592cf7c703808af5e2d7969c",
+      "size": 7740,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2024 the Color Authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

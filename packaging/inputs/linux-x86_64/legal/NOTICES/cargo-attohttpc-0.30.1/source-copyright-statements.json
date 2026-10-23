@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "16e2cdb6d5ed835199484bb92bb8b3edd526effe995c61732580439c1a67e2e9",
+  "original_statement_files": [
+    {
+      "path": "attohttpc-0.30.1/src/multipart_crate/lazy.rs",
+      "sha256": "30158303f93197d08c7ba911c4c18906255f60e704ab3dd2685da295c65621d1",
+      "size": 14090,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 `multipart` Crate Developers"
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2025 Simon Bernier St-Pierre <git.sbstp.ca@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "attohttpc-0.30.1/src/multipart_crate/mod.rs",
+      "sha256": "e88077725ca7d5cb5abb290bb02933712b423f5d563081ef323f7b0a68bbb47c",
+      "size": 10830,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 `multipart` Crate Developers"
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2025 github.com/sbstp"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,7 @@
+{
+  "archive_sha256": "b016ca8db0ea0ea2ceff29a9d6240391492d960716aa471967c00e8cc8cb197c",
+  "basis": [
+    "All src Rust headers offer Apache-or-MIT; executor.rs also explicitly retains a zbus-derived MIT-only grant. Chromium grant is a retained workspace notice, while separately inventoried dependencies carry Chromium code."
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

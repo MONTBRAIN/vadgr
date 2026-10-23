@@ -1,0 +1,61 @@
+{
+  "archive_sha256": "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb",
+  "original_statement_files": [
+    {
+      "path": "errno-0.3.14/LICENSE-MIT",
+      "sha256": "8764a597675778ddfd4e25f81b08a05dbcf089ac05662df7613fe67f150e3aa2",
+      "size": 1054,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Chris Wong"
+        }
+      ]
+    },
+    {
+      "path": "errno-0.3.14/src/hermit.rs",
+      "sha256": "ad03355bc4d79c180ab3210e1d3edd538eccaaea8d4f9a9b7eb8a0dc2d39b5df",
+      "size": 1017,
+      "statements": [
+        {
+          "line": 7,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "errno-0.3.14/src/unix.rs",
+      "sha256": "66c64603798cf7d8701de5be077b814b09a324b42ff460e9448686b4d8a330a7",
+      "size": 3042,
+      "statements": [
+        {
+          "line": 5,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "errno-0.3.14/src/wasi.rs",
+      "sha256": "c83052e5c45c31e2a4630c00a4d0b92f39205774a4d419b4aa5c06dc5992280c",
+      "size": 1686,
+      "statements": [
+        {
+          "line": 5,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "errno-0.3.14/src/windows.rs",
+      "sha256": "7cbcdb8e74582f357fa945bb1c44c4d19c1a10bec958da1223305bf68ec35baf",
+      "size": 2608,
+      "statements": [
+        {
+          "line": 5,
+          "text": "// Copyright 2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

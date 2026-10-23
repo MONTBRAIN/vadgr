@@ -1,0 +1,48 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/annotated_types/__init__.py",
+      "member": "annotated_types/__init__.py",
+      "sha256": "a7104a4d439b27a9f74fc0be236b9ba1b7831e6044026802a205abc1298a9bc8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/annotated_types/py.typed",
+      "member": "annotated_types/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/annotated_types/test_cases.py",
+      "member": "annotated_types/test_cases.py",
+      "sha256": "d867472acb57b81ce97f78972828e6bc5669ca4db33fd1e6f645c6183846068e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/annotated_types-0.8.0.dist-info/METADATA",
+      "member": "annotated_types-0.8.0.dist-info/METADATA",
+      "sha256": "614985b278f601b8ef863f82783b991cc3ada4b89f592eb71c7c48c5f2ef2298",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/annotated_types-0.8.0.dist-info/WHEEL",
+      "member": "annotated_types-0.8.0.dist-info/WHEEL",
+      "sha256": "942926c567d0b1273d09f20295879abd37507845f6b683eab9f87d808df91100",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/annotated_types-0.8.0.dist-info/licenses/LICENSE",
+      "member": "annotated_types-0.8.0.dist-info/licenses/LICENSE",
+      "sha256": "fe1049884b1a0d9342901e88e07f32925d24b3121d9972b6a6805fb9824b095d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/annotated_types-0.8.0.dist-info/RECORD",
+      "member": "annotated_types-0.8.0.dist-info/RECORD",
+      "sha256": "114b36a7ba292e2b78ecd901d104c3fade4699ccfb684a5d9179749cbaeaeaaa",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0",
+  "wheel": "annotated_types-0.8.0-py3-none-any.whl"
+}

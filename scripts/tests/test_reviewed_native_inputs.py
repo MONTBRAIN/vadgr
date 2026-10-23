@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from scripts import cua_profiles as profiles
 from scripts import cua_release_inputs as release
 from scripts import validate_native_wheels as producer
 from scripts.validate_package_inputs import PackageInputError, sha256_bytes
@@ -70,17 +71,18 @@ def test_reviewed_bundle_preserves_the_attested_manifest_subject():
         "https://github.com/MONTBRAIN/vadgr/actions/runs/35957405519/attempts/1")
 
 
-def test_windows_x64_lock_selects_complete_released_runtime_without_custom_wheels():
+def test_windows_x64_profile_selects_complete_released_runtime_without_custom_wheels():
     target = "x86_64-pc-windows-msvc"
     binding = release.reviewed_inputs(ROOT, ROOT, target)
-    assert binding["requirements_sha256"] == "83bdf9d395ea701f032e30cba1537483ebfefe8cdac03f30b9eccdccb4e98292"
-    selected = release.selected_lock((ROOT / release.lock_path(target)).read_bytes())
-    assert len(selected) == 40
+    assert binding["requirements_sha256"] == "b3613ff7b2addb82603fa3b23e3927f723b897ce84375b5c81e8d4f3038d7b21"
+    selected = release.selected_lock((ROOT / profiles.lock_path("windows-x86_64")).read_bytes())
+    assert len(selected) == 39
     assert selected["vadgr-computer-use"] == (
-        "0.7.8", "1c905c200d0e2190bb3512ecf0c58f1b683900ad15288cef00c14a732fb10535")
+        "0.7.9", "f1ac5336956bc2fe26c7973fe32640fd0f1acc0075b3d235a9f57f60b35cbf81")
     assert selected["uniseg"][0] == "0.10.1"
     assert {"pywin32", "pywinauto", "comtypes"} <= selected.keys()
-    assert not {"dbus-fast", "jeepney", "python-xlib", "pyobjc-core", "bcrypt", "pytest"} & selected.keys()
+    assert not {"dbus-fast", "jeepney", "python-xlib", "pyobjc-core", "bcrypt", "pytest",
+                "nodriver"} & selected.keys()
     assert not {row[3] for row in OUTPUTS.values()} & {digest for _, digest in selected.values()}
 
 
@@ -106,14 +108,14 @@ def test_feature_cannot_change_any_reviewed_input(tmp_path, target, changed):
 
 
 @pytest.mark.parametrize("target", release.CUSTOM_TARGETS)
-def test_promoted_native_targets_use_exact_selected_locks(target):
-    lock = ROOT / release.lock_path(target)
+def test_profile_targets_select_exact_reviewed_locks(target):
+    profile = profiles.native_profile(target)
+    lock = ROOT / profiles.lock_path(profile)
     assert lock.is_file()
-    selected = release.selected_lock(lock.read_bytes())
-    expected = OUTPUTS[release.CUSTOM_TARGETS[target]][3]
-    assert selected["cryptography"] == ("50.0.1", expected)
     binding = release.reviewed_inputs(ROOT, ROOT, target)
     assert binding["requirements_sha256"] == sha256_bytes(lock.read_bytes())
+    selected = release.selected_lock(lock.read_bytes())
+    assert selected["vadgr-computer-use"][0] == "0.7.9"
 
 
 @pytest.mark.parametrize("field,value", [

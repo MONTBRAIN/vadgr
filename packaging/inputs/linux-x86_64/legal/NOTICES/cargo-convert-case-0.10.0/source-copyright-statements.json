@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "633458d4ef8c78b72454de2d54fd6ab2e60f9e02be22f3c6104cdc8a4e0fceb9",
+  "original_statement_files": [
+    {
+      "path": "convert_case-0.10.0/LICENSE",
+      "sha256": "aed7b1758e35afa0cd0fde059d61950747ca11cd0e5e169cb21c11608daed772",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2025 rutrum"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,55 @@
+{
+  "members": [
+    {
+      "change": "none",
+      "changed": false,
+      "observed_path": "LICENSE",
+      "observed_sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "upstream_path": "certifi-2026.6.17/LICENSE",
+      "upstream_sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7"
+    },
+    {
+      "change": "none",
+      "changed": false,
+      "observed_path": "__init__.py",
+      "observed_sha256": "f96d51ff2f1609a4a44f5b5d8eec47ff34c1658d581fac5081d3759db05a8ce1",
+      "upstream_path": "certifi-2026.6.17/certifi/__init__.py",
+      "upstream_sha256": "f96d51ff2f1609a4a44f5b5d8eec47ff34c1658d581fac5081d3759db05a8ce1"
+    },
+    {
+      "change": "pip vendor import/resource namespace relocation",
+      "changed": true,
+      "observed_path": "__main__.py",
+      "observed_sha256": "d64dc2afde6f0b1c464460e58eb5b7c0c76965d2f73617f4bb59fe936a9db026",
+      "upstream_path": "certifi-2026.6.17/certifi/__main__.py",
+      "upstream_sha256": "c410688fdd394d45812d118034e71fee88ba7beddd30fe1c1281bd3b232cd758"
+    },
+    {
+      "change": "none",
+      "changed": false,
+      "observed_path": "cacert.pem",
+      "observed_sha256": "bbc7e9c01d7551bb8a159b5dedd989b8ee3ce105aff522b68eb1b01bf854cab0",
+      "upstream_path": "certifi-2026.6.17/certifi/cacert.pem",
+      "upstream_sha256": "bbc7e9c01d7551bb8a159b5dedd989b8ee3ce105aff522b68eb1b01bf854cab0"
+    },
+    {
+      "change": "pip vendor import/resource namespace relocation",
+      "changed": true,
+      "observed_path": "core.py",
+      "observed_sha256": "82efc40952359b746ad32b69b0d13ad6181019c29a380b7d46cf46f0ab1308e2",
+      "upstream_path": "certifi-2026.6.17/certifi/core.py",
+      "upstream_sha256": "5c55f2727746e697f7edac9e17c377d8752e0da7ecca191531b3b80403d61dad"
+    },
+    {
+      "change": "none",
+      "changed": false,
+      "observed_path": "py.typed",
+      "observed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "upstream_path": "certifi-2026.6.17/certifi/py.typed",
+      "upstream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "source_archive_sha256": "024c88eeec92ca068db80f02b8b07c9cef7b9fe261d1d535abfd5abd6f6af432",
+  "source_delivery": "Complete published source distribution plus every actual shipped modified Python/data member in observed-source.zip.",
+  "source_url": "https://files.pythonhosted.org/packages/c9/c7/424b75da314c1045981bd9777432fad05a9e0c69daa4ed7e308bbaffe405/certifi-2026.6.17.tar.gz"
+}

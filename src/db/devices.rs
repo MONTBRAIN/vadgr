@@ -40,6 +40,16 @@ pub fn list_all(db: &Db) -> rusqlite::Result<Vec<Value>> {
     })
 }
 
+pub fn transport_names(db: &Db, device_id: &str) -> rusqlite::Result<Vec<String>> {
+    db.with(|c| {
+        let mut statement =
+            c.prepare("SELECT transport FROM device_peers WHERE device_id=?1 ORDER BY transport")?;
+        statement
+            .query_map([device_id], |row| row.get::<_, String>(0))?
+            .collect()
+    })
+}
+
 pub fn get(db: &Db, device_id: &str) -> rusqlite::Result<Option<Value>> {
     db.with(|c| {
         let mut stmt = c.prepare(&format!("SELECT {COLS} FROM devices WHERE id = ?1"))?;

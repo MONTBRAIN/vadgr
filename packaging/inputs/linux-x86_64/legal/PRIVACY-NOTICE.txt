@@ -1,0 +1,60 @@
+Vadgr privacy notice
+Version 1.0
+
+Publisher and contact
+
+Victor Santiago Montaño Díaz is an individual publishing under the Montbrain
+name in Pasto, Nariño, Colombia. For privacy questions, contact
+privacy@montbrain.ai. Montbrain is not identified here as an incorporated
+company.
+
+Information on your computer
+
+Vadgr keeps machine settings, connected-provider credentials, machine identity,
+paired-device records, task history and run journals on your computer. Task
+history and journals can include your prompts, model responses and tool results.
+Files, application content and screenshots can become task context when the
+tools you authorize read them. Protect the computer and its backups accordingly.
+
+The installer records the terms version and hash you accepted. This record is
+local. Vadgr 0.5.0 does not require a Publisher-operated cloud service and sends
+no product telemetry to the Publisher. Accepting the distribution terms is not
+consent to future optional telemetry or marketing.
+
+Connected model providers and tools
+
+The model provider you select receives prompts and relevant task context. That
+context can include file contents, screenshots and tool results used for the
+task. A local model can process requests locally; any external service that the
+model or its tools use has its own data practices. Connected tools, websites
+and services receive the requests and information needed for the actions you
+authorize. Their own terms, privacy practices and retention rules apply.
+
+Paired devices and network connections
+
+Paired devices exchange task and machine information through the connection
+method you select. Vadgr keeps device authorization and pairing information
+locally. Revoke a device you no longer trust.
+
+The built-in connection tries a direct encrypted path and can use a relay when
+needed. Relay operators cannot read the end-to-end encrypted Vadgr content.
+They can observe network addresses, endpoint public keys, connection times and
+traffic volume. If you use Tailscale, your configuration and Tailscale's terms
+and privacy practices apply.
+
+Update checks and downloads contact the update source configured for the
+installation or the source you select. The host serving an HTTPS update can
+observe your network address, request time and requested files. A local update
+source does not require a remote download. Ordinary local settings, offline
+repair and uninstall do not require access to a source-code repository.
+
+Retention and deletion
+
+Uninstall preserves local settings and data by default. The separate data
+deletion option removes the default Vadgr owner data only after confirmation.
+See UNINSTALL-AND-DATA.txt for the deletion boundary and custom data locations.
+Deleting local data does not delete copies retained by providers, connected
+services, paired devices or backups. Use each service's controls or contact it
+for its deletion options. Sending a support or privacy request shares its
+contents and your contact information with the recipient. Do not include
+passwords, API keys, access tokens or private task content in a request.

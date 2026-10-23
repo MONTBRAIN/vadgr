@@ -1,0 +1,16 @@
+{
+  "component_sha256": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274",
+  "original_statement_files": [
+    {
+      "path": "six.py",
+      "sha256": "c51c91f703d3d4b3696c923cb5fec213e05e75d9215393befac7f2fa6a3904df",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright (c) 2010-2024 Benjamin Peterson"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e2953bfe4f93bbd20cc71198842756f77d161884c99ebbabc41d80231ded88d1",
+  "original_statement_files": [
+    {
+      "path": "defmt-1.1.1/LICENSE-MIT",
+      "sha256": "2710a622a896bba67356913d4d0492cab5465f61b2ecce6d880aeb483834fb50",
+      "size": 1053,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Ferrous Systems"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -238,6 +238,9 @@ def test_feature_data_requires_independent_provenance(admission, monkeypatch, mu
         key = "contents/packaging/profiles/source-input.json?ref=" + "b" * 40
         a.endpoints[key]["content"] = base64.b64encode(profiles.canonical({
             "schema": 1, "source_commit": "c" * 40, "version": "0.7.9"})).decode()
+        upgrade = "contents/packaging/profiles/fixtures/upgrade/source-input.json?ref=" + "b" * 40
+        a.endpoints[upgrade]["content"] = base64.b64encode(profiles.canonical({
+            "schema": 1, "source_commit": "d" * 40, "version": "0.7.9"})).decode()
     elif mutation == "archive":
         a.endpoints["actions/artifacts/5/zip"] += b"changed"
     else:

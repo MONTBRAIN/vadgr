@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "023a211cb3138dbc438680b32560ad89f699977624c9f8dbb95a47d5b4c07dd3",
+  "original_statement_files": [
+    {
+      "path": "spin-0.10.1/LICENSE",
+      "sha256": "6ac8711fb340c62ce0a4ecd463342d3fa0e8e70de697c863a2e1c0c53006003c",
+      "size": 1084,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2014 Mathijs van de Nes"
+        }
+      ]
+    },
+    {
+      "path": "spin-0.10.1/src/barrier.rs",
+      "sha256": "f8569a601d870a713344747eb355e6d840db510a599709173ebd0ccba5fc4028",
+      "size": 6904,
+      "statements": [
+        {
+          "line": 7,
+          "text": "//! Copyright 2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}
