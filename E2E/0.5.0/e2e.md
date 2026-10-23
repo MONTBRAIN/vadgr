@@ -749,6 +749,42 @@ contain the cheaper model's capability failure from the same cell, the written
 escalation condition that fired, and a separate hard cost ceiling. A persisted
 expensive default is changed before the first routine billed call.
 
+Windows selection recorded on 2026-10-23, before the first billed call of this
+host's B01 and W06 bundled task.
+
+Selected: `gemini-2.5-flash-lite`.
+
+Capability evidence, measured against the authenticated catalog and the
+provider's own endpoint on the execution date:
+
+| probe | result |
+|---|---|
+| present in the authenticated catalog, `generateContent` | yes, input limit 1048576, output limit 65536 |
+| image input | HTTP 200, answered from the image |
+| tool call | returned a real `functionCall`, 94 input and 30 output tokens |
+| image-bearing tool result continuation | accepted the image as a function response and answered from it, 470 input and 8 output tokens |
+
+Two candidates were refused on measured capability rather than on price.
+`gemma-4-26b-a4b-it` is free of charge with no paid tier and accepts image
+input, but it answered the tool probe with text and emitted no `functionCall`,
+so it cannot drive a tool loop. `gemini-3.8-flash-lite` does not exist: the
+authenticated catalog lists `gemini-3.8-flash` and no lite variant, and the
+endpoint answers HTTP 404 for the lite name. `gemini-3.1-flash-lite` satisfies
+the chain but costs more per million tokens than the selected model.
+
+Price, from the provider's official pricing page on 2026-10-23: free of charge
+on the free tier; paid standard tier 0.10 US dollars per million input tokens
+for text, image and video, and 0.40 US dollars per million output tokens. The
+free tier states that content is used to improve the provider's products, so
+every billed subject in these cells is a synthetic fixture and carries no owner
+data.
+
+Ceilings for this host: at most 4 billed requests per cell, at most 20000 input
+and 2000 output tokens per cell, and a hard ceiling of 0.05 US dollars for the
+whole host. Escalation condition: a frontier model is allowed only after this
+model has recorded a capability failure in the same cell, and then only with a
+new written ceiling. Quality preference is not an escalation reason.
+
 ## Part H: protected owner boundaries executed first
 
 Each host lead reaches these boundaries before unrelated unattended cells. Only
