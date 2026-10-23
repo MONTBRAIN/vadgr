@@ -351,24 +351,34 @@ fn acceptance_state_at(
     let Ok(record) = serde_json::from_slice::<TermsAcceptance>(&bytes) else {
         return Acceptance::Absent;
     };
-    // A record that is not well formed is not evidence of anything, so it is
-    // absent rather than a conflict. Only a sound record of this exact version
-    // can disagree with this installer about the text.
-    let sound = record.schema == 1
-        && record.install_scope == "user"
-        && record.assent_method == "unchecked_checkbox_then_install"
+    // Two different questions, so two different tests.
+    //
+    // Whether the recorder will refuse is the only thing that decides a
+    // conflict, so this mirrors exactly what the recorder reads: the schema,
+    // both digests and the scope. Adding conditions the recorder does not
+    // share would leave a record that this page waves through and the recorder
+    // then rejects, which is the failure this state exists to prevent.
+    let readable_by_the_recorder = record.schema == 1
         && valid_sha256(&record.terms_sha256)
         && valid_sha256(&record.installer_artifact_sha256)
+        && record.install_scope == "user";
+    if !readable_by_the_recorder || record.terms_version != terms_version {
+        return Acceptance::Absent;
+    }
+    if !record.terms_sha256.eq_ignore_ascii_case(terms_sha256) {
+        return Acceptance::VersionConflict;
+    }
+    // Treating something as already accepted is the generous answer, so it
+    // takes the strict test. Anything short of a complete record asks the
+    // reader again rather than deciding on their behalf.
+    let complete = record.assent_method == "unchecked_checkbox_then_install"
         && !record.accepted_at.trim().is_empty()
         && !record.installer_version.trim().is_empty()
         && !record.installation_id.trim().is_empty();
-    if !sound || record.terms_version != terms_version {
-        return Acceptance::Absent;
-    }
-    if record.terms_sha256.eq_ignore_ascii_case(terms_sha256) {
+    if complete {
         Acceptance::Matches
     } else {
-        Acceptance::VersionConflict
+        Acceptance::Absent
     }
 }
 
@@ -515,17 +525,67 @@ mod tests {
         std::fs::remove_file(path).unwrap();
     }
 
+    /// A record whose version matches and whose text differs is a conflict
+    /// even when it is incomplete in ways the recorder does not read.
+    ///
+    /// The recorder refuses on the schema, the two digests, the scope, the
+    /// version and the text. Demanding more here than the recorder demands
+    /// would wave an install through that the recorder then rejects, which is
+    /// exactly the blind failure this state exists to prevent.
     #[test]
-    fn an_unsound_record_is_absent_rather_than_a_conflict() {
+    fn a_conflict_is_decided_on_what_the_recorder_reads() {
         let hash = "a".repeat(64);
         for (field, value) in [
-            ("schema", json!(2)),
-            ("install_scope", json!("machine")),
             ("assent_method", json!("assumed")),
             ("installation_id", json!("")),
             ("accepted_at", json!("   ")),
             ("installer_version", json!("")),
+        ] {
+            let path = std::env::temp_dir().join(format!(
+                "vadgr-ba-partial-{}-{}-{field}.json",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ));
+            let mut record = json!({
+                "schema": 1,
+                "terms_version": "1.0",
+                "terms_sha256": hash,
+                "accepted_at": "2026-09-02T00:00:00Z",
+                "installer_version": "0.5.0",
+                "installer_artifact_sha256": "b".repeat(64),
+                "install_scope": "user",
+                "installation_id": "development-test",
+                "assent_method": "unchecked_checkbox_then_install"
+            });
+            record[field] = value;
+            std::fs::write(&path, serde_json::to_vec(&record).unwrap()).unwrap();
+            assert_eq!(
+                acceptance_state_at(&path, "1.0", &"c".repeat(64)),
+                Acceptance::VersionConflict,
+                "{field}"
+            );
+            // The same record is not treated as already accepted, because
+            // accepting on the reader's behalf takes the strict test.
+            assert_eq!(
+                acceptance_state_at(&path, "1.0", &hash),
+                Acceptance::Absent,
+                "{field}"
+            );
+            std::fs::remove_file(path).unwrap();
+        }
+    }
+
+    #[test]
+    fn a_record_the_recorder_cannot_read_is_absent() {
+        let hash = "a".repeat(64);
+        for (field, value) in [
+            ("schema", json!(2)),
+            ("install_scope", json!("machine")),
             ("installer_artifact_sha256", json!("short")),
+            ("terms_sha256", json!("short")),
         ] {
             let path = std::env::temp_dir().join(format!(
                 "vadgr-ba-unsound-{}-{}-{field}.json",
@@ -548,9 +608,9 @@ mod tests {
             });
             record[field] = value;
             std::fs::write(&path, serde_json::to_vec(&record).unwrap()).unwrap();
-            // A record nobody can trust is not evidence that the text differs.
-            // Treating it as a conflict would refuse an install that should
-            // simply ask the reader to accept.
+            // The recorder cannot read this record at all, so it will not get
+            // as far as comparing the text. Reporting a conflict here would
+            // name the wrong reason for the failure that follows.
             assert_eq!(
                 acceptance_state_at(&path, "1.0", &"c".repeat(64)),
                 Acceptance::Absent,
