@@ -179,7 +179,10 @@ pub fn purge_owner_state() -> Result<()> {
     );
     let config = crate::config::Config::from_env()
         .map_err(|error| anyhow!("resolving Vadgr state: {error}"))?;
-    for root in purge_roots(config.state_home, crate::computer_use_setup::config_home().ok())? {
+    for root in purge_roots(
+        config.state_home,
+        crate::computer_use_setup::config_home().ok(),
+    )? {
         remove_owner_root(&root)?;
     }
     Ok(())
@@ -750,7 +753,10 @@ mod purge_scope_tests {
         let config = absolute(&["Users", "owner", "AppData", "Roaming", "vadgr"]);
         let roots = purge_roots(Some(state.clone()), Some(config.clone())).expect("both roots");
         assert!(roots.contains(&state), "the state root must be removed");
-        assert!(roots.contains(&config), "the configuration root must be removed");
+        assert!(
+            roots.contains(&config),
+            "the configuration root must be removed"
+        );
     }
 
     #[test]
