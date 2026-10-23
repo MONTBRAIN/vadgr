@@ -80,6 +80,13 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     assert!(build.contains("[switch] $DevelopmentUnsigned"));
     assert!(build.contains("-p:DevelopmentUnsigned="));
     assert!(build.contains("windows_development_receipt.py"));
+    // The bootstrapper is read back from the directory this build wrote it to.
+    // Deriving that path from the project root instead let a build that set
+    // CARGO_TARGET_DIR embed a months old DLL with no error anywhere.
+    assert!(build.contains("--target-dir $baTargetDirectory"));
+    assert!(build.contains("$baFunctionsPath = Join-Path $baTargetDirectory"));
+    assert!(build.contains("was not built by this run"));
+    assert!(!build.contains("Join-Path $projectRoot \"ba-functions\target"));
     assert!(build.contains("$SourceCommit -notmatch"));
     assert!(build.contains("A release package must not carry a development receipt."));
     assert!(build.contains("VADGR_TERMS_SHA256"));

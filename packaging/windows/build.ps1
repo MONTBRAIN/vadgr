@@ -142,11 +142,18 @@ if (-not (Test-Path -LiteralPath $termsText -PathType Leaf)) {
 }
 $previousTermsVersion = $env:VADGR_TERMS_VERSION
 $previousTermsSha256 = $env:VADGR_TERMS_SHA256
+# The bootstrapper is built into a directory this script names, and read back
+# from the same one. It used to be read from a path derived from the project
+# root while cargo wrote wherever CARGO_TARGET_DIR pointed. Any build that set
+# that variable, which every out of tree build does, then embedded whatever
+# older DLL happened to sit at the project path. That shipped a bootstrapper
+# from a previous month with no error anywhere.
+$baTargetDirectory = Join-Path $output 'ba-functions-target'
 try {
     $env:VADGR_TERMS_VERSION = $TermsVersion
     $env:VADGR_TERMS_SHA256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $termsText).Hash.ToLowerInvariant()
-    & cargo rustc --locked --manifest-path $baManifest --release --target $rustTarget -- `
-        -C 'target-feature=+crt-static'
+    & cargo rustc --locked --manifest-path $baManifest --release --target $rustTarget `
+        --target-dir $baTargetDirectory -- -C 'target-feature=+crt-static'
     if ($LASTEXITCODE -ne 0) {
         throw 'The Windows bootstrapper terms integration build failed.'
     }
@@ -155,9 +162,16 @@ finally {
     $env:VADGR_TERMS_VERSION = $previousTermsVersion
     $env:VADGR_TERMS_SHA256 = $previousTermsSha256
 }
-$baFunctionsPath = Join-Path $projectRoot "ba-functions\target\$rustTarget\release\vadgr_windows_ba_functions.dll"
+$baFunctionsPath = Join-Path $baTargetDirectory "$rustTarget\release\vadgr_windows_ba_functions.dll"
 if (-not (Test-Path -LiteralPath $baFunctionsPath -PathType Leaf)) {
     throw "The Windows bootstrapper terms integration is missing: $baFunctionsPath"
+}
+# The output directory is new for each build, so this file can only be the one
+# the step above produced. Saying so out loud is cheap, and the failure it
+# replaces was silent.
+$baBuilt = (Get-Item -LiteralPath $baFunctionsPath).LastWriteTimeUtc
+if ($baBuilt -lt (Get-Date).ToUniversalTime().AddHours(-1)) {
+    throw "The Windows bootstrapper was not built by this run: $baFunctionsPath"
 }
 
 & $dotnet.Source build (Join-Path $projectRoot 'VadgrMsi.wixproj') `
