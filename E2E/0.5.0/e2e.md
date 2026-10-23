@@ -643,6 +643,19 @@ the visual and accessibility oracle.
 
 ## Tooling capability probes
 
+Run the runbook arithmetic with the evidence checkout named, or it reports
+gaps that are not there:
+
+```
+VADGR_EVIDENCE_ROOT=<the evidence branch checkout>     python3 ../vadgr-docs/scripts/check_e2e.py E2E/0.5.0/e2e.md
+```
+
+The check looks for a filed boundary behind every passing row of the per-OS
+matrix. Evidence lives on its own branch, so a checkout of the default branch
+has no boundaries in it and every passing row reads as unbacked. Measured on
+2026-10-23: four rows reported as having no evidence, and all four were filed.
+
+
 Every cell names the tool its action and oracle use. A tool counts only when it
 exists and a probe on the target proved it. An existing development build counts
 when its source commit and artifact hash are named. A version that does not
