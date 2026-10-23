@@ -287,8 +287,27 @@ def invoke(element, action: str, text: str | None, window=None):
         raise SystemExit(f"unsupported action: {action}")
 
 
+def flat_share(image) -> float:
+    """The share of pixels that carry the single most common colour.
+
+    A capture is refused only when it is entirely one colour, because that is
+    certainly unrendered. A partly painted surface is not refused, because it
+    can be the correct and only view of a window that no single flag renders
+    whole. It is reported instead, so a reader sees that most of an image is
+    one flat colour rather than discovering it after the pass has closed.
+    """
+    pixels = image.convert("RGB")
+    total = pixels.width * pixels.height
+    if total == 0:
+        return 1.0
+    counts = pixels.getcolors(maxcolors=total) or []
+    if not counts:
+        return 0.0
+    return max(count for count, _ in counts) / total
+
+
 def capture_client(hwnd: int, destination: Path, full_content: bool = False,
-                   whole_window: bool = False):
+                   whole_window: bool = False) -> float:
     """Capture one window's own pixels, with no other window in the image.
 
     Two corrections over the obvious implementation, both measured on this
@@ -300,10 +319,24 @@ def capture_client(hwnd: int, destination: Path, full_content: bool = False,
     content and shifts every element rectangle. The bitmap is sized from
     `GetWindowRect` and the client area is cropped out afterwards.
 
-    The flag differs per surface. The composited egui console returns an empty
-    client unless `PW_RENDERFULLCONTENT` is passed, and the Burn bootstrapper,
-    a classic window with child controls, returns an empty client when it *is*
-    passed. Neither renders with the other's flag, so the caller chooses.
+    The flag differs per surface, and for one surface neither flag is enough.
+    The composited egui console returns an empty client unless
+    `PW_RENDERFULLCONTENT` is passed. The installer bootstrapper is the hard
+    case: it mixes composited drawing with ordinary child controls, and the two
+    flags carry different halves of it. Measured on this product on 2026-10-23,
+    on the terms page of the development unsigned vehicle:
+
+    * plain flag: the frame, the title bar and the outlines of the checkbox and
+      the two buttons, and none of the step list, headings or terms text;
+    * `PW_RENDERFULLCONTENT`: the step list, the headings and the terms text,
+      and none of the child controls.
+
+    An earlier version of this docstring said the bootstrapper returns an empty
+    client when `PW_RENDERFULLCONTENT` is passed. That is not what it does, and
+    following it produced the partly painted frame that one pass filed as an
+    unexplained observation. Inspect that window's text with `--full-content`
+    and its controls with the plain flag, and read `flat_share` below before
+    trusting either image.
     """
     user32 = ctypes.windll.user32
     try:
@@ -362,13 +395,15 @@ def capture_client(hwnd: int, destination: Path, full_content: bool = False,
                                 top + (client.bottom - client.top)))
         # A blank capture used to be filed as evidence and then had to be
         # retaken. An image with one colour is never a rendered surface.
-        if len(image.convert("RGB").getcolors(maxcolors=2) or []) == 1:
+        share = flat_share(image)
+        if share == 1.0:
             raise SystemExit(
                 "the capture is a single flat colour, so the surface did not render; "
                 "try the other content flag"
             )
         destination.parent.mkdir(parents=True, exist_ok=True)
         image.save(destination)
+        return share
     finally:
         gdi32.SelectObject(memory_dc, previous)
         gdi32.DeleteObject(bitmap)
@@ -434,9 +469,16 @@ def main() -> int:
         invoke(element, args.action, args.text, window)
         print(json.dumps({"before": before, "action": args.action}, indent=2))
     elif args.command == "capture":
-        capture_client(int(window.handle), args.output,
-                       args.full_content, args.whole_window)
-        print(json.dumps({"output": str(args.output), "handle": int(window.handle)}))
+        share = capture_client(int(window.handle), args.output,
+                               args.full_content, args.whole_window)
+        print(json.dumps({
+            "output": str(args.output),
+            "handle": int(window.handle),
+            # The share of the image that is one flat colour. A high value on a
+            # window that should be busy means the flag carried only one half of
+            # it, which is the condition that once got filed as a finished frame.
+            "flat_share": round(share, 4),
+        }))
     return 0
 
 

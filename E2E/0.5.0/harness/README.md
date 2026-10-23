@@ -94,3 +94,24 @@ Never use a screenshot to locate a control. Reacquire the UI Automation tree
 after every transition, and verify mutations with the independent oracle named
 by the cell. Do not file captures that contain credentials or owner-private
 identifiers.
+
+### Choosing the capture flag, and reading `flat_share`
+
+`capture` passes `PW_RENDERFULLCONTENT` only with `--full-content`. The flag a
+surface needs was measured, not assumed:
+
+* the console is composited and returns an empty client without
+  `--full-content`;
+* the installer bootstrapper mixes composited drawing with ordinary child
+  controls, and no single flag carries both. With `--full-content` it paints
+  the step list, the headings and the terms and omits the checkbox and the
+  buttons. Without it, it paints the frame and those controls and omits every
+  piece of text. Capture both when the cell needs both.
+
+Every capture prints `flat_share`, the share of the image that is the single
+most common colour. A capture that is entirely one colour is refused outright,
+because it never rendered. A high but not complete share is not refused, since
+it can be the correct and only view of a window no one flag renders whole, so
+read the number and say which half the image holds. This exists because a
+partly painted installer frame was once filed as a finished one and spent a
+pass as an unexplained observation.
