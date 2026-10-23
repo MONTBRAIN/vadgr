@@ -75,6 +75,38 @@ def test_an_image_with_many_colours_is_not_dominated_by_one():
     assert flat_share(image) == pytest.approx(1 / 256)
 
 
+def test_a_transparent_capture_reads_as_blank_rather_than_busy():
+    """Colour under zero alpha is not something a reader can see.
+
+    PrintWindow without PW_RENDERFULLCONTENT returns this product's installer
+    with its composited colour intact and its alpha zeroed. Measured on a real
+    capture, 97.1 percent of the image was fully transparent while the colour
+    data underneath still looked varied. Judging that on the colour alone
+    called a blank looking capture rich.
+    """
+    busy = Image.new("RGBA", (50, 50))
+    for y in range(50):
+        for x in range(50):
+            # Varied colour, no alpha at all.
+            busy.putpixel((x, y), (x * 5 % 256, y * 5 % 256, (x + y) % 256, 0))
+    assert flat_share(busy) == 1.0, "an invisible image is as blank as a blank one"
+
+
+def test_a_partly_transparent_capture_counts_only_what_shows():
+    image = Image.new("RGBA", (10, 10), (255, 255, 255, 255))
+    for y in range(10):
+        for x in range(10):
+            image.putpixel((x, y), (0, 0, 0, 255) if y < 2 else (0, 0, 0, 0))
+    # Two rows are really painted; the other eight show the background.
+    assert flat_share(image) == pytest.approx(0.8)
+
+
+def test_an_opaque_image_is_unaffected_by_the_transparency_rule():
+    image = painted(10, 10, (255, 255, 255), (0, 0, 0), 2)
+    assert flat_share(image.convert("RGB")) == pytest.approx(0.8)
+    assert flat_share(image.convert("RGBA")) == pytest.approx(0.8)
+
+
 def test_the_docstring_records_what_was_measured_rather_than_the_old_claim():
     source = (pathlib.Path(__file__).resolve().parent / "windows_uia.py").read_text(
         encoding="utf-8"
@@ -83,5 +115,9 @@ def test_the_docstring_records_what_was_measured_rather_than_the_old_claim():
     # client with PW_RENDERFULLCONTENT. It does not, and following that claim
     # produced the partly painted frame one pass filed as unexplained.
     assert "returns an empty client when it *is*" not in source
-    assert "neither flag is enough" in source
     assert "flat_share" in source
+    # The replacement claim was wrong too, and saying so is the point of this
+    # test: PW_RENDERFULLCONTENT carries this window whole once it has painted,
+    # and the plain flag never carries its composited text at all.
+    assert "neither flag is enough" not in source
+    assert "zeroed" in source

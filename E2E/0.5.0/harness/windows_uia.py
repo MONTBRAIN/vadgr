@@ -288,18 +288,30 @@ def invoke(element, action: str, text: str | None, window=None):
 
 
 def flat_share(image) -> float:
-    """The share of pixels that carry the single most common colour.
+    """The share of pixels that carry the single most common colour, as seen.
+
+    As seen is the whole point, so a transparent pixel is counted as the
+    background a reader would see through it rather than as the colour hiding
+    underneath. `PrintWindow` without `PW_RENDERFULLCONTENT` returns this
+    window's composited areas with their colour intact and their alpha zeroed:
+    measured here, 97.1 percent of such a capture was fully transparent while
+    its discarded colour data still looked busy. Judging that on `convert("RGB")`
+    called a capture rich that every viewer shows as blank, which is exactly
+    backwards for a check that exists to catch a capture nobody can read.
 
     A capture is refused only when it is entirely one colour, because that is
-    certainly unrendered. A partly painted surface is not refused, because it
-    can be the correct and only view of a window that no single flag renders
-    whole. It is reported instead, so a reader sees that most of an image is
-    one flat colour rather than discovering it after the pass has closed.
+    certainly unrendered. A mostly flat one is reported rather than refused,
+    since it can be a real view of a window that renders in layers.
     """
-    pixels = image.convert("RGB")
-    total = pixels.width * pixels.height
+    total = image.width * image.height
     if total == 0:
         return 1.0
+    if image.mode in ("RGBA", "LA") or "transparency" in getattr(image, "info", {}):
+        # Over white, because that is what an image viewer and a reader show.
+        background = Image.new("RGBA", image.size, (255, 255, 255, 255))
+        pixels = Image.alpha_composite(background, image.convert("RGBA")).convert("RGB")
+    else:
+        pixels = image.convert("RGB")
     counts = pixels.getcolors(maxcolors=total) or []
     if not counts:
         return 0.0
@@ -319,24 +331,23 @@ def capture_client(hwnd: int, destination: Path, full_content: bool = False,
     content and shifts every element rectangle. The bitmap is sized from
     `GetWindowRect` and the client area is cropped out afterwards.
 
-    The flag differs per surface, and for one surface neither flag is enough.
-    The composited egui console returns an empty client unless
-    `PW_RENDERFULLCONTENT` is passed. The installer bootstrapper is the hard
-    case: it mixes composited drawing with ordinary child controls, and the two
-    flags carry different halves of it. Measured on this product on 2026-10-23,
-    on the terms page of the development unsigned vehicle:
+    Pass `PW_RENDERFULLCONTENT` for every surface this product draws. The
+    composited console needs it, and so does the installer bootstrapper, which
+    took two wrong explanations before it was measured properly on 2026-10-23.
 
-    * plain flag: the frame, the title bar and the outlines of the checkbox and
-      the two buttons, and none of the step list, headings or terms text;
-    * `PW_RENDERFULLCONTENT`: the step list, the headings and the terms text,
-      and none of the child controls.
+    Without the flag, that window's composited areas come back with their
+    colour intact and their alpha zeroed: 97.1 percent of such a capture was
+    fully transparent, so it looks blank to every viewer while its discarded
+    colour data still looks busy. With the flag, the same window comes back
+    whole and fully opaque, frame, step list, headings, terms text and child
+    controls together, once it has finished painting.
 
-    An earlier version of this docstring said the bootstrapper returns an empty
-    client when `PW_RENDERFULLCONTENT` is passed. That is not what it does, and
-    following it produced the partly painted frame that one pass filed as an
-    unexplained observation. Inspect that window's text with `--full-content`
-    and its controls with the plain flag, and read `flat_share` below before
-    trusting either image.
+    Two earlier versions of this docstring were wrong about this. The first
+    said the bootstrapper returns an empty client when the flag is passed, and
+    following it produced the partly painted frame that a pass filed as an
+    unexplained observation. The second said neither flag carries that window
+    whole, which came from capturing it before it had painted. Read
+    `flat_share` below rather than either claim.
     """
     user32 = ctypes.windll.user32
     try:

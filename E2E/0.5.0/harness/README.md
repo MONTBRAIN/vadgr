@@ -95,23 +95,23 @@ after every transition, and verify mutations with the independent oracle named
 by the cell. Do not file captures that contain credentials or owner-private
 identifiers.
 
-### Choosing the capture flag, and reading `flat_share`
+### Use `--full-content`, and read `flat_share`
 
-`capture` passes `PW_RENDERFULLCONTENT` only with `--full-content`. The flag a
-surface needs was measured, not assumed:
+`capture` passes `PW_RENDERFULLCONTENT` only with `--full-content`. Pass it for
+every surface this product draws, the console and the installer alike.
 
-* the console is composited and returns an empty client without
-  `--full-content`;
-* the installer bootstrapper mixes composited drawing with ordinary child
-  controls, and no single flag carries both. With `--full-content` it paints
-  the step list, the headings and the terms and omits the checkbox and the
-  buttons. Without it, it paints the frame and those controls and omits every
-  piece of text. Capture both when the cell needs both.
+Without it, the installer's composited areas come back with their colour intact
+and their alpha zeroed. Measured on 2026-10-23, 97.1 percent of such a capture
+was fully transparent: it looks blank in any viewer, while the colour data
+underneath still looks busy to anything that ignores alpha. With the flag, the
+same window comes back whole and fully opaque once it has finished painting.
 
-Every capture prints `flat_share`, the share of the image that is the single
-most common colour. A capture that is entirely one colour is refused outright,
-because it never rendered. A high but not complete share is not refused, since
-it can be the correct and only view of a window no one flag renders whole, so
-read the number and say which half the image holds. This exists because a
-partly painted installer frame was once filed as a finished one and spent a
-pass as an unexplained observation.
+Give the window that moment. A capture taken while it is still painting shows
+part of itself, and that is what a previous pass filed as an unexplained
+observation, and what then produced a second wrong explanation about the flags.
+
+Every capture prints `flat_share`, the share of the image a reader would see as
+the single most common colour, counting a transparent pixel as the background
+that shows through it. A capture that is entirely one colour is refused
+outright, because it never rendered. A high but incomplete share is reported
+rather than refused, so read the number before filing the image.
