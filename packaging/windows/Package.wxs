@@ -80,6 +80,15 @@
       <File Id="OfflineReadmeFile" Source="$(var.PayloadDir)\README-OFFLINE.txt" />
       <File Id="PackageInputInventoryFile" Source="$(var.PayloadDir)\package-input-inventory.json" />
       <File Id="PackageInputReviewFile" Source="$(var.PayloadDir)\package-input-review.json" />
+      <?if $(var.DevelopmentUnsigned) = true ?>
+      <!-- The development admission for the bundled runtime. The install
+           receipt records this file's digest, and the daemon refuses to start
+           that runtime unless every byte the receipt inventories still matches.
+           A release package never contains one, which is why this file is
+           authored under the same condition that drops the Authenticode
+           vehicle cache. -->
+      <File Id="DevelopmentReceiptFile" Source="$(var.PayloadDir)\development-receipt.json" />
+      <?endif?>
       <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Metadata" Type="integer" Value="1" KeyPath="yes" />
     </Component>
     <Component Id="InstallFolderCleanup" Directory="INSTALLFOLDER" Guid="{F769D82B-844F-4D60-B8CE-8F1A39032D9F}">

@@ -1,6 +1,7 @@
 //! Artifact classification, not publisher authentication or release authority.
 
-pub const UNSIGNED_QUALIFICATION: bool = cfg!(feature = "linux-unsigned-qualification");
+pub const UNSIGNED_QUALIFICATION: bool = cfg!(feature = "linux-unsigned-qualification")
+    || cfg!(feature = "windows-unsigned-qualification");
 pub const UNSIGNED_WARNING: &str = "Unsigned development build. Not for release.";
 
 #[cfg(target_os = "linux")]

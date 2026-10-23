@@ -158,7 +158,11 @@ def test_layout_failure_fails_required_jobs_instead_of_skipping_them():
 
 def test_rust_production_lint_covers_all_and_only_production_features():
     features = tomllib.loads((ROOT / "Cargo.toml").read_text())["features"]
-    production = set(features) - {"default", "linux-unsigned-qualification"}
+    production = set(features) - {
+        "default",
+        "linux-unsigned-qualification",
+        "windows-unsigned-qualification",
+    }
     lint = step("rust", "Lint")
     command = re.search(r"(?m)^        run: (.*)$", lint)[1]
     assert "--all-features" not in job("rust")
@@ -190,6 +194,35 @@ def test_rust_development_lane_is_linux_only_and_exactly_source_bound():
     assert "if: runner.os == 'Linux'" in libraries
     for package in ("libxkbcommon-dev", "libwayland-dev", "libudev-dev", "libdbus-1-dev", "libssl-dev", "pkg-config"):
         assert package in libraries
+
+
+def test_rust_windows_development_lane_is_windows_only_and_exactly_source_bound():
+    body = step("rust", "Test and lint the Windows development feature")
+    assert "if: runner.os == 'Windows'" in body
+    assert "shell: bash" in body
+    assert 'export VADGR_QUALIFICATION_SOURCE_COMMIT="$(git rev-parse HEAD)"' in body
+    assert 'export VADGR_QUALIFICATION_SOURCE_TREE="$(git rev-parse HEAD^{tree})"' in body
+    assert "export VADGR_RELEASE_PROFILE=windows-x86_64" in body
+    commands = [line.strip() for line in body.splitlines() if line.strip().startswith("cargo ")]
+    assert commands == [
+        "cargo test --locked --all-targets --features windows-unsigned-qualification --target x86_64-pc-windows-msvc",
+        "cargo clippy --locked --all-targets --features windows-unsigned-qualification --target x86_64-pc-windows-msvc -- -D warnings",
+    ]
+    assert "release-verifier" not in body and "--all-features" not in body
+    assert "continue-on-error" not in body and "|| true" not in body
+
+
+def test_each_development_lane_admits_one_platform():
+    """Two admissions in one binary would leave neither verifier owning it."""
+    windows = step("rust", "Test and lint the Windows development feature")
+    linux = step("rust", "Test and lint the Linux development feature")
+    assert "linux-unsigned-qualification" not in windows
+    assert "windows-unsigned-qualification" not in linux
+    build = (ROOT / "build.rs").read_text()
+    assert "qualification admits one platform per build" in build
+    assert '"qualification requires a native Windows builder"' in build
+    assert '"qualification requires a native Windows target"' in build
+    assert '"qualification requires an explicit native Windows profile"' in build
 
 
 @pytest.mark.skipif(os.name == "nt", reason="Linux development workflow uses Bash")

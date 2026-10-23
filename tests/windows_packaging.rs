@@ -61,6 +61,11 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     assert!(package.contains("Id=\"CacheInstallVehicle\""));
     assert!(package.contains("__cache-install-vehicle"));
     assert!(package.contains("$(var.DevelopmentUnsigned) = false"));
+    // The development admission installs under the same condition that drops
+    // the Authenticode vehicle cache, so a release package can never carry one.
+    assert!(package.contains("$(var.DevelopmentUnsigned) = true"));
+    assert!(package.contains("Id=\"DevelopmentReceiptFile\""));
+    assert!(package.contains("development-receipt.json"));
     assert!(package.contains("Execute=\"commit\""));
     assert!(package.contains("HideTarget=\"yes\""));
     assert!(package.contains("AllowDowngrades=\"yes\""));
@@ -74,6 +79,9 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     let build = repo_file("packaging/windows/build.ps1");
     assert!(build.contains("[switch] $DevelopmentUnsigned"));
     assert!(build.contains("-p:DevelopmentUnsigned="));
+    assert!(build.contains("windows_development_receipt.py"));
+    assert!(build.contains("$SourceCommit -notmatch"));
+    assert!(build.contains("A release package must not carry a development receipt."));
     assert!(build.contains("VADGR_TERMS_SHA256"));
     assert!(build.contains("-p:BAFunctionsPath="));
     assert!(build.contains("cargo rustc --locked"));

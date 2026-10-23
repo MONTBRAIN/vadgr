@@ -21,14 +21,47 @@ fn main() {
     let root =
         PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").expect("Cargo source root is required"));
     let profile = env::var("VADGR_RELEASE_PROFILE").ok();
-    let qualification = env::var_os("CARGO_FEATURE_LINUX_UNSIGNED_QUALIFICATION").is_some();
+    let linux_qualification = env::var_os("CARGO_FEATURE_LINUX_UNSIGNED_QUALIFICATION").is_some();
+    let windows_qualification =
+        env::var_os("CARGO_FEATURE_WINDOWS_UNSIGNED_QUALIFICATION").is_some();
     for name in [
         "VADGR_QUALIFICATION_SOURCE_COMMIT",
         "VADGR_QUALIFICATION_SOURCE_TREE",
     ] {
         println!("cargo:rerun-if-env-changed={name}");
     }
-    if qualification {
+    // One admission per build. Two at once would compile a binary that claims
+    // two platforms' installed bytes, and neither verifier would own the result.
+    assert!(
+        !(linux_qualification && windows_qualification),
+        "qualification admits one platform per build"
+    );
+    if linux_qualification || windows_qualification {
+        assert!(
+            env::var_os("CARGO_FEATURE_RELEASE_VERIFIER").is_none(),
+            "qualification cannot build a release verifier"
+        );
+    }
+    if windows_qualification {
+        assert_eq!(
+            env::consts::OS,
+            "windows",
+            "qualification requires a native Windows builder"
+        );
+        assert!(
+            target.ends_with("-pc-windows-msvc")
+                && env::var("HOST").as_deref() == Ok(target.as_str()),
+            "qualification requires a native Windows target"
+        );
+        assert!(
+            matches!(
+                profile.as_deref(),
+                Some("windows-x86_64" | "windows-aarch64")
+            ),
+            "qualification requires an explicit native Windows profile"
+        );
+    }
+    if linux_qualification {
         assert_eq!(
             env::consts::OS,
             "linux",
@@ -43,16 +76,14 @@ fn main() {
             matches!(profile.as_deref(), Some("linux-x86_64" | "linux-aarch64")),
             "qualification requires an explicit native Linux profile"
         );
-        assert!(
-            env::var_os("CARGO_FEATURE_RELEASE_VERIFIER").is_none(),
-            "qualification cannot build a release verifier"
-        );
         let kernel = fs::read_to_string("/proc/sys/kernel/osrelease")
             .expect("native Linux kernel identity is required");
         assert!(
             !kernel.to_ascii_lowercase().contains("microsoft"),
             "WSL qualification refused"
         );
+    }
+    if linux_qualification || windows_qualification {
         for name in [
             "VADGR_QUALIFICATION_SOURCE_COMMIT",
             "VADGR_QUALIFICATION_SOURCE_TREE",

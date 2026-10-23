@@ -67,7 +67,14 @@ def test_changed_approved_subject_is_rejected_before_output(packet, change):
         path = root / "legal/TERMS.txt"
         original = root.parent / "original-terms.txt"
         path.rename(original)
-        path.symlink_to(original)
+        try:
+            path.symlink_to(original)
+        except OSError as error:
+            # Windows needs SeCreateSymbolicLinkPrivilege to create one at all.
+            # The hosted runner holds it and an ordinary developer session does
+            # not, so without this the gate passes only where nobody runs it.
+            original.rename(path)
+            pytest.skip(f"this host cannot create a symbolic link: {error}")
     with pytest.raises((PackageInputError, OSError)):
         finalizer.finalize_packet(**packet)
     assert not packet["output_root"].exists()

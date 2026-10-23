@@ -2202,7 +2202,22 @@ assert not outside
             // Complete installed admission has a separate child-process test.
             assert!(error.to_string().contains("development CUA"), "{error:#}");
         }
-        #[cfg(not(all(target_os = "linux", feature = "linux-unsigned-qualification")))]
+        #[cfg(all(target_os = "windows", feature = "windows-unsigned-qualification"))]
+        {
+            // Nor is it an installed development MSI: the running image is this
+            // test binary rather than the package's own `vadgr.exe`. The
+            // verifier's own tests build the complete installation.
+            assert!(
+                error
+                    .to_string()
+                    .contains("not executing its installed package"),
+                "{error:#}"
+            );
+        }
+        #[cfg(not(any(
+            all(target_os = "linux", feature = "linux-unsigned-qualification"),
+            all(target_os = "windows", feature = "windows-unsigned-qualification")
+        )))]
         {
             assert_eq!(
                 error.downcast_ref::<std::io::Error>().unwrap().kind(),

@@ -22,6 +22,10 @@ pub use update::{
 mod development;
 #[cfg(all(target_os = "linux", feature = "linux-unsigned-qualification"))]
 pub(crate) use development::verify_installed_runtime;
+#[cfg(all(target_os = "windows", feature = "windows-unsigned-qualification"))]
+mod development_windows;
+#[cfg(all(target_os = "windows", feature = "windows-unsigned-qualification"))]
+pub(crate) use development_windows::verify_installed_runtime;
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]

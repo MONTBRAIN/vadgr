@@ -70,6 +70,16 @@ jobs:
           export VADGR_RELEASE_PROFILE=linux-x86_64
           cargo test --locked --all-targets --features linux-unsigned-qualification --target x86_64-unknown-linux-gnu
           cargo clippy --locked --all-targets --features linux-unsigned-qualification --target x86_64-unknown-linux-gnu -- -D warnings
+      - name: Test and lint the Windows development feature
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          export VADGR_QUALIFICATION_SOURCE_COMMIT="$(git rev-parse HEAD)"
+          export VADGR_QUALIFICATION_SOURCE_TREE="$(git rev-parse HEAD^{tree})"
+          export VADGR_RELEASE_PROFILE=windows-x86_64
+          cargo test --locked --all-targets --features windows-unsigned-qualification --target x86_64-pc-windows-msvc
+          cargo clippy --locked --all-targets --features windows-unsigned-qualification --target x86_64-pc-windows-msvc -- -D warnings
       - name: Format
         run: cargo fmt --all -- --check
 

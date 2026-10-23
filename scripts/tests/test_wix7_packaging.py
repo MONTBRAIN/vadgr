@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import xml.etree.ElementTree as ET
 
 import pytest
@@ -63,12 +64,34 @@ def test_compile_real_wix7_authoring_with_synthetic_inputs(tmp_path):
     terms = tmp_path / "TERMS.rtf"
     terms.write_text(r"{\rtf1 DEVELOPMENT FIXTURE ONLY. NOT APPROVED LEGAL TERMS.}", encoding="ascii")
     output = tmp_path / "output"
+    # A development build writes a receipt over the payload, and the receipt
+    # names a clean source tree, so the fixture brings its own rather than
+    # requiring this repository to be clean while someone is working in it.
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "README.md").write_text("DEVELOPMENT FIXTURE ONLY.\n", encoding="utf-8")
+    for arguments in (["init", "--initial-branch=master"],
+                      ["config", "user.email", "fixture@example.invalid"],
+                      ["config", "user.name", "fixture"],
+                      ["add", "README.md"],
+                      ["commit", "--no-gpg-sign", "-m", "fixture"]):
+        subprocess.run(["git", "-C", str(source), *arguments], check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    commit = subprocess.check_output(["git", "-C", str(source), "rev-parse", "HEAD"],
+                                     text=True).strip()
     command = ["powershell", "-NoProfile", "-NonInteractive", "-File",
                str(ROOT / "packaging/windows/build.ps1"), "-Architecture", "x64",
                "-Version", "0.5.0", "-PayloadDirectory", str(payload), "-TermsRtf", str(terms),
-               "-TermsVersion", "1.0", "-OutputDirectory", str(output), "-DevelopmentUnsigned"]
+               "-TermsVersion", "1.0", "-OutputDirectory", str(output), "-DevelopmentUnsigned",
+               "-SourceCommit", commit, "-SourceRoot", str(source)]
     result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True, timeout=600)
     assert result.returncode == 0, result.stdout + result.stderr
+    # The admission the MSI just installed must still describe the payload.
+    assert (payload / "development-receipt.json").is_file()
+    check = subprocess.run([sys.executable, "-I",
+                            str(ROOT / "scripts/windows_development_receipt.py"), "check",
+                            "--payload", str(payload)], text=True, capture_output=True)
+    assert check.returncode == 0, check.stderr
     for name in ("Vadgr-0.5.0-windows-x64.msi", "Vadgr-0.5.0-windows-x64-setup.exe"):
         assert (output / name).is_file()
         assert (output / name).stat().st_size > 0

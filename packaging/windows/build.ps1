@@ -19,7 +19,16 @@ param(
     [Parameter(Mandatory = $true)]
     [string] $OutputDirectory,
 
-    [switch] $DevelopmentUnsigned
+    [switch] $DevelopmentUnsigned,
+
+    # Required with -DevelopmentUnsigned: the exact source the development
+    # receipt names. The daemon compares it with the identity compiled into the
+    # qualification binary, so a wrong value is a refused runtime, not a warning.
+    [string] $SourceCommit,
+
+    # The materialized source the receipt names, which the producer keeps
+    # separate from the trusted scripts it runs. Defaults to this repository.
+    [string] $SourceRoot
 )
 
 $ErrorActionPreference = 'Stop'
@@ -55,6 +64,35 @@ foreach ($relative in $required) {
 }
 if (-not (Test-Path -LiteralPath (Join-Path $payload 'lib\cua') -PathType Container)) {
     throw 'The private CUA payload directory is missing.'
+}
+
+# The development admission for the bundled runtime. The receipt is written
+# over the finished payload and before the MSI is built, because the MSI
+# installs it and the install receipt must record its digest.
+$developmentReceipt = Join-Path $payload 'development-receipt.json'
+$receiptTool = Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) 'scripts\windows_development_receipt.py'
+if ($DevelopmentUnsigned.IsPresent) {
+    if ($SourceCommit -notmatch '^[0-9a-f]{40}$') {
+        throw 'A development unsigned build requires -SourceCommit as a full lowercase Git identity.'
+    }
+    $receiptArchitecture = switch ($Architecture) {
+        'x64' { 'x86_64' }
+        'arm64' { 'aarch64' }
+    }
+    $receiptSource = if ($SourceRoot) { (Resolve-Path -LiteralPath $SourceRoot).Path }
+                     else { Split-Path -Parent (Split-Path -Parent $PSScriptRoot) }
+    & (Get-Command python -ErrorAction Stop).Source $receiptTool write `
+        --payload $payload --architecture $receiptArchitecture `
+        --source-commit $SourceCommit --source-root $receiptSource
+    if ($LASTEXITCODE -ne 0) { throw 'The development receipt step failed.' }
+    if (-not (Test-Path -LiteralPath $developmentReceipt -PathType Leaf)) {
+        throw 'The development receipt was not written.'
+    }
+}
+elseif (Test-Path -LiteralPath $developmentReceipt) {
+    # A release package must never carry one, and a leftover from an earlier
+    # development build in the same payload directory is exactly how it would.
+    throw 'A release package must not carry a development receipt.'
 }
 
 $termsPrefix = Get-Content -LiteralPath $terms -Raw

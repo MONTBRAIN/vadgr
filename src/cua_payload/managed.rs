@@ -113,6 +113,14 @@ pub(super) fn installed_authorization(
         crate::install::verify_installed_runtime(root)?;
         return Ok(None);
     }
+    #[cfg(all(target_os = "windows", feature = "windows-unsigned-qualification"))]
+    if profile.starts_with("windows-") {
+        // The same admission, with the same limits: package consistency over
+        // the installed bytes, never publisher authenticity, and only for the
+        // explicitly compiled native development package.
+        crate::install::verify_installed_runtime(root)?;
+        return Ok(None);
+    }
     let raw = read(root, ENVELOPE)?;
     let bundle = read(root, "cua-runtime-authorization.sigstore.json")?;
     crate::install::verify_cua_attestation(&raw, std::str::from_utf8(&bundle)?, false)?;

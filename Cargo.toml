@@ -9,6 +9,7 @@ license = "Apache-2.0"
 default = []
 native-gui = ["dep:eframe", "dep:zbus"]
 linux-unsigned-qualification = ["native-gui"]
+windows-unsigned-qualification = ["native-gui"]
 macos-cua-host = []
 release-verifier = []
 
