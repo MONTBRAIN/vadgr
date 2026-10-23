@@ -189,10 +189,15 @@ impl Context {
 /// machine holds, that its text differs from the text in this installer, and
 /// that the installation will not go on. It names no file, no path and no
 /// internal detail, because this sentence is part of the product.
+/// It is also short enough to be read whole. The label that carries it is one
+/// line and does not wrap, so a sentence wider than the label loses its end
+/// silently. The first version of this message did exactly that: it was 527
+/// logical pixels against a 506 pixel label and reached the reader as
+/// "so this installer cannot", with the word that mattered cut off.
 fn conflict_message(terms_version: &str) -> String {
     format!(
-        "Terms version {terms_version} was accepted on this machine with different text, \
-so this installer cannot continue."
+        "Terms version {terms_version} was accepted with different text. \
+Installation cannot continue."
     )
 }
 
@@ -640,6 +645,42 @@ mod tests {
         }
         // One line, and short enough for the label that carries it.
         assert!(!message.contains('\n') && message.len() <= 120, "{message}");
+    }
+
+    /// The label is one line and does not wrap, so a message wider than it
+    /// loses its end with no sign that anything is missing. This computes the
+    /// label from the theme's own numbers rather than trusting a guess, which
+    /// is how the first version of the message shipped clipped.
+    #[test]
+    fn the_message_fits_the_label_that_carries_it() {
+        let theme = include_str!("../../VadgrTheme.xml");
+        let number = |source: &str, key: &str| -> i32 {
+            let start = source.find(key).expect("the theme names this attribute") + key.len();
+            let rest = &source[start..];
+            let end = rest.find('"').expect("a closed attribute");
+            rest[..end].parse().expect("a whole number")
+        };
+        let window = number(theme, "<Window Width=\"");
+        let label = &theme[theme.find("Name=\"TermsSubtitle\"").expect("the label")..];
+        let left = number(label, " X=\"");
+        // A negative width in this theme means a gap from the right edge.
+        let gap = -number(label, " Width=\"");
+        let available = window - left - gap;
+        assert!(available > 0, "the label has no width: {available}");
+
+        // Measured on this product with the theme's own font, Segoe UI at the
+        // small size: the widest of several candidate sentences averaged 5.25
+        // logical pixels per character. The bound is deliberately above that,
+        // because a font that renders a little wider must still fit.
+        const WIDEST_AVERAGE_ADVANCE: i32 = 56;
+        for version in ["1.0", "10.25"] {
+            let message = conflict_message(version);
+            let needed = message.len() as i32 * WIDEST_AVERAGE_ADVANCE / 10;
+            assert!(
+                needed <= available,
+                "{message:?} needs about {needed} of {available} logical pixels"
+            );
+        }
     }
 
     #[test]
