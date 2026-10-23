@@ -33,7 +33,7 @@
       <Label X="28" Y="364" Width="145" Height="20" FontId="3" DisablePrefix="yes">3   Finish</Label>
       <Label X="220" Y="28" Width="500" Height="18" FontId="3" DisablePrefix="yes">BEFORE INSTALLATION</Label>
       <Label X="220" Y="51" Width="500" Height="38" FontId="1" DisablePrefix="yes">Distribution terms</Label>
-      <Label X="220" Y="89" Width="500" Height="20" FontId="3" DisablePrefix="yes">Read these terms before Vadgr changes this machine.</Label>
+      <Label Name="TermsSubtitle" X="220" Y="89" Width="-34" Height="20" FontId="3" DisablePrefix="yes">Read these terms before Vadgr changes this machine.</Label>
       <Label X="220" Y="124" Width="-34" Height="-128" FontId="0" HexStyle="800000" DisablePrefix="yes" />
       <Richedit Name="EulaRichedit" X="221" Y="125" Width="-35" Height="-129" TabStop="yes" FontId="0" />
       <Label Name="InstallVersion" X="28" Y="-36" Width="145" Height="20" FontId="3" DisablePrefix="yes" VisibleCondition="WixStdBAShowVersion">Version [WixBundleVersion]</Label>

@@ -92,27 +92,54 @@ struct TermsAcceptance {
     assent_method: String,
 }
 
+/// What this machine already says about the terms in this installer.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Acceptance {
+    /// Nothing usable is stored, so the reader accepts in this installer.
+    Absent,
+    /// This machine already accepted exactly these bytes under this version.
+    Matches,
+    /// This machine accepted this same version with different bytes.
+    ///
+    /// The recorder refuses that pair on purpose: a version that did not move
+    /// while its text did must not pass as accepted. Without this state the
+    /// installer asks the reader to accept, works for several minutes, and
+    /// then fails in its commit action, which reaches the reader as a generic
+    /// installer error code and a full rollback with no reason in it. Saying
+    /// so before anything is installed is the whole point of this state.
+    VersionConflict,
+}
+
 struct Context {
-    accepted: bool,
+    acceptance: Acceptance,
     parent: AtomicIsize,
     checkbox: AtomicIsize,
     install_button: AtomicIsize,
+    subtitle: AtomicIsize,
 }
 
 impl Context {
     fn new() -> Self {
         Self {
-            accepted: acceptance_matches(),
+            acceptance: acceptance_state(),
             parent: AtomicIsize::new(0),
             checkbox: AtomicIsize::new(0),
             install_button: AtomicIsize::new(0),
+            subtitle: AtomicIsize::new(0),
         }
     }
 
     unsafe fn apply(&self) {
-        if !self.accepted {
-            return;
+        match self.acceptance {
+            Acceptance::Absent => {}
+            // SAFETY: WiX owns every live theme window for the duration of this
+            // callback, which is the only place either of these runs.
+            Acceptance::Matches => unsafe { self.apply_previous_acceptance() },
+            Acceptance::VersionConflict => unsafe { self.apply_version_conflict() },
         }
+    }
+
+    unsafe fn apply_previous_acceptance(&self) {
         let checkbox = self.checkbox.load(Ordering::Acquire);
         if checkbox != 0 {
             let text = wide(&format!(
@@ -132,6 +159,41 @@ impl Context {
             unsafe { EnableWindow(install_button as _, 1) };
         }
     }
+
+    unsafe fn apply_version_conflict(&self) {
+        let subtitle = self.subtitle.load(Ordering::Acquire);
+        if subtitle != 0 {
+            let text = wide(&conflict_message(env!("VADGR_TERMS_VERSION")));
+            // SAFETY: WiX owns the live theme window for the duration of this callback.
+            unsafe { SetWindowTextW(subtitle as _, text.as_ptr()) };
+        }
+        // The checkbox is disabled rather than left to the reader, because
+        // accepting cannot succeed here and the install action turns itself on
+        // when the box is ticked. There is nothing to accept, so nothing to tick.
+        let checkbox = self.checkbox.load(Ordering::Acquire);
+        if checkbox != 0 {
+            // SAFETY: WiX owns the live theme window for the duration of this callback.
+            unsafe { EnableWindow(checkbox as _, 0) };
+        }
+        let install_button = self.install_button.load(Ordering::Acquire);
+        if install_button != 0 {
+            // SAFETY: WiX owns the live theme window for the duration of this callback.
+            unsafe { EnableWindow(install_button as _, 0) };
+        }
+    }
+}
+
+/// The one line the reader sees instead of a bare installer error code.
+///
+/// It states the product fact and nothing else: which terms version this
+/// machine holds, that its text differs from the text in this installer, and
+/// that the installation will not go on. It names no file, no path and no
+/// internal detail, because this sentence is part of the product.
+fn conflict_message(terms_version: &str) -> String {
+    format!(
+        "Terms version {terms_version} was accepted on this machine with different text, \
+so this installer cannot continue."
+    )
 }
 
 /// Creates the WiX Standard Bootstrapper Application extension context.
@@ -220,7 +282,7 @@ unsafe extern "system" fn ba_functions_proc(
         match message {
             BA_FUNCTIONS_MESSAGE_ON_DETECT_COMPLETE => {
                 let parent = context.parent.load(Ordering::Acquire);
-                if context.accepted && parent != 0 {
+                if context.acceptance != Acceptance::Absent && parent != 0 {
                     // SAFETY: WiX owns this window until the bundle UI closes.
                     unsafe { PostMessageW(parent as _, WM_VADGR_APPLY_ACCEPTANCE, 0, 0) };
                 }
@@ -249,6 +311,7 @@ unsafe extern "system" fn ba_functions_proc(
                         "InstallButton" => {
                             context.install_button.store(args.window, Ordering::Release)
                         }
+                        "TermsSubtitle" => context.subtitle.store(args.window, Ordering::Release),
                         _ => {}
                     }
                     unsafe { context.apply() };
@@ -260,40 +323,53 @@ unsafe extern "system" fn ba_functions_proc(
     if executed.is_ok() { S_OK } else { E_FAIL }
 }
 
-fn acceptance_matches() -> bool {
+fn acceptance_state() -> Acceptance {
     let Some(path) = acceptance_path() else {
-        return false;
+        return Acceptance::Absent;
     };
-    acceptance_matches_at(
+    acceptance_state_at(
         &path,
         env!("VADGR_TERMS_VERSION"),
         env!("VADGR_TERMS_SHA256"),
     )
 }
 
-fn acceptance_matches_at(path: &std::path::Path, terms_version: &str, terms_sha256: &str) -> bool {
+fn acceptance_state_at(
+    path: &std::path::Path,
+    terms_version: &str,
+    terms_sha256: &str,
+) -> Acceptance {
     let Ok(metadata) = std::fs::metadata(path) else {
-        return false;
+        return Acceptance::Absent;
     };
     if !metadata.is_file() || metadata.len() > MAX_ACCEPTANCE_BYTES {
-        return false;
+        return Acceptance::Absent;
     }
     let Ok(bytes) = std::fs::read(path) else {
-        return false;
+        return Acceptance::Absent;
     };
     let Ok(record) = serde_json::from_slice::<TermsAcceptance>(&bytes) else {
-        return false;
+        return Acceptance::Absent;
     };
-    record.schema == 1
+    // A record that is not well formed is not evidence of anything, so it is
+    // absent rather than a conflict. Only a sound record of this exact version
+    // can disagree with this installer about the text.
+    let sound = record.schema == 1
         && record.install_scope == "user"
         && record.assent_method == "unchecked_checkbox_then_install"
-        && record.terms_version == terms_version
-        && record.terms_sha256.eq_ignore_ascii_case(terms_sha256)
         && valid_sha256(&record.terms_sha256)
         && valid_sha256(&record.installer_artifact_sha256)
         && !record.accepted_at.trim().is_empty()
         && !record.installer_version.trim().is_empty()
-        && !record.installation_id.trim().is_empty()
+        && !record.installation_id.trim().is_empty();
+    if !sound || record.terms_version != terms_version {
+        return Acceptance::Absent;
+    }
+    if record.terms_sha256.eq_ignore_ascii_case(terms_sha256) {
+        Acceptance::Matches
+    } else {
+        Acceptance::VersionConflict
+    }
 }
 
 fn acceptance_path() -> Option<PathBuf> {
@@ -420,12 +496,99 @@ mod tests {
         });
         std::fs::write(&path, serde_json::to_vec(&record).unwrap()).unwrap();
 
-        assert!(acceptance_matches_at(&path, "1.0", &hash));
-        assert!(!acceptance_matches_at(&path, "2.0", &hash));
-        assert!(!acceptance_matches_at(&path, "1.0", &"c".repeat(64)));
+        assert_eq!(
+            acceptance_state_at(&path, "1.0", &hash),
+            Acceptance::Matches
+        );
+        // Another version is simply not this installer's question.
+        assert_eq!(acceptance_state_at(&path, "2.0", &hash), Acceptance::Absent);
+        // The same version with different text is the condition the recorder
+        // refuses. Before this was its own state, the installer asked the
+        // reader to accept and then failed in its commit action.
+        assert_eq!(
+            acceptance_state_at(&path, "1.0", &"c".repeat(64)),
+            Acceptance::VersionConflict
+        );
         std::fs::write(&path, b"not json").unwrap();
-        assert!(!acceptance_matches_at(&path, "1.0", &hash));
+        assert_eq!(acceptance_state_at(&path, "1.0", &hash), Acceptance::Absent);
 
         std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn an_unsound_record_is_absent_rather_than_a_conflict() {
+        let hash = "a".repeat(64);
+        for (field, value) in [
+            ("schema", json!(2)),
+            ("install_scope", json!("machine")),
+            ("assent_method", json!("assumed")),
+            ("installation_id", json!("")),
+            ("accepted_at", json!("   ")),
+            ("installer_version", json!("")),
+            ("installer_artifact_sha256", json!("short")),
+        ] {
+            let path = std::env::temp_dir().join(format!(
+                "vadgr-ba-unsound-{}-{}-{field}.json",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ));
+            let mut record = json!({
+                "schema": 1,
+                "terms_version": "1.0",
+                "terms_sha256": hash,
+                "accepted_at": "2026-09-02T00:00:00Z",
+                "installer_version": "0.5.0",
+                "installer_artifact_sha256": "b".repeat(64),
+                "install_scope": "user",
+                "installation_id": "development-test",
+                "assent_method": "unchecked_checkbox_then_install"
+            });
+            record[field] = value;
+            std::fs::write(&path, serde_json::to_vec(&record).unwrap()).unwrap();
+            // A record nobody can trust is not evidence that the text differs.
+            // Treating it as a conflict would refuse an install that should
+            // simply ask the reader to accept.
+            assert_eq!(
+                acceptance_state_at(&path, "1.0", &"c".repeat(64)),
+                Acceptance::Absent,
+                "{field}"
+            );
+            std::fs::remove_file(path).unwrap();
+        }
+    }
+
+    #[test]
+    fn the_conflict_message_is_one_product_fact_and_names_nothing_internal() {
+        let message = conflict_message("1.0");
+        assert!(message.contains("Terms version 1.0"));
+        assert!(message.contains("different text"));
+        assert!(message.contains("cannot continue"));
+        // Public installer text states the product fact only.
+        for forbidden in [
+            "terms-acceptance",
+            ".json",
+            "sha256",
+            "C:\\",
+            "AppData",
+            "MSI",
+            "1722",
+        ] {
+            assert!(!message.contains(forbidden), "{forbidden} is internal");
+        }
+        // One line, and short enough for the label that carries it.
+        assert!(!message.contains('\n') && message.len() <= 120, "{message}");
+    }
+
+    #[test]
+    fn the_theme_names_the_label_that_carries_the_reason() {
+        // The bootstrapper reaches a control by name, so an unnamed label
+        // cannot be written to and the reason would have nowhere to go.
+        let theme = include_str!("../../VadgrTheme.xml");
+        assert!(theme.contains("Name=\"TermsSubtitle\""));
+        assert!(theme.contains("Name=\"EulaAcceptCheckbox\""));
+        assert!(theme.contains("Name=\"InstallButton\""));
     }
 }

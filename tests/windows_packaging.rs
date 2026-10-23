@@ -90,7 +90,13 @@ fn burn_owns_terms_progress_repair_uninstall_and_console_launch() {
     assert!(project.contains("<DevelopmentUnsigned Condition="));
     assert!(project.contains("DevelopmentUnsigned=$(DevelopmentUnsigned)"));
     assert!(project.contains("WixToolset.Util.wixext"));
+    let theme = repo_file("packaging/windows/VadgrTheme.xml");
+    // The reason for a refused install needs a control it can be written to.
+    assert!(theme.contains("Name=\"TermsSubtitle\""));
     let ba = repo_file("packaging/windows/ba-functions/src/lib.rs");
+    assert!(ba.contains("enum Acceptance"));
+    assert!(ba.contains("VersionConflict"));
+    assert!(ba.contains("fn conflict_message"));
     assert!(ba.contains("BAFunctionsCreate"));
     assert!(ba.contains("BA_FUNCTIONS_MESSAGE_ON_THEME_CONTROL_LOADED"));
     assert!(ba.contains("Terms version {} was accepted previously"));
