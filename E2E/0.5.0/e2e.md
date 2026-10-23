@@ -1139,6 +1139,16 @@ observations (VW02/VM02, VW03/VM03) against rebuilt packages.
 | S: WSL cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | Not-Needed: WSL-only cells | not run: release-equivalent unsigned WSL assets have not completed functional qualification; signing is not the blocker |
 | O: shared offline, accessibility and cleanup cells | prior O1 and historical `24ae14a` cleanup remain filed. O1 was not rerun: this host offers no isolation that does not need the owner, since Windows Sandbox and Hyper-V are absent and the feature query needs elevation. O2 is a partial pass on 2026-10-14 with Narrator running: keyboard-only cycles with zero unnamed stops on Machine and Settings, a disabled control the Tab order skips while its reason stays readable, and a destructive dialog that opens on its safe action, traps focus and returns focus to its opener. C1 passed after each round, restoring held owner state byte-identical every time. The remaining state matrix is owed and changed behavior | partial functional: earlier native focus, VoiceOver speech, state matrix and restoration remain filed; current update and action/refresh controls, exact final offline lifecycle and cleanup remain owed | available-host pass on exact L. Earlier record: exact `f59db654` machine/restart, picker and Settings observations extend unchanged exact `69b10704` states. Exact `3fc6883b` adds repaired sidebar traversal, fresh-provider/Machine images and scoped grant, Gemini password-role and unavailable-rollback speech. O2 passed for this host on exact L after the 2026-10-09 move of the assertions no existing tool executes. O1 passed on exact H in an isolated offline namespace and, for the J-affected offline uninstall, on exact J; subject I fixed the surviving service log. C1 passed after J | not run: host functional qualification is incomplete |
 
+Shared package inputs that changed on 2026-10-20 and 2026-10-23, and what
+each other host owes because of them:
+
+| what changed | who is affected | what they owe |
+|---|---|---|
+| the packaged terms are rendered as rich text instead of handed to the reader as their markup. `legal/TERMS.rtf` was regenerated in all three input directories and every recorded hash and the candidate approval moved with it | every host, because the Linux package copies the whole legal directory into its own image and the macOS package carries the same reviewed inputs | rebuild from a head that carries the regenerated inputs, and rerun whatever cell reads the packaged legal set |
+| the explicit purge keeps nothing it promised to delete | Linux and macOS | rerun the purge cells on a rebuilt package |
+| repair stops the daemon, forces one bounded feature and starts it again | Linux and macOS, because the lifecycle is shared even though the mode that forces it is a Windows one | rerun their own repair cells |
+| the terms page refuses, with its reason, when this machine accepted this version with different text | nobody else: the bootstrapper that carries it is Windows only, and the recorder it agrees with is unchanged | nothing |
+
 The dedicated Part V rows above are new obligations, not retroactive passes
 from earlier accessibility observations. A shared provider/model picker repair
 requires VW01, VM01 and VL01 reruns against rebuilt installed artifacts on all
