@@ -1,0 +1,4 @@
+Python Xlib 0.33 is licensed under GNU LGPL version 2.1 or later.
+The complete upstream source archive accompanies these notices.
+The Xlib source modules installed with this product match that archive.
+Recipients may modify and replace these Python source modules under that license.

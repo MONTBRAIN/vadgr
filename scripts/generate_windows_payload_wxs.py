@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate deterministic WiX v4 authoring for the private Windows payload."""
+"""Generate deterministic WiX authoring for the private Windows payload."""
 
 from __future__ import annotations
 
@@ -93,10 +93,11 @@ def render(root: Path, directories: list[str], files: list[str], *, directory_id
             component_id = identifier("file", relative)
             component_ids.append(component_id)
             source = str(root.joinpath(*Path(relative).parts))
+            companion = ' CompanionFile="VadgrBackendFile"' if Path(relative).suffix.casefold() in {".otf", ".ttc", ".ttf"} else ""
             lines.extend(
                 [
                     f"{indent}<Component Id={quoteattr(component_id)} Guid={quoteattr(component_guid('file', relative))}>",
-                    f"{indent}  <File Id={quoteattr(identifier('payload', relative))} Source={quoteattr(source)} />",
+                    f"{indent}  <File Id={quoteattr(identifier('payload', relative))} Source={quoteattr(source)}{companion} />",
                     f"{indent}  <RegistryValue Root=\"HKCU\" Key=\"Software\\MONTBRAIN\\Vadgr\\Payload\" Name={quoteattr(component_id)} Type=\"integer\" Value=\"1\" KeyPath=\"yes\" />",
                     f"{indent}</Component>",
                 ]

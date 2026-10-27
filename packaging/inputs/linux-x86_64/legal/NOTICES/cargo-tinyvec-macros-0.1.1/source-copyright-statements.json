@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20",
+  "original_statement_files": [
+    {
+      "path": "tinyvec_macros-0.1.1/LICENSE-APACHE.md",
+      "sha256": "4f44572785f35152c1fd2eadf565b7e079c0f300b4324f0af653419f9d76b735",
+      "size": 11350,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2020 Tomasz \"Soveu\" Marx"
+        }
+      ]
+    },
+    {
+      "path": "tinyvec_macros-0.1.1/LICENSE-MIT.md",
+      "sha256": "1dd8eca0f83669e75fa119e34fb9e1be9d16e3e9b6368962b8019db6e8ae5f7b",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2020 Soveu"
+        }
+      ]
+    },
+    {
+      "path": "tinyvec_macros-0.1.1/LICENSE-ZLIB.md",
+      "sha256": "41ace205715d9f19a3214218cc1c01d57c533e02cd0fef7c8e51a49a7fce5ac5",
+      "size": 864,
+      "statements": [
+        {
+          "line": 3,
+          "text": "(C) 2020 Tomasz \"Soveu\" Marx"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

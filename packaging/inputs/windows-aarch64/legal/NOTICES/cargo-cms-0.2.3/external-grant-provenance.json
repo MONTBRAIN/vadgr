@@ -1,0 +1,20 @@
+{
+  "application": "Exact crate manifest explicitly offers Apache-2.0 OR MIT. The complete Apache text is retained separately from original ownership evidence.",
+  "archive_sha256": "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730",
+  "grant_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+  "source_files": [
+    {
+      "path": "cms-0.2.3/Cargo.toml",
+      "sha256": "31694e166b9ba2c236fe7e29be22a96373d51580ecb19717dae8a8086898c513",
+      "size": 2691
+    },
+    {
+      "path": "cms-0.2.3/.cargo_vcs_info.json",
+      "sha256": "b6698684015175b959d0e0e71045bcb8c78bff4de701e4058d3ad50e8dc0e177",
+      "size": 97
+    }
+  ],
+  "source_revision": "5821a21553509dbd03eae593b0a1fad4e2083d4e",
+  "status": "source-grant-proposal-not-package-approval",
+  "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+}

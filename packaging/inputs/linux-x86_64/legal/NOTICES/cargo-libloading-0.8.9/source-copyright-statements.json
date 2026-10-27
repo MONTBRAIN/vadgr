@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d7c4b02199fee7c5d21a5ae7d8cfa79a6ef5bb2fc834d6e9058e89c825efdc55",
+  "original_statement_files": [
+    {
+      "path": "libloading-0.8.9/LICENSE",
+      "sha256": "b29f8b01452350c20dd1af16ef83b598fea3053578ccc1c7a0ef40e57be2620f",
+      "size": 736,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright \u00a9 2015, Simonas Kazlauskas"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

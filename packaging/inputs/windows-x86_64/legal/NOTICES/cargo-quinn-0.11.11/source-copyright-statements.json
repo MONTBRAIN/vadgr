@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "0c1a41e437b6bbd489372cd4971de128e85c855f56c57f283d20ff016cf7c0a8",
+  "original_statement_files": [
+    {
+      "path": "quinn-0.11.11/LICENSE-MIT",
+      "sha256": "4b2d0aca6789fa39e03d6738e869ea0988cceba210ca34ebb59c15c463e93a04",
+      "size": 1064,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018 The quinn Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

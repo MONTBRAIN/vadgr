@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "92d699e522242e69e3003b94ecc1f960f3a5e015aa7c5d7486e65ad01dd94f5e",
+  "original_statement_files": [
+    {
+      "path": "futures-core-0.3.34/LICENSE-APACHE",
+      "sha256": "275c491d6d1160553c32fd6127061d7f9606c3ea25abfad6ca3f6ed088785427",
+      "size": 10874,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright (c) 2016 Alex Crichton"
+        },
+        {
+          "line": 190,
+          "text": "Copyright (c) 2017 The Tokio Authors"
+        }
+      ]
+    },
+    {
+      "path": "futures-core-0.3.34/LICENSE-MIT",
+      "sha256": "6652c868f35dfe5e8ef636810a4e576b9d663f3a17fb0f5613ad73583e1b88fd",
+      "size": 1094,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 Alex Crichton"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2017 The Tokio Authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

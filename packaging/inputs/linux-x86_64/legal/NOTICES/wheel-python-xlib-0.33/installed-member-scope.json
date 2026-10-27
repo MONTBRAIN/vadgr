@@ -1,0 +1,426 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/X.py",
+      "member": "Xlib/X.py",
+      "sha256": "84a214be84339621204c0f025dc7e158312fc4a998e82be1b413ac6804231c0b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/XK.py",
+      "member": "Xlib/XK.py",
+      "sha256": "d6499ee973ebb90e57fbfae5eadefaa1350e7e35cdc3bbc60d9e575c895aad5b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/Xatom.py",
+      "member": "Xlib/Xatom.py",
+      "sha256": "551234bbc295f8bf834ae50749ec68161f0405bd089f603f92b92898e602b680",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/Xcursorfont.py",
+      "member": "Xlib/Xcursorfont.py",
+      "sha256": "9fe00c22a4c1661b8d552954e0517bf5eee9830616fe75fda90e09163cdf56bc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/Xutil.py",
+      "member": "Xlib/Xutil.py",
+      "sha256": "eb90c8ac810d8624b3fd57eea35d877fb74158934a8ed5bdc1d057bb87f072c9",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/__init__.py",
+      "member": "Xlib/__init__.py",
+      "sha256": "f585e519798e6c288b95f44b440e14d87b1a320a69b567f56322ec73798238b8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/display.py",
+      "member": "Xlib/display.py",
+      "sha256": "36282189fe078f9a6770e67d53f74c8b9223f9567e7adaa40db995f6f4760d4b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/error.py",
+      "member": "Xlib/error.py",
+      "sha256": "8b4941c9461d8177efba2b31fb686a8de736fcede3c1a9ea925cce84e099fccb",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/rdb.py",
+      "member": "Xlib/rdb.py",
+      "sha256": "5a34fc29e9be597a973efd681f3d03ea55409e9bbf32c07fc71178168f6dba4b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/threaded.py",
+      "member": "Xlib/threaded.py",
+      "sha256": "0f9802ef171827a2a1af938a70c65d7969c3f5dda104d475de54605a2245c15e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/xauth.py",
+      "member": "Xlib/xauth.py",
+      "sha256": "3a81d921a24c7133f5549de1da3dabca1f8b20ea8d3a9e5673a8c4dde625d2e2",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/__init__.py",
+      "member": "Xlib/ext/__init__.py",
+      "sha256": "988b97f8be73c5b8068e076736577112d38c1bbe8ed735a4131c10abb8c3c785",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/composite.py",
+      "member": "Xlib/ext/composite.py",
+      "sha256": "b3599b97682d7399eb808ff284e5bfd18ed2b7c4c051c51eb194fada1b98a94b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/damage.py",
+      "member": "Xlib/ext/damage.py",
+      "sha256": "6cbabe4ba8b31af7079bdb25dc191bd4cb9020d0c2d03359593d80428bf9166e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/dpms.py",
+      "member": "Xlib/ext/dpms.py",
+      "sha256": "a124eef81d52934551152254c94366e1376b6b80e23cd0f63021a775d23e82f8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/ge.py",
+      "member": "Xlib/ext/ge.py",
+      "sha256": "ffc99877367268901e4d5e4b2b1b594123bed401f384e26aaa6cd172b5a6cd60",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/nvcontrol.py",
+      "member": "Xlib/ext/nvcontrol.py",
+      "sha256": "bb285832bd89b0611bfb5bf874d0c0eb72c612a2fd0a4f70abe6a5fa6bb1ed4b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/randr.py",
+      "member": "Xlib/ext/randr.py",
+      "sha256": "1ccd5d084c14435697b554a944302f4f8740cc54f1fcf3b119925ddfa285fd3d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/record.py",
+      "member": "Xlib/ext/record.py",
+      "sha256": "eea47d551ea434a351fdca3496d18793b88a3905bbe4be67c8daba0e700118f4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/res.py",
+      "member": "Xlib/ext/res.py",
+      "sha256": "3464c86eafc8664fd76b43b0e80721b8974fea8a203852475b269f0a5e470a94",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/screensaver.py",
+      "member": "Xlib/ext/screensaver.py",
+      "sha256": "03eec876b98f6395a3fb39ba3fe0e74e4ee88b1f42d01ae747b28fc9ec63c49b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/security.py",
+      "member": "Xlib/ext/security.py",
+      "sha256": "91dc9685dc9de4a83c44986bed1680be513b325fb4b05c015aabca67b4335b68",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/shape.py",
+      "member": "Xlib/ext/shape.py",
+      "sha256": "e17841ef065b741aed5546d6d4da53a78f6e251b45fadc7077e8cca56e4449b1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/xfixes.py",
+      "member": "Xlib/ext/xfixes.py",
+      "sha256": "0e75c693744d1aa4708110b446be354fcfaf4fa5119a6de2279791fb736681ea",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/xinerama.py",
+      "member": "Xlib/ext/xinerama.py",
+      "sha256": "a9fd83ee618e08237b4d7856ea60882199b6e4c8aa913dbdc41b9d23173ac865",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/xinput.py",
+      "member": "Xlib/ext/xinput.py",
+      "sha256": "f0fd842ca2b4c3dd90555e921578beca26321d57c6e746ac140d0d9cd3fa7106",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/ext/xtest.py",
+      "member": "Xlib/ext/xtest.py",
+      "sha256": "76bfa649b77a3dde19f1e59ee74e81a2792e32a91dd8acd9afefc4c14cf08611",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/__init__.py",
+      "member": "Xlib/keysymdef/__init__.py",
+      "sha256": "bfafb7efe0f800e59414c568579a9a1982c9d8f1ac66e71aeb5720a7d64b08f6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/apl.py",
+      "member": "Xlib/keysymdef/apl.py",
+      "sha256": "6275c7b8efdcba2b249afce6255bc06afaaef6bce4967d5caa14f67b819a3dd0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/arabic.py",
+      "member": "Xlib/keysymdef/arabic.py",
+      "sha256": "06fb5896eeba0a7334fd3b661aa43eda8c8481c963a1c47046a9cbc99a52bacc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/cyrillic.py",
+      "member": "Xlib/keysymdef/cyrillic.py",
+      "sha256": "7748dbbc8ab99215bdfe35d3ca62df3a37b2ba7b6502baf69c586705eebd52cf",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/greek.py",
+      "member": "Xlib/keysymdef/greek.py",
+      "sha256": "f0c32bb64de898feb254e304353391e867d4f5d0e213d1fc9d702be6da9a556e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/hebrew.py",
+      "member": "Xlib/keysymdef/hebrew.py",
+      "sha256": "e9909cac9fcd3f291fab689cc66b5cd260e7f58cbb55f48cd2a4e09289118d5b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/katakana.py",
+      "member": "Xlib/keysymdef/katakana.py",
+      "sha256": "3b74e28bb540c0a95b3ca2866db1f5a7726c61ee98a97c97e5394a8bce534d6c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/korean.py",
+      "member": "Xlib/keysymdef/korean.py",
+      "sha256": "726923b3d043387eb8bfa8fe4e1a562e51e12dcde7aace4fa1527cd89a041a56",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/latin1.py",
+      "member": "Xlib/keysymdef/latin1.py",
+      "sha256": "b5db01dadb78038206947a95ca5f6f6d7eb51e0f2fe4a4af4cfc2146713c0a66",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/latin2.py",
+      "member": "Xlib/keysymdef/latin2.py",
+      "sha256": "6f2ba0a0f7bdca4deb9b7f979ffbe1d39018c2c468fd534858c5faf5be1c0c3c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/latin3.py",
+      "member": "Xlib/keysymdef/latin3.py",
+      "sha256": "7406c5053295e1474a540fd7404989ca08cc47f8f4f2e2fbb7010900cb0826e3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/latin4.py",
+      "member": "Xlib/keysymdef/latin4.py",
+      "sha256": "73b50e264065497ed4ab8237a174814b98d9dc07bbc72544ca4e57bda7dc5755",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/miscellany.py",
+      "member": "Xlib/keysymdef/miscellany.py",
+      "sha256": "f49e90a50682587144ab3ca615743c723aa2bfe7a0be9db6536856d868cab59a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/publishing.py",
+      "member": "Xlib/keysymdef/publishing.py",
+      "sha256": "35b2686bfe74929548ab715c2add9d5fe9aa0967fb1c1ef16ac26c021d935203",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/special.py",
+      "member": "Xlib/keysymdef/special.py",
+      "sha256": "17379e4dfb3ca7d1809802e38e709111ade3c4b64668bbbcdeb9d130a2c1a491",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/technical.py",
+      "member": "Xlib/keysymdef/technical.py",
+      "sha256": "a8b39eaad7d125ce53f13914d3bf5f88ccf95a5ac2b5cc36180149f31232bda6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/thai.py",
+      "member": "Xlib/keysymdef/thai.py",
+      "sha256": "0696f11194546f667798a38da94cce7f51038d18b34854c931e085aec2842a1c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/xf86.py",
+      "member": "Xlib/keysymdef/xf86.py",
+      "sha256": "9ee1d4994820cb04a54c31fce36a7ef7cdef0bfc09f0e2a4098cc3d234e8ceba",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/xk3270.py",
+      "member": "Xlib/keysymdef/xk3270.py",
+      "sha256": "a81b3bf0c3e2c6296f537de1b1353d2167024b00aa61933984adb15897b0b100",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/keysymdef/xkb.py",
+      "member": "Xlib/keysymdef/xkb.py",
+      "sha256": "4178f5465c0d3078439e54187e69cac24750a8fc78335db7032bccb982c61277",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/protocol/__init__.py",
+      "member": "Xlib/protocol/__init__.py",
+      "sha256": "a1f0f5e67f1603f89245686cdeb8811444bf607e3fdccae03fbb413b2aa31eff",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/protocol/display.py",
+      "member": "Xlib/protocol/display.py",
+      "sha256": "bdbd503f1f523cda1244bead1c20c5a4bfe826669e1e1ee41fd1f3c8d32bdb13",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/protocol/event.py",
+      "member": "Xlib/protocol/event.py",
+      "sha256": "9523cfbfe3d3b4d635ca04e5414703ec947be6e7a14dc7b88f0acf952accd9de",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/protocol/request.py",
+      "member": "Xlib/protocol/request.py",
+      "sha256": "e3b39c5b617801a92fc1c7bf838b64c32acf1341754fd4180b165da6f308ce08",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/protocol/rq.py",
+      "member": "Xlib/protocol/rq.py",
+      "sha256": "50dc0337a18cea67c8f5de9827c87e230d7d037e5de38687fc4ff05365ab4f51",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/protocol/structs.py",
+      "member": "Xlib/protocol/structs.py",
+      "sha256": "574c5f1ce101fd963be433c4cc4143ef3383db6f39c8521b8c3614a760507536",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/support/__init__.py",
+      "member": "Xlib/support/__init__.py",
+      "sha256": "c4f7b8c076a68a4def037aa8a73a2c2524cb6aa7fd8e83b394198856fd126503",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/support/connect.py",
+      "member": "Xlib/support/connect.py",
+      "sha256": "017e4a24d882098b418ec80dc0de99cc817eb034c0b4301cb9475b74962afb31",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/support/lock.py",
+      "member": "Xlib/support/lock.py",
+      "sha256": "546cefccf2544be76dfd6c16238b19a9d313311b9c450fffb6d1d91a739e33f6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/support/unix_connect.py",
+      "member": "Xlib/support/unix_connect.py",
+      "sha256": "353a268e88270bdac07e986242a5d48947ba81bd37713259c3319be1cff23397",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/support/vms_connect.py",
+      "member": "Xlib/support/vms_connect.py",
+      "sha256": "828e65c524e38e91e1d9f4a2fb2b3c8f767e54744a4e446e424f344d8433a166",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/xobject/__init__.py",
+      "member": "Xlib/xobject/__init__.py",
+      "sha256": "925c8f09d2856af0dcab82ebf7e1e1ae77e8ae0dfc1ecf02e19056163983f613",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/xobject/colormap.py",
+      "member": "Xlib/xobject/colormap.py",
+      "sha256": "b6e39db79a48981feb0f8dbc929eb79ec0d6797fb91ee3754b850698c1883140",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/xobject/cursor.py",
+      "member": "Xlib/xobject/cursor.py",
+      "sha256": "585f3eb2cc8375b7a3e6a53a365ad1005918afe19841bbc74e2ea0a2695670be",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/xobject/drawable.py",
+      "member": "Xlib/xobject/drawable.py",
+      "sha256": "deb06b1cf97e7db66afcecf621ba37538a4593ed7d4106b0a232a2bdfc2812b4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/xobject/fontable.py",
+      "member": "Xlib/xobject/fontable.py",
+      "sha256": "e78c35acc60891a7137aff3f0b0f9e7dfae7508d960338aef508f9108fc9e036",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/xobject/icccm.py",
+      "member": "Xlib/xobject/icccm.py",
+      "sha256": "468ccafa0441b138936c74cc55bb9f35d65ba5f024d94b426678ac945199fff5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/Xlib/xobject/resource.py",
+      "member": "Xlib/xobject/resource.py",
+      "sha256": "7221672bfccfb6d51b98392d249214143b5ed097afe8f712e4a4ac7963a39007",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_xlib-0.33.dist-info/LICENSE",
+      "member": "python_xlib-0.33.dist-info/LICENSE",
+      "sha256": "3bb6f6bec94b99e2927a8880bf49c401f5e8f48a20ddea96310860264cae20b0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_xlib-0.33.dist-info/METADATA",
+      "member": "python_xlib-0.33.dist-info/METADATA",
+      "sha256": "e1806c7a8346a15961b7d17ef5e03137d7b938b467139c7ac832aa44d9f7af99",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_xlib-0.33.dist-info/WHEEL",
+      "member": "python_xlib-0.33.dist-info/WHEEL",
+      "sha256": "cfd8f4c406bf26650a3299b3ef62b464600b48cfe7fb04159866e5797c765478",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_xlib-0.33.dist-info/top_level.txt",
+      "member": "python_xlib-0.33.dist-info/top_level.txt",
+      "sha256": "2986aac48bdcee877cb42b89812d6ffe7afd4f83a35957ec2389466b7f08e6e5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/python_xlib-0.33.dist-info/RECORD",
+      "member": "python_xlib-0.33.dist-info/RECORD",
+      "sha256": "d2286816e3249015fe0c12b6c141a1e3d9710c22eb363c581207b17387230adf",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398",
+  "wheel": "python_xlib-0.33-py2.py3-none-any.whl"
+}

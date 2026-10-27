@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5",
+  "original_statement_files": [
+    {
+      "path": "nu-ansi-term-0.50.3/LICENSE",
+      "sha256": "284465860407420254e39be4e1bdcaaf2e7f2d18e06f9bab75bc75341a5d8501",
+      "size": 1157,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2014 Benjamin Sago"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2021-2022 The Nushell Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

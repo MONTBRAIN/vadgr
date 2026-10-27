@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: pycparser
+Version: 3.0
+Summary: C parser in Python
+Author-email: Eli Bendersky <eliben@gmail.com>
+Maintainer-email: Eli Bendersky <eliben@gmail.com>
+License-Expression: BSD-3-Clause
+Project-URL: Homepage, https://github.com/eliben/pycparser
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Requires-Python: >=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Dynamic: license-file
+

@@ -1,0 +1,26 @@
+{
+  "component_sha256": "cc8b6eecb8661c146b8f89a60e97456ee086e91a784ed31ac450c3a9e613dd36",
+  "original_statement_files": [
+    {
+      "path": "httpx2/_sse.py",
+      "sha256": "219d4b7fa36b82865aec53f9fa7fd584a864d1e1181643d9b4e0bc8392694029",
+      "statements": [
+        {
+          "line": 7,
+          "text": "Copyright (c) 2022 Florimond Manca"
+        }
+      ]
+    },
+    {
+      "path": "httpx2/websockets/__init__.py",
+      "sha256": "2bae9dd997339741306b47b2d10d844f1e6eb73547ea7e46e89db6991dc66d5d",
+      "statements": [
+        {
+          "line": 7,
+          "text": "Copyright (c) 2021 Fran\u00e7ois Voron"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

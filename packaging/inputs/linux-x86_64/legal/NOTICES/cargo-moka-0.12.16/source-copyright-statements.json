@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "4293f18e7567a1caf3c584855554377025c65e0aa445344d04171f5ad63d19b9",
+  "original_statement_files": [
+    {
+      "path": "moka-0.12.16/LICENSE-APACHE",
+      "sha256": "021f4a01e58372b826203064fac216e15d51e07f7739b8ca33d4b746ec8abb3b",
+      "size": 11351,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2020 - 2026 Tatsuya Kawano"
+        }
+      ]
+    },
+    {
+      "path": "moka-0.12.16/LICENSE-MIT",
+      "sha256": "7fe7e5e13e445074314ba0aa12ec2e71132931632876ba27b98a1020cf24eb57",
+      "size": 1078,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2020 - 2026 Tatsuya Kawano"
+        }
+      ]
+    },
+    {
+      "path": "moka-0.12.16/src/common/concurrent/arc.rs",
+      "sha256": "f467ebffd4b138dadf499255b456cc9932a747f16448364bcbcbd65904c52bd3",
+      "size": 12116,
+      "statements": [
+        {
+          "line": 5,
+          "text": "//     - Rust Atomics and Locks by Mara Bos (O\u2019Reilly). Copyright 2023 Mara Bos,"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

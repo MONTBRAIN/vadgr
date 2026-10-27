@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c9356095b4b41197bba32173600e1582792cda618f65d12f68e2e77d273413c5",
+  "original_statement_files": [
+    {
+      "path": "html-escape-0.2.15/LICENSE",
+      "sha256": "b65c9ac375b3b6c538efe6253131c44a73b50c5ee0c48a34319e766633bfee02",
+      "size": 1078,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2020 magiclen.org (Ron Li)"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

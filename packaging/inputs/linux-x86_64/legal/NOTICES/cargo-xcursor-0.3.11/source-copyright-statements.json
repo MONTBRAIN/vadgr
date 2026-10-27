@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "163b33ed8786455e2fa5d72f554057ce3f3182425434f756cd39c99839d88e23",
+  "original_statement_files": [
+    {
+      "path": "xcursor-0.3.11/LICENSE",
+      "sha256": "31dc8e96da19f1bb02bb4b6cd18d35c50287fa778c4722efd349ae2f2d5938be",
+      "size": 1073,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2020 Samuele Esposito"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

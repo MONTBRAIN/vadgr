@@ -1,0 +1,1005 @@
+{
+  "architecture": "arm64",
+  "candidate_approval": false,
+  "limitation": "Native feature results and exact build inputs. Sysroot membership alone is not proof of linked symbols; link maps and target source scope require independent matching.",
+  "payload_sha256": "d705080280be486c9830f077eb12b9be5cbf3df9350aff7da6850b54bf2a0617",
+  "pillow": {
+    "files": {
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/AvifImagePlugin.py": {
+        "sha256": "80733b71d411630ea63c782333de241a12bd83f0f1cafcd8ccde4516bed4b5a1",
+        "size": 9596
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/BdfFontFile.py": {
+        "sha256": "2c54f5932a79e45789cd0b1fbd64694f2f53009f5485e3fe7bd95e2ddf77cf35",
+        "size": 3463
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/BlpImagePlugin.py": {
+        "sha256": "522b1467bdc20f8edfd8b19346573e4df6f10dda93915b72a3b8efe6f6104c17",
+        "size": 17048
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/BmpImagePlugin.py": {
+        "sha256": "e23760527cf54ebb06b6e56d73be70ff896666c04f55fdd1047bf99434f9da63",
+        "size": 20377
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/BufrStubImagePlugin.py": {
+        "sha256": "3b2a82334b9422e153315099108f4fda20377a83785d540f7c57cdb835bfc9e4",
+        "size": 1757
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ContainerIO.py": {
+        "sha256": "23ac8efd814412a30a035724804133176aff224e69fc68ccf91ad63896234a56",
+        "size": 4777
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/CurImagePlugin.py": {
+        "sha256": "3aab7fa3ba3b1d758a01e368073544be1c4a14cbf75b751cf390a73a842e8612",
+        "size": 2814
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/DcxImagePlugin.py": {
+        "sha256": "2f6d5cde0557e883e6938cee7ff96db779807917dcb8209c5e1902569b9e7765",
+        "size": 2264
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/DdsImagePlugin.py": {
+        "sha256": "eae2016bb3476be917ff549086c18b89d8e911d0f6d3f0900486a90fe2808cac",
+        "size": 19733
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/EpsImagePlugin.py": {
+        "sha256": "3582af51b5623fc766008fa1e3df028a918aaf7073f4f6435fc5d1607f3deb2c",
+        "size": 17253
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ExifTags.py": {
+        "sha256": "362cafb665044fbf41322a248a3313a7fabc75e596ce9c9db5371305f272f0a1",
+        "size": 10339
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FitsImagePlugin.py": {
+        "sha256": "2ff9142b7f02394b95f65a13e64f4366a12df74a3600245d64f63696fb1ed0bd",
+        "size": 4875
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FliImagePlugin.py": {
+        "sha256": "2f5bdfe108ec68c57479141399fcb5c27a89f65f61195e65bd320b5bbce7cc3f",
+        "size": 5113
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FontFile.py": {
+        "sha256": "a424a370fdf10adc8e780110f3e12f9366e0e479ec49c560400e715108ff0554",
+        "size": 4419
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FpxImagePlugin.py": {
+        "sha256": "b3610e701e56459102379804abd517a576a44e2dfc905322133d8ccd1029c7f5",
+        "size": 7724
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/FtexImagePlugin.py": {
+        "sha256": "fb32afbe131373351ede8d1fe07a430bdfc32ba94a1d3e4b0017f4af9fb797ee",
+        "size": 3685
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GbrImagePlugin.py": {
+        "sha256": "21bff2df967334e98ca86d92b8eca3c518773b1b78d90a5c11c80b6ba0619ad0",
+        "size": 3156
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GdImageFile.py": {
+        "sha256": "ace96a8ea2945fc25827a18b1b3a8792cf85a4033bdb43b2a1d1c636222e9283",
+        "size": 2951
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GifImagePlugin.py": {
+        "sha256": "0cf9dd837ba23b412c95765aea4422bbf6e7c2210c6eefde91eab43d4308b0d5",
+        "size": 43596
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GimpGradientFile.py": {
+        "sha256": "cec216d4c915ea4a39964e072555de8121d4df250fc16d695329d1b39cf48990",
+        "size": 4137
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GimpPaletteFile.py": {
+        "sha256": "126047710f44c42e1fe3bb5a0fb4bb1ba55a324afd1e3ca7955f0d7535d5e624",
+        "size": 1935
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/GribStubImagePlugin.py": {
+        "sha256": "73c88f12a40e48171616a756122b9cb9b8da5f061f6520761a365761568f0313",
+        "size": 1786
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/Hdf5StubImagePlugin.py": {
+        "sha256": "ac831d7fbb83b248c9ab07ba0af18bc3fb6325f875828e6f2929e67ed05d08a8",
+        "size": 1768
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/IcnsImagePlugin.py": {
+        "sha256": "4e8092cb968527bffa9e266ccc53917c232bf3f5393babe0775447315aff27fa",
+        "size": 12798
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/IcoImagePlugin.py": {
+        "sha256": "0d9a018f6ccabfbe9293de8f2aaf1e97d69900cd89df050b56a3dea27a3fd33d",
+        "size": 13499
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImImagePlugin.py": {
+        "sha256": "5fd881490e31eeb6aec5b3889fbda3eefe9301481995da580f970073a67530d0",
+        "size": 11992
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/Image.py": {
+        "sha256": "59f1b98ed7bfd7b516b9f13ffd9dd3bc0aa1a495042accdb5ae4609b41c329d5",
+        "size": 158171
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageChops.py": {
+        "sha256": "859f043d43e5408cee82c11e755f2dae4297d230420c66fa0acce66ba65e3194",
+        "size": 8257
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageCms.py": {
+        "sha256": "0effeeecadc71257d6eabcbd4cf43277ff35c6aeda0e7ba4c60ab67676bf49de",
+        "size": 41773
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageColor.py": {
+        "sha256": "295faeec79d95abacbdf3b8100e2ea7ab23eeef15c5d3c5d2dea1a6158ec9f02",
+        "size": 9761
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageDraw.py": {
+        "sha256": "98aa4388d2629866aad9dd734bec67ad3f9981ab1ed4390281b4c17be9027cf6",
+        "size": 36421
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageDraw2.py": {
+        "sha256": "1b4388cfbb0e5bf4e7af5b431ee8d3c8f54476aa216fb33838e3ade19424550c",
+        "size": 7470
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageEnhance.py": {
+        "sha256": "ba00d4d2c963691ff369389bb6e9a54ef7fea851f5c755ba97640ca5cdfce975",
+        "size": 3740
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageFile.py": {
+        "sha256": "e972c9d8785ad1fd44f860a375d8719f3fdff8e46da1cc311950699f93e4f539",
+        "size": 30828
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageFilter.py": {
+        "sha256": "1702a1b8f1c497a99f816a3aa94509b2ba2ce357ec480308c015e406c6bcc15e",
+        "size": 19714
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageFont.py": {
+        "sha256": "e9601111f8817e8387fd792b3643e709a5a11febea43cb49de1732e776ba5f60",
+        "size": 65080
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageGrab.py": {
+        "sha256": "b0df963537d02a3f90a20b6385edd5338efc7b6b28ee2248f30de562d1358530",
+        "size": 8475
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageMath.py": {
+        "sha256": "d39d8fd05608b184178f75263ff0b04a0509de58e8e6945f14dfe4eac85e4496",
+        "size": 10659
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageMode.py": {
+        "sha256": "50b900fa3b02806c31563af62cf48fe367439a3ea759a424f4be142a3eca7d28",
+        "size": 2480
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageMorph.py": {
+        "sha256": "56bd50401e6f198a4655f7d11894287781fbfc095098ede5f81961a5a61e0f22",
+        "size": 10673
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageOps.py": {
+        "sha256": "ad146c4c218335150d4099e851f1f78c582f5df6c46648893f0ab56dea38a3e4",
+        "size": 26446
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImagePalette.py": {
+        "sha256": "f4a973fbb23a253494a7695f64933a5740f270540a926e91c5fc970d3e14fe7c",
+        "size": 9498
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImagePath.py": {
+        "sha256": "6679c9baf40db5b2918429abeb54c4984875bd5579ffdd163043cbf0ea72e65f",
+        "size": 391
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageQt.py": {
+        "sha256": "4a9c4778f81687981d8d5206342e061b9bfd577b26426fe73e224372b8671d77",
+        "size": 6903
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageSequence.py": {
+        "sha256": "82e64751da56af39f3664718d0e6290f3b85d2e15794212edbad283feedefdf2",
+        "size": 2341
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageShow.py": {
+        "sha256": "d660d3b5502fb540e2d414a9eeefa85541c368deecd916c99196f07d0eb62082",
+        "size": 10684
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageStat.py": {
+        "sha256": "5b4b946bc60d0babe1a3095ead2cd923013b46ef8aa76ad6baa18d2c114b672a",
+        "size": 5662
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageText.py": {
+        "sha256": "082c1145853cadd845f42775d7ac896b6cc63d9b2e80572cf579acb6fcc01d54",
+        "size": 19087
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageTk.py": {
+        "sha256": "4f1d337fd913681b801af66ea342401eb35b9379fa7b0af86677569d6c592b44",
+        "size": 8398
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageTransform.py": {
+        "sha256": "66eea8c925c436dabbd76fa792a14ba9a7d83ef891020b209337cb586d0add5f",
+        "size": 4052
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImageWin.py": {
+        "sha256": "7d018c99917dc076f4f6d33c7697ccb8de5ac75bfe1c3d38389a645ce6b1ddc7",
+        "size": 8345
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/ImtImagePlugin.py": {
+        "sha256": "afe643cf75e38ba10117c7949caea2b8211912d965a74c4b452210d3f875e141",
+        "size": 2768
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/IptcImagePlugin.py": {
+        "sha256": "e05b6e7b88dd6bba546342e1dbbd8e0df84e0488893992b4410d9ed0f610c228",
+        "size": 6663
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/Jpeg2KImagePlugin.py": {
+        "sha256": "00e20588471f2455caa9018885d958480c3d23e6d8f087eb421450fc0f6b3c18",
+        "size": 15088
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/JpegImagePlugin.py": {
+        "sha256": "049fc12cf436b101a5622456a1b83ba8b28b54cf8106d3953aed751bb0c08f3f",
+        "size": 32223
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/JpegPresets.py": {
+        "sha256": "51422c2b3bf2cdd3f3b2774e0ddf747aefe5b8ca9ab86d4f261d7450eb90be68",
+        "size": 12621
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/McIdasImagePlugin.py": {
+        "sha256": "3fd77592be12b5ed10564c5faa2c77d6c7c60fcb169fe7959982b4c20e83bc8c",
+        "size": 1955
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/MicImagePlugin.py": {
+        "sha256": "b82c463389652053e37eed8a8e2fb34a73da727aa2194646aacfc3b5bdc992d2",
+        "size": 2702
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/MpegImagePlugin.py": {
+        "sha256": "91e9bdce87ec06d22aeb194c25cb0590e5d370908f1080a4f657214df47da432",
+        "size": 2094
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/MpoImagePlugin.py": {
+        "sha256": "ffc580b1881e62444336ab32d08ff2c38a72c3471a75dadfd4c5940cd2808636",
+        "size": 6987
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/MspImagePlugin.py": {
+        "sha256": "bb75dc1140d81926046847543a19e3867a64650264a537520781251e9c4e3e58",
+        "size": 6072
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PSDraw.py": {
+        "sha256": "eec05f0067c19aa9d958c4e445f2e6e28057b519415c0b984fffcd3f71ad1f0d",
+        "size": 7230
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PaletteFile.py": {
+        "sha256": "41d11af7d8cb0be3cf844a86cbaff87c3b9af13cca4925339007987029455fb3",
+        "size": 1270
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PalmImagePlugin.py": {
+        "sha256": "2247aeefa9db5ba83130696a516c1b579ec12441abd775465c842f9162b9e265",
+        "size": 8965
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PcdImagePlugin.py": {
+        "sha256": "819b027170c8a845532b6cfe1962a9b53db9a455350143a0a6bdc9d3a7233c28",
+        "size": 1842
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PcfFontFile.py": {
+        "sha256": "50f65bca80f8295af7df1b6da0f6a2db5d63ce8f8f0e92386dc9f26cb0eee75e",
+        "size": 7240
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PcxImagePlugin.py": {
+        "sha256": "5e6f1423fe7f01006c89693b07c489add784ffccfb0d20405269cda636e79396",
+        "size": 6596
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PdfImagePlugin.py": {
+        "sha256": "3c3f19e0ea596e3f572f479bed0d9b18bc3846552d77c74f2c2e14e86ff60036",
+        "size": 9720
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PdfParser.py": {
+        "sha256": "c5e04f3c748cc2b7f711208a1689b7c3af0e61e11cb454ee06a209fb5217b901",
+        "size": 39753
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PixarImagePlugin.py": {
+        "sha256": "f919ee2521a1185f0cb14b221d9ab757307157e04d9cadf99018c97e1633c17b",
+        "size": 1830
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PngImagePlugin.py": {
+        "sha256": "26e6495edc516f7589dea911c330d7f16d4ec96eed78af838da00902e77e6040",
+        "size": 53977
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PpmImagePlugin.py": {
+        "sha256": "22331d42c009691d13c90bb591ddebe28eaad28e49295c2ae21475d0e7804715",
+        "size": 12719
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/PsdImagePlugin.py": {
+        "sha256": "b3ce408b7129bc190d12ce0db3ad408e114a048b134669021878a7e72afb372d",
+        "size": 9249
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/QoiImagePlugin.py": {
+        "sha256": "c25feb0cc7e1c9c5aae865c1157f31ce8235d5728c6567afd9629288ce2df372",
+        "size": 8831
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/SgiImagePlugin.py": {
+        "sha256": "4f0891938baa8e0836d7e3a2154066044d893d63a30c716654f8141fbbce3b75",
+        "size": 6602
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/SpiderImagePlugin.py": {
+        "sha256": "b0087770827cbc65aee9619de92721c9ca2aec36a338fa25680a31abbea5b68c",
+        "size": 10626
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/SunImagePlugin.py": {
+        "sha256": "60a604bee1b84149227acdf838ab5758a4d8499f14deacdc13fbdd4eb3ae46cc",
+        "size": 4734
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/TarIO.py": {
+        "sha256": "2bab4b9050dc69aaf7bdbe84c986fb1b8a15101e35c7f2ccb8625e513f70e434",
+        "size": 1503
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/TgaImagePlugin.py": {
+        "sha256": "52bbc8363a079783087f2c5fe5b2f75519425af38deee0e92507e6cf7c939588",
+        "size": 8017
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/TiffImagePlugin.py": {
+        "sha256": "7c7c771b1358c4096239c5973199672870c7e4cc34c4ce33a391695a7e251df7",
+        "size": 88301
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/TiffTags.py": {
+        "sha256": "16c76a6c8409388ee2846ecc67f2b8614403678ce8fab6986e28550dee3653d1",
+        "size": 17772
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/WalImageFile.py": {
+        "sha256": "70b442298cac9c4d2fe59fd47745ded180de338988c45197a83231f157ae31c6",
+        "size": 5891
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/WebPImagePlugin.py": {
+        "sha256": "c7022669e4536810944b2d1a5a69a18dc7176706cbd36363994b0fcc2003d69c",
+        "size": 10289
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/WmfImagePlugin.py": {
+        "sha256": "136d180c964920aad44327ed3a6ac9ac0b97ba60c6662c231f237620a282c9b8",
+        "size": 5390
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/XVThumbImagePlugin.py": {
+        "sha256": "384b448508022cb82fc7c275888f75d533338c9e624e538ea90a4b431d5bcd0e",
+        "size": 2209
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/XbmImagePlugin.py": {
+        "sha256": "c1cd0da5f4f3952871f589a2d33c28d1a5598c36b8fc1ecd1221b64e008eeb94",
+        "size": 2767
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/XpmImagePlugin.py": {
+        "sha256": "232f0ac0e8e7546541c5f4f6c6d0f737050a52dcec0f678753b3aeb48461a9d9",
+        "size": 4539
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/__init__.py": {
+        "sha256": "3fffff8502f4b59ca61d39cce713d55ffef046954262fce1abac3e97f3803734",
+        "size": 2122
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/__main__.py": {
+        "sha256": "5fc788a469661df9e9ef36b3a7999d6afdb6f08b5c7f696488c3f4b4b53a5fd7",
+        "size": 140
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_avif.pyi": {
+        "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
+        "size": 66
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_binary.py": {
+        "sha256": "ba6dc47fa221e747297ee81afcbdaef2ea9be664c7a4b51f5382563132e0b20b",
+        "size": 2664
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_deprecate.py": {
+        "sha256": "522ac3970b3279feaeeac2ffae51379a72ad45fd666af9a7864b7fd4f03b43c0",
+        "size": 2106
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imaging.cp312-win_arm64.pyd": {
+        "sha256": "d7387d3192263a2baaa86549d0319972b76444aabdfafc5240af9251f09017c7",
+        "size": 2068992
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imaging.pyi": {
+        "sha256": "8d2446dead5dc2204ca8ec0884bb5305edcb30ac2c8b76244dc0dfb0a577d84d",
+        "size": 924
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingcms.cp312-win_arm64.pyd": {
+        "sha256": "f49b2dde657a0ea237b775c09009e9a71864ec926bf633f74def19050275b903",
+        "size": 245248
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingcms.pyi": {
+        "sha256": "e7f48329eecac13f5a6f911e1bec27e85e6cbff7ecd28db5db1a0f066dc7f88a",
+        "size": 4576
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingft.cp312-win_arm64.pyd": {
+        "sha256": "de5b85aa4574ec3f5eb96d4381b69e5f7bfdd3c8bd5ca91846df9bac226d370f",
+        "size": 1913856
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingft.pyi": {
+        "sha256": "535ae9c2a417d6150bbd3028f1f634fc8ad79e0f953ee09755a581523da9d73d",
+        "size": 1903
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingmath.cp312-win_arm64.pyd": {
+        "sha256": "797503fe21a2f6e9f4e47743894e539d4035e35e16744b5b39592ad5ee24e74a",
+        "size": 20992
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingmath.pyi": {
+        "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
+        "size": 66
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingmorph.cp312-win_arm64.pyd": {
+        "sha256": "773d9ac5515e05cf960e295880d6b61b0742f6ce4064d7d0410e80042b816e76",
+        "size": 12800
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingmorph.pyi": {
+        "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
+        "size": 66
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingtk.cp312-win_arm64.pyd": {
+        "sha256": "6f6daca72eeb75b02900e783c56c8c1a0066e0c0280e4fe806c6bcd200742677",
+        "size": 14336
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingtk.pyi": {
+        "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
+        "size": 66
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_tkinter_finder.py": {
+        "sha256": "1f5530ddd57b8161c88ffa2c527245c56875691b10d8c74aa4d3f7bd0c10716d",
+        "size": 558
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_typing.py": {
+        "sha256": "b7e3154b97ffa5174bf8cd3bd9866a957141fc3f33d4a3a5f0470ab13fddf6ce",
+        "size": 964
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_util.py": {
+        "sha256": "78ff087e658999b13f3ea6d425be2a4ea18d2e2e334f44d369daebaa6ca483b6",
+        "size": 713
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_version.py": {
+        "sha256": "8367607a728dc206da64e3de6b24f826f3030d7f3c053f25c3b3a1fde94fb9d7",
+        "size": 91
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_webp.cp312-win_arm64.pyd": {
+        "sha256": "28280dd647059d71b9c4175b10374c48ef6bb974382f95cad44a7edc7784de3a",
+        "size": 348672
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_webp.pyi": {
+        "sha256": "cc3f2f0283c2f1a1085637dc90bb45b24456e6c6a255e977fac254036a476867",
+        "size": 66
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/features.py": {
+        "sha256": "cbf7a5342ce007a46030ff4031fdc274e3f78dda0de21a38bf1a122b383a7967",
+        "size": 11118
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/py.typed": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+      },
+      "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/report.py": {
+        "sha256": "ea6ecd3afd5adb8e7bed9889a315fcf62a7925e3a07f63b517de5febed4ae5a3",
+        "size": 105
+      }
+    },
+    "loaded_modules": [
+      {
+        "path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imaging.cp312-win_arm64.pyd",
+        "scope": "observed-input",
+        "sha256": "d7387d3192263a2baaa86549d0319972b76444aabdfafc5240af9251f09017c7",
+        "size": 2068992
+      },
+      {
+        "path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingcms.cp312-win_arm64.pyd",
+        "scope": "observed-input",
+        "sha256": "f49b2dde657a0ea237b775c09009e9a71864ec926bf633f74def19050275b903",
+        "size": 245248
+      },
+      {
+        "path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_imagingft.cp312-win_arm64.pyd",
+        "scope": "observed-input",
+        "sha256": "de5b85aa4574ec3f5eb96d4381b69e5f7bfdd3c8bd5ca91846df9bac226d370f",
+        "size": 1913856
+      },
+      {
+        "path": "payload/lib/cua/environments/0.7.9-bce88084e4d2/Lib/site-packages/PIL/_webp.cp312-win_arm64.pyd",
+        "scope": "observed-input",
+        "sha256": "28280dd647059d71b9c4175b10374c48ef6bb974382f95cad44a7edc7784de3a",
+        "size": 348672
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/DLLs/_bz2.pyd",
+        "scope": "observed-input",
+        "sha256": "63eaeea404ac2b6e0dee92196102d1436c72028e1ba91de7a7b6c408aacc7395",
+        "size": 70144
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/DLLs/_ctypes.pyd",
+        "scope": "observed-input",
+        "sha256": "e3d3f72bbb6d57538079a19de978e7a299db4032f1b2304716f8c54b81bc4d3b",
+        "size": 119296
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/DLLs/_lzma.pyd",
+        "scope": "observed-input",
+        "sha256": "6e94dbb952861cf2152ea6211c083d880d331cad180f519b2fa9044dd07accc2",
+        "size": 138752
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/DLLs/_wmi.pyd",
+        "scope": "observed-input",
+        "sha256": "042fe1c238f9b96973c7d4755a5a4b3a80f4320e1036303624c2f8e789ebc8e2",
+        "size": 25600
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/DLLs/libffi-8.dll",
+        "scope": "observed-input",
+        "sha256": "9c0f6722da9f6d9c5d5d34c7e458a8b600614a68856f8884886f8e108747d7e1",
+        "size": 29696
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/python.exe",
+        "scope": "observed-input",
+        "sha256": "8c125e7436f8bc1e5524cfbd28cc9ed8123af79ffcd5f33aacfd1d5ab90f3b98",
+        "size": 90624
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/python3.dll",
+        "scope": "observed-input",
+        "sha256": "478b67215db02a5bdba2af22fc7795276c1e2c652ac775f1492a5f90cad99401",
+        "size": 56320
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/python312.dll",
+        "scope": "observed-input",
+        "sha256": "1a27dffb84ceb3f8be6e936210a4829ce93809609adf65f50fa384729d22e018",
+        "size": 7200768
+      },
+      {
+        "path": "payload/lib/cua/python/3.12.14/vcruntime140.dll",
+        "scope": "observed-input",
+        "sha256": "d8a8513921544569837e400d37cc71302819967ae6defa932266a7ecb41dbaf9",
+        "size": 199200
+      },
+      {
+        "path": "System32/KernelBase.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "26be64c26bac33368a650372cb5fb1e3235f1bd7883471bd3291dbf6372ae274",
+        "size": 7185240
+      },
+      {
+        "path": "System32/advapi32.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "021452c20f89c50d64c304391ec18169f95a9fa14762f76cfd2dded627dbf0bb",
+        "size": 1352312
+      },
+      {
+        "path": "System32/bcrypt.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "12e3562488e5ca3a26884408d99d81898237c8ca3c5c3c9e40ca6b8f5ed361cd",
+        "size": 294696
+      },
+      {
+        "path": "System32/bcryptprimitives.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "d3da1097e9e1fc16c910350e40c4405ef52f36f134f9bf165fbe02194c1eaa82",
+        "size": 1031152
+      },
+      {
+        "path": "System32/combase.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "850b43094ae61a5d3b8f40f0cddf89b4a90190bf5fc57c5242e0bf5b06644b2f",
+        "size": 7061784
+      },
+      {
+        "path": "System32/gdi32.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "3288c0f9925b2138c4446218158adf05759ac3d6dde9f83a58568c7307973d17",
+        "size": 399992
+      },
+      {
+        "path": "System32/gdi32full.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "514cdeee2f51c87b63208e1ff09117dd8ecb7e49c316c8a3e8c15ddc87567631",
+        "size": 1953056
+      },
+      {
+        "path": "System32/imm32.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "06b1228c959000d70a4331a4f3b0e3593c86ad60a9582a7f0f19d7bed4360d2c",
+        "size": 347240
+      },
+      {
+        "path": "System32/kernel32.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "6a7bd4daff9c0c4cc8b9478ecd9828c3f19be257a4a18db9559cae929197fffa",
+        "size": 1472296
+      },
+      {
+        "path": "System32/msvcp_win.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "551e33887a4b91577594d615da6437c7ffd2b529cd42a012874cdcb2693a1db5",
+        "size": 1331752
+      },
+      {
+        "path": "System32/msvcrt.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "797f5ca9e48b009039800c4368c09e7641fa96624789aeb76a529172ec8d2552",
+        "size": 1325024
+      },
+      {
+        "path": "System32/ntdll.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "60ef561645b50dce71ad0919dbbef3ad334a0489432cde718e75b73b558c7997",
+        "size": 4359168
+      },
+      {
+        "path": "System32/ole32.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "a05e95c0e03dfec6508f511ccb5731b752861be17086d9c8879b54f8922faf1d",
+        "size": 2829584
+      },
+      {
+        "path": "System32/oleaut32.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "5ebb761b3f96b227006e79d6a92cf5d98ac5a5fd3c136d35dd05391bed867753",
+        "size": 1719112
+      },
+      {
+        "path": "System32/propsys.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "295aba32bfc5c22e95df8714cb879ff128a3446b4d15b91edc7360fbfd66c5cd",
+        "size": 1817216
+      },
+      {
+        "path": "System32/psapi.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "8aaaf0f92868ce35f9c8e77fc35c15f6b66be4e1da14cfa8d986ac42ef8eb237",
+        "size": 41072
+      },
+      {
+        "path": "System32/rpcrt4.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "cf9fc8888c8d927daa3a523ce2fe97522fbaa5e3e9e40a895ad4f4ec0547d9c9",
+        "size": 2102928
+      },
+      {
+        "path": "System32/sechost.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "a47fb930a6aa9b4c8fa498b5824014b68ba37337c9fcb91bae3e12a16a8987aa",
+        "size": 1191248
+      },
+      {
+        "path": "System32/ucrtbase.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "529e795875178b906ea8758abc8de5c28339f336b3e7a121d7778ae040908de9",
+        "size": 2266592
+      },
+      {
+        "path": "System32/user32.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "f2fc06e7e5016a15ad7f7f4ee250154b7d41d0a0706bf14927a3bbd4c42727dd",
+        "size": 2669400
+      },
+      {
+        "path": "System32/version.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "f7449661fdfc2232dfd0be84e7fa440a16afdbd6d93ff3df6581cdf3f67a6f75",
+        "size": 72568
+      },
+      {
+        "path": "System32/win32u.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "7c26ded92fd6fbc140184e7c032aa2fb92a2e2a2744523f2460dfec234fc5470",
+        "size": 383000
+      },
+      {
+        "path": "System32/ws2_32.dll",
+        "scope": "operating-system-prerequisite",
+        "sha256": "e1266872f796f68b4be9c20640ca940a7a96e1ba98c741d472ae305fccf87ca9",
+        "size": 862752
+      }
+    ],
+    "probe": {
+      "groups": {
+        "codecs": {
+          "jpg": {
+            "supported": true,
+            "version": "8.0"
+          },
+          "jpg_2000": {
+            "supported": true,
+            "version": "2.5.4"
+          },
+          "libtiff": {
+            "supported": true,
+            "version": "4.7.1"
+          },
+          "zlib": {
+            "supported": true,
+            "version": "1.3.1.zlib-ng"
+          }
+        },
+        "features": {
+          "fribidi": {
+            "supported": false,
+            "version": null
+          },
+          "harfbuzz": {
+            "supported": false,
+            "version": null
+          },
+          "libimagequant": {
+            "supported": false,
+            "version": null
+          },
+          "libjpeg_turbo": {
+            "supported": true,
+            "version": "3.1.4.1"
+          },
+          "mozjpeg": {
+            "supported": false,
+            "version": null
+          },
+          "raqm": {
+            "supported": false,
+            "version": null
+          },
+          "xcb": {
+            "supported": false,
+            "version": null
+          },
+          "zlib_ng": {
+            "supported": true,
+            "version": "2.3.3"
+          }
+        },
+        "modules": {
+          "avif": {
+            "supported": false,
+            "version": null
+          },
+          "freetype2": {
+            "supported": true,
+            "version": "2.14.3"
+          },
+          "littlecms2": {
+            "supported": true,
+            "version": "2.19"
+          },
+          "pil": {
+            "supported": true,
+            "version": "12.3.0"
+          },
+          "tkinter": {
+            "supported": false,
+            "version": null
+          },
+          "webp": {
+            "supported": true,
+            "version": "1.6.0"
+          }
+        }
+      },
+      "machine": "ARM64",
+      "pillow": "12.3.0",
+      "python": "3.12.14",
+      "schema": 1
+    },
+    "probe_source_sha256": "0ddd34aad2f800c7039c28e648e420e6a81f16e7ac3d3c6a7439c8ccb195b805"
+  },
+  "publishable": false,
+  "rust": {
+    "channel_manifest": {
+      "sha256": "09cbf0ad7b7e084e3bf1131c6bd970ad34c29c9fcdc8db1f7836463b7322e69a",
+      "size": 972396
+    },
+    "compiler_observation": {
+      "sha256": "dbf9f4dd4eb024d43ad7d1fe067eae84c8e5049b612708f901c74b1f83065e36",
+      "size": 202
+    },
+    "library_archive": {
+      "sha256": "3ca3855af46e29bd441ba5dba71f1d88213c0242c5b1530bbf60ad8ca7ce8f70",
+      "size": 35246361
+    },
+    "link_maps": {
+      "ba-functions.dll": {
+        "executable": {
+          "sha256": "3b3318654325501272880e98112cda0def79cf45c6713b7205f7abf465d27569",
+          "size": 305152
+        },
+        "path": "link-maps/ba-functions.map",
+        "sha256": "1c989a015b42ec0f75493adc22836b314bffb8e4e4127293865704a6e7609995",
+        "size": 520679
+      },
+      "payload/vadgr-app.exe": {
+        "executable": {
+          "sha256": "63e48a51d38a66ee52cbe803eaa8603ab153b0e1425c52052820dfbc6a8e41ac",
+          "size": 305152
+        },
+        "path": "link-maps/vadgr-app.map",
+        "sha256": "b3d0e17c0034bf024f8011e9b53eb9106e6a298d8a2751df776e3de61fa9f02a",
+        "size": 576870
+      },
+      "payload/vadgr.exe": {
+        "executable": {
+          "sha256": "0329c04fc00c70f2bb88e50f0866cd0f8bd7ca5d30569206113124cf0817929d",
+          "size": 34868224
+        },
+        "path": "link-maps/vadgr.map",
+        "sha256": "8544ea3e8c21c1a694576a23ae3c56ad9b7e824d3559b6d0235764abcd488638",
+        "size": 82360800
+      }
+    },
+    "members": {
+      "liballoc-1deb3b2c3ca1d5f2.rlib": {
+        "sha256": "1c76a1390ea18c01c60a49aaa3effd3607fb3e84d750b97e62dd91e7c161c007",
+        "size": 664934
+      },
+      "liballoc-1deb3b2c3ca1d5f2.rmeta": {
+        "sha256": "bd6e6ade4d681202d6b049bdb7c32693f1d42cdaff083b2ebc09736ae651727d",
+        "size": 7405132
+      },
+      "libcfg_if-2ed6b3e5c338ece2.rlib": {
+        "sha256": "610947de322061c493dd8656945a1bbb4b6a3e25cdebbf0c66e333cea13eca98",
+        "size": 4302
+      },
+      "libcfg_if-2ed6b3e5c338ece2.rmeta": {
+        "sha256": "184a1d7f9f924d92c9e4c365e1662bde91c040e90bc97563b65eebc60466d1ec",
+        "size": 5504
+      },
+      "libcompiler_builtins-2a1ff6157f5b3a7d.rlib": {
+        "sha256": "0789c9486fcf38618cba7adcfcbedba9f2dbb76e14d5a913cbd6c0a870d6b62d",
+        "size": 2907052
+      },
+      "libcompiler_builtins-2a1ff6157f5b3a7d.rmeta": {
+        "sha256": "d7bb7a16bcaba3007dbee0bb5e204d3f9aa62f038454b364c361c83782afebed",
+        "size": 1956805
+      },
+      "libcore-a4c342a4de5cea63.rlib": {
+        "sha256": "d0f45b3c8fee7794b4be642205a3dfe3be52e40bd83598a4fcbb68cdb33f1047",
+        "size": 2291546
+      },
+      "libcore-a4c342a4de5cea63.rmeta": {
+        "sha256": "a7e7cdda9896ca4495d3df4745648aa061bc0057e7c55383762a00ddb0c949c7",
+        "size": 62142687
+      },
+      "libgetopts-2b925222df602854.rlib": {
+        "sha256": "6295ae40a767d97f369a7692f949aa558365aabe90e600ce424493ef02d7b328",
+        "size": 517954
+      },
+      "libgetopts-2b925222df602854.rmeta": {
+        "sha256": "d510b837781ce3236109a5211af85da37dc6a232823aeb07424eb10bc397acfd",
+        "size": 217303
+      },
+      "libhashbrown-833e9a4c59fe7cd4.rlib": {
+        "sha256": "32d3865ced99cd2b6b0d22e3a2fce30e549a7d8e0cac14bdeb07ab7d53f6b2a5",
+        "size": 35822
+      },
+      "libhashbrown-833e9a4c59fe7cd4.rmeta": {
+        "sha256": "53412f0fadb29606b6672d5ce3ea1642b5c7b76d8168490840e11d14a9262996",
+        "size": 1717933
+      },
+      "libpanic_abort-e85fa7152deae3b0.rlib": {
+        "sha256": "b0b391c2a08b187b4c6ee7bd507dbbe00e24599011f5d28f507e0fc67cbd4ae8",
+        "size": 8980
+      },
+      "libpanic_abort-e85fa7152deae3b0.rmeta": {
+        "sha256": "18789d70a37992cc365aa38a4ab885d74830f6f5ee1063bb9c1cf7c8fbfa3320",
+        "size": 2907
+      },
+      "libpanic_unwind-5d29acd08e327071.rlib": {
+        "sha256": "0ee24bfe2d4fb900522b072cf9c9e32048105db70632fcdcfbea67d56c5873ae",
+        "size": 29894
+      },
+      "libpanic_unwind-5d29acd08e327071.rmeta": {
+        "sha256": "91624fabc3ae11c9abcd1af6390edccedc38fa3ac3f725b5b8afa5d2ab914ead",
+        "size": 19463
+      },
+      "libproc_macro-9bfa747d38fcb5b6.rlib": {
+        "sha256": "644b48593d2e3b0c0555fa9f099638a62ae59f83e3e005a2ec6c97e70c2ad32a",
+        "size": 2795580
+      },
+      "libproc_macro-9bfa747d38fcb5b6.rmeta": {
+        "sha256": "ef0a0ee9b49deda18e30c9bc561e24d36f5e8913de0dc5029a114ea86d58121e",
+        "size": 1100202
+      },
+      "libprofiler_builtins-d198ae378607f109.rlib": {
+        "sha256": "515c2e802e6e3e9aec26aa194a2d0a4df2cc2ec93592a73f1de9e0009f91e26f",
+        "size": 1204254
+      },
+      "libprofiler_builtins-d198ae378607f109.rmeta": {
+        "sha256": "38b3303f9ee2b8b87c4426caa13873311d2b00aaf87c62b98bd986c629b6dd81",
+        "size": 1344
+      },
+      "librustc_demangle-68b7cd10c3da5ceb.rlib": {
+        "sha256": "0b16b79c156c2d37cb27a22a6710526577b1173132b01c695fa57af2d6c54bfe",
+        "size": 218848
+      },
+      "librustc_demangle-68b7cd10c3da5ceb.rmeta": {
+        "sha256": "864a7d31f28b2b6ce56e02572e2243f7140d232dd1759f5085cf6bdf20f1927c",
+        "size": 90879
+      },
+      "librustc_literal_escaper-d7376e5951fe90cd.rlib": {
+        "sha256": "21f2c4d8853b7d2946fdac5b2773dee153423573b9db6965f6b672fa096ef9f1",
+        "size": 4542
+      },
+      "librustc_literal_escaper-d7376e5951fe90cd.rmeta": {
+        "sha256": "c6191d26a43fe295cf3631911f61971a6fb52d80e0ff4beed4349a786ef3eb93",
+        "size": 122750
+      },
+      "librustc_std_workspace_alloc-97fb22b41278e112.rlib": {
+        "sha256": "cf7cc254019886549e0343f4162adf2f9ecdc5a45b0153e2775c703ffaf5ac04",
+        "size": 4678
+      },
+      "librustc_std_workspace_alloc-97fb22b41278e112.rmeta": {
+        "sha256": "fe5d3d18f25103c8f50698aad8fe152c48ea84a89b89390d6a2435cabfb8dee9",
+        "size": 2166
+      },
+      "librustc_std_workspace_core-a1fc2dfdc69a624a.rlib": {
+        "sha256": "d76b7a70745ae2297f1ad2f66aae5fed09815bee9ce8cb86172dd1b99555f914",
+        "size": 4674
+      },
+      "librustc_std_workspace_core-a1fc2dfdc69a624a.rmeta": {
+        "sha256": "ef26196abefffd8cb2c7f8faeaa11d694fc21d9432530149851c60172698deca",
+        "size": 5937
+      },
+      "librustc_std_workspace_std-5cf4cfa2f24547f9.rlib": {
+        "sha256": "777d0a7c2d52143bc00a97d206fb6730ffa26db36a46c3a603035dd2fc5ce33c",
+        "size": 4652
+      },
+      "librustc_std_workspace_std-5cf4cfa2f24547f9.rmeta": {
+        "sha256": "a44a395a5d57c45bbc0d200c8a290b06deb16051000186a3e3223b167e7e8631",
+        "size": 6854
+      },
+      "libstd-f42bdf7a194e16bc.rlib": {
+        "sha256": "0d20553b9c7720bb9e1b52c52a709b4f481952d24501980db5a4b8231cc867d6",
+        "size": 5587028
+      },
+      "libstd-f42bdf7a194e16bc.rmeta": {
+        "sha256": "a5e03f355a373c0888d0c06a559bc672f53b670199cea956cf57a11d2aa6dc31",
+        "size": 9567636
+      },
+      "libstd_detect-9e2b9f2065afbb91.rlib": {
+        "sha256": "d218b8f6a85d1248c13b8c538b1b655ef1509460d0ad607c9e8605e2b1e1502f",
+        "size": 42926
+      },
+      "libstd_detect-9e2b9f2065afbb91.rmeta": {
+        "sha256": "f6c1f0ae5c29f5d42f013578ce62d2d388ade2349982ab1bb6a8bc239f0b79ce",
+        "size": 284715
+      },
+      "libsysroot-9f2597cfa2dff1b6.rlib": {
+        "sha256": "da66067a7936dc222cd42d3635267e2a4b7eedece3e9ff1ea789e9a52e9ad43c",
+        "size": 4432
+      },
+      "libsysroot-9f2597cfa2dff1b6.rmeta": {
+        "sha256": "8a638f0f5d5bda9ed4e131a4f178ecea288b1eae8ae73f0ddd3b0aa5a5d70197",
+        "size": 1962
+      },
+      "libtest-b03f52b814005f1a.rlib": {
+        "sha256": "1a869d346b36edbd514ed58aba7838ebcf0f0688fee51d3e8a2bba09bb9f2716",
+        "size": 5291498
+      },
+      "libtest-b03f52b814005f1a.rmeta": {
+        "sha256": "951a0e21bf2129cb46b75fcc9b99e3e23fc04109b5c7c6b3c1a474a8e920202b",
+        "size": 1022139
+      },
+      "libunwind-ea1803af9654ebff.rlib": {
+        "sha256": "591db014c23a39d0a6a2108ea98ce731ffc0c37e11c926e9cc8eaad709a1aada",
+        "size": 4424
+      },
+      "libunwind-ea1803af9654ebff.rmeta": {
+        "sha256": "87a836c57088d39b6d7a6b9c5e699791886f4ce34320386f75c7b4aad69dda3a",
+        "size": 1762
+      },
+      "libwindows_link-0e5a5a82c72f0a60.rlib": {
+        "sha256": "4f1f5066c42589bd9a2571eb0eb380628cbd092e3f5b806dacce799e4bf9992d",
+        "size": 4504
+      },
+      "libwindows_link-0e5a5a82c72f0a60.rmeta": {
+        "sha256": "28e631e4368e8fe6bfa8aeb5bbe34e069692c5371fc53ae05bfbd0627830766e",
+        "size": 3752
+      },
+      "std-f42bdf7a194e16bc.dll": {
+        "sha256": "64905d8440fa4cf1412b0146b5dded81f954038c338492b6a6b47ee0470c0d67",
+        "size": 778240
+      },
+      "std-f42bdf7a194e16bc.dll.lib": {
+        "sha256": "3e0879ed5ac8d685b8e9d30bd2a86f74ad4a990bb349a3591c945e844d2054a8",
+        "size": 768500
+      },
+      "std-f42bdf7a194e16bc.pdb": {
+        "sha256": "f2b3e843f757013bcfb54786d453ed8526a45f14948b91a38725a9447e3a2cf5",
+        "size": 5869568
+      }
+    },
+    "target_distribution": {
+      "available": true,
+      "components": [],
+      "extensions": [],
+      "hash": "ab4f50d040f7056f3831291974392874b6491f2464572d463fb0696977e21e9e",
+      "url": "https://static.rust-lang.org/dist/2026-07-16/rust-std-1.97.1-aarch64-pc-windows-msvc.tar.gz",
+      "xz_hash": "2b920577f215e98e9b56f63e845fbf96b268f7b3c9151805a9e75c0dc250a327",
+      "xz_url": "https://static.rust-lang.org/dist/2026-07-16/rust-std-1.97.1-aarch64-pc-windows-msvc.tar.xz"
+    }
+  },
+  "schema": 1,
+  "status": "unapproved",
+  "target": "aarch64-pc-windows-msvc"
+}

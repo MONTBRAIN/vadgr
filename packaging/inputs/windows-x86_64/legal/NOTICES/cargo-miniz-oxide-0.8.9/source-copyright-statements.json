@@ -1,0 +1,75 @@
+{
+  "archive_sha256": "1fa76a2c86f704bdb222d66965fb3d63269ce38518b83cb0575fca855ebb6316",
+  "original_statement_files": [
+    {
+      "path": "miniz_oxide-0.8.9/LICENSE",
+      "sha256": "4108245a1f2df9d4e94df8abed5b4ba0759bb2f9b40a6b939f1be141077ae50b",
+      "size": 1213,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright 2013-2014 RAD Game Tools and Valve Software"
+        },
+        {
+          "line": 4,
+          "text": "Copyright 2010-2014 Rich Geldreich and Tenacious Software LLC"
+        },
+        {
+          "line": 5,
+          "text": "Copyright (c) 2017 Frommi"
+        },
+        {
+          "line": 6,
+          "text": "Copyright (c) 2017-2024 oyvindln"
+        }
+      ]
+    },
+    {
+      "path": "miniz_oxide-0.8.9/LICENSE-MIT.md",
+      "sha256": "799e9ca9d179295ef372f25d3769cdda7d25bb2668add6a6a1e22d1e4c678b8d",
+      "size": 1212,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright 2013-2014 RAD Game Tools and Valve Software"
+        },
+        {
+          "line": 4,
+          "text": "Copyright 2010-2014 Rich Geldreich and Tenacious Software LLC"
+        },
+        {
+          "line": 5,
+          "text": "Copyright (c) 2017 Frommi"
+        },
+        {
+          "line": 6,
+          "text": "Copyright (c) 2017-2024 oyvindln"
+        }
+      ]
+    },
+    {
+      "path": "miniz_oxide-0.8.9/LICENSE-ZLIB.md",
+      "sha256": "0a54e647fe54104658b5e563c04c6f9edf251710e47bce692e0bd990a4ddaa39",
+      "size": 984,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2013-2014 RAD Game Tools and Valve Software"
+        },
+        {
+          "line": 2,
+          "text": "Copyright 2010-2014 Rich Geldreich and Tenacious Software LLC"
+        },
+        {
+          "line": 3,
+          "text": "Copyright (c) 2020 Frommi"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2017-2024 oyvindln"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

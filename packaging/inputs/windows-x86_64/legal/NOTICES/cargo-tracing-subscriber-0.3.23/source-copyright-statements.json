@@ -1,0 +1,72 @@
+{
+  "archive_sha256": "cb7f578e5945fb242538965c2d0b04418d38ec25c79d160cd279bf0731c8d319",
+  "original_statement_files": [
+    {
+      "path": "tracing-subscriber-0.3.23/LICENSE",
+      "sha256": "898b1ae9821e98daf8964c8d6c7f61641f5f5aa78ad500020771c0939ee0dea1",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2019 Tokio Contributors"
+        }
+      ]
+    },
+    {
+      "path": "tracing-subscriber-0.3.23/src/fmt/time/datetime.rs",
+      "sha256": "a6eeeb475e1f0b8cf90d1ef0dcb862b244cea58261485d440d51095694637213",
+      "size": 14616,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright \u00a9 2005-2020 Rich Felker, et al."
+        },
+        {
+          "line": 115,
+          "text": "// src/regex/tre*) is Copyright \u00a9 2001-2008 Ville Laurikari and licensed"
+        },
+        {
+          "line": 121,
+          "text": "// Copyright \u00a9 1993,2004 Sun Microsystems or"
+        },
+        {
+          "line": 122,
+          "text": "// Copyright \u00a9 2003-2011 David Schultz or"
+        },
+        {
+          "line": 123,
+          "text": "// Copyright \u00a9 2003-2009 Steven G. Kargl or"
+        },
+        {
+          "line": 124,
+          "text": "// Copyright \u00a9 2003-2009 Bruce D. Evans or"
+        },
+        {
+          "line": 125,
+          "text": "// Copyright \u00a9 2008 Stephen L. Moshier or"
+        },
+        {
+          "line": 126,
+          "text": "// Copyright \u00a9 2017-2018 Arm Limited"
+        },
+        {
+          "line": 130,
+          "text": "// The ARM memcpy code (src/string/arm/memcpy.S) is Copyright \u00a9 2008"
+        },
+        {
+          "line": 135,
+          "text": "// Copyright \u00a9 1999-2019, Arm Limited."
+        },
+        {
+          "line": 138,
+          "text": "// Copyright \u00a9 1994 David Burren. It is licensed under a BSD license."
+        },
+        {
+          "line": 145,
+          "text": "// The smoothsort implementation (src/stdlib/qsort.c) is Copyright \u00a9 2011"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

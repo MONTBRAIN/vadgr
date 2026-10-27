@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3",
+  "original_statement_files": [
+    {
+      "path": "stable_deref_trait-1.2.0/LICENSE-MIT",
+      "sha256": "5e05b024f653a5ce199e77cbbbd42fb5553562ec714b819421ed0c3e552a75d7",
+      "size": 1056,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 Robert Grosse"
+        }
+      ]
+    },
+    {
+      "path": "stable_deref_trait-1.2.0/src/lib.rs",
+      "sha256": "c68d43e0ec2727653cc2d37c396c8e60c9ed315b71aab331da8177b129887591",
+      "size": 8286,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2017 Robert Grosse"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

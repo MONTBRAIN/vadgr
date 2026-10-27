@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "c6a127ecbb3c4632e1525380e04c0c3fcf8dcb44d32a79ea290d8a36906edcd8",
+  "original_statement_files": [
+    {
+      "path": "data-encoding-macro-0.1.21/LICENSE",
+      "sha256": "b68ad1a3367b825447089e1f8d6829b97f47a89eb78d2f4ebaef4672f5606186",
+      "size": 1121,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015-2020 Julien Cretin"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2017-2020 Google Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

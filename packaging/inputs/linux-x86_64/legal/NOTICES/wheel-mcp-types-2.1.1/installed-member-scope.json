@@ -1,0 +1,84 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/__init__.py",
+      "member": "mcp_types/__init__.py",
+      "sha256": "791de752e5f95ca93c380499561ccb3b6b787627bd34e62a3e9f32176258392f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/_types.py",
+      "member": "mcp_types/_types.py",
+      "sha256": "0d07007bf5052c5fe123d6f12addae8fdcd4eabfd2b3a2fd639c3a47675b7d98",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/_wire_base.py",
+      "member": "mcp_types/_wire_base.py",
+      "sha256": "5dccb64385fc5083cb2bcca72bbf746b41ef2395d591f4784eea9d54385533b6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/jsonrpc.py",
+      "member": "mcp_types/jsonrpc.py",
+      "sha256": "c2d1bc1d07c5ebc7597919e4f65611c3887d50410f115b4a49d7918f68ffbf89",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/methods.py",
+      "member": "mcp_types/methods.py",
+      "sha256": "eaa0bf7b113edd7ed091a0a7928156b1aa5023d63c5c491a4add1fc62468a10d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/py.typed",
+      "member": "mcp_types/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/version.py",
+      "member": "mcp_types/version.py",
+      "sha256": "e244c0bb0dda774b50af4a2f1a2145be6511794fdfd63e6a6c7afe60ee62e51e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/_v2025_11_25/__init__.py",
+      "member": "mcp_types/_v2025_11_25/__init__.py",
+      "sha256": "a4351435710172e43ae1c46c2c4a63f63179204514a049b843ad0cbbcea16aac",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types/_v2026_07_28/__init__.py",
+      "member": "mcp_types/_v2026_07_28/__init__.py",
+      "sha256": "44db750e29c3f69b7a9d62149e676cbaa119230ba5b79c52e94c3bd1584a4fe0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types-2.1.1.dist-info/METADATA",
+      "member": "mcp_types-2.1.1.dist-info/METADATA",
+      "sha256": "8a5b55b55cfd1476fd517e454a93646760b2cd4d4d22da10def8e56fe4c2aed3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types-2.1.1.dist-info/WHEEL",
+      "member": "mcp_types-2.1.1.dist-info/WHEEL",
+      "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types-2.1.1.dist-info/licenses/LICENSE",
+      "member": "mcp_types-2.1.1.dist-info/licenses/LICENSE",
+      "sha256": "5e13dbbc1d120fc2a03cecde7c91424ae2d7de11b63d58ded2f4431e261ee50d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mcp_types-2.1.1.dist-info/RECORD",
+      "member": "mcp_types-2.1.1.dist-info/RECORD",
+      "sha256": "aa9857c2c3cc1eb0afeafc3c2adbe5ff3670ae3b81499c681f1054fc54fb9e02",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "26f9f7f03f2a5730717a5b98e2ab7eb640ac352d05a00cdc725c311864778295",
+  "wheel": "mcp_types-2.1.1-py3-none-any.whl"
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1",
+  "original_statement_files": [
+    {
+      "path": "fnv-1.0.7/LICENSE-MIT",
+      "sha256": "65fdb6c76cd61612070c066eec9ecdb30ee74fb27859d0d9af58b9f499fd0c3e",
+      "size": 1056,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

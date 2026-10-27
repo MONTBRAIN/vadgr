@@ -43,6 +43,10 @@ if [ "$platform" = macos ]; then
 else
   cargo build --locked --release --target "$rust_target" --bin vadgr
 fi
+if [ "$platform" = linux ]; then
+  python3 "$trusted/scripts/check_linux_build_policy.py" --binary "target/$rust_target/release/vadgr" \
+    --expect release --architecture "$arch"
+fi
 "target/$rust_target/release/vadgr" __payload-setup --install-root "$payload_root" --payload-only --wheelhouse "$wheelhouse"
 python3 "$trusted/scripts/distribution_matrix.py" binary --target "$target" --file "target/$rust_target/release/vadgr"
 python3 "$trusted/scripts/distribution_matrix.py" payload --target "$target" --root "$payload_root" --pins packaging/cua/pins.toml
@@ -57,6 +61,13 @@ if [ "$platform" = linux ]; then
   printf '%s  %s\n' "$digest" "$tool" | sha256sum --check --strict -
   chmod 0755 "$tool"
   export APPIMAGETOOL="$tool" APPIMAGE_EXTRACT_AND_RUN=1
+  runtime="$RUNNER_TEMP/appimage-runtime-$arch"
+  runtime_id=$(python3 -c 'import json,sys; print(json.load(open("packaging/linux/runtime.json"))["targets"][sys.argv[1]]["asset_id"])' "$arch")
+  curl --fail --location --proto '=https' --tlsv1.2 -H 'Accept: application/octet-stream' \
+    "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/$runtime_id" -o "$runtime"
+  python3 "$trusted/scripts/verify_appimage_runtime.py" --runtime "$runtime" \
+    --pins packaging/linux/runtime.json --architecture "$arch"
+  export APPIMAGE_RUNTIME="$runtime"
 fi
 sh "packaging/$platform/build.sh" 0.5.0 "$package_arch"
 case "$platform" in
@@ -73,12 +84,16 @@ case "$platform" in
     ;;
   linux)
     vehicle="target/package/Vadgr-0.5.0-linux-$arch-installer.AppImage"
+    python3 "$trusted/scripts/check_linux_build_policy.py" --appimage "$vehicle" \
+      --expect release --architecture "$arch" --runtime-pins "$trusted/packaging/linux/runtime.json"
     python3 "$trusted/scripts/distribution_matrix.py" binary --target "$target" --file "$vehicle"
     expanded="$RUNNER_TEMP/vadgr-appimage-expanded"
     mkdir "$expanded"
     absolute_vehicle="$PWD/$vehicle"
     (cd "$expanded" && "$absolute_vehicle" --appimage-extract >/dev/null)
     python3 "$trusted/scripts/distribution_matrix.py" binary --target "$target" --file "$expanded/squashfs-root/usr/bin/vadgr"
+    python3 "$trusted/scripts/check_linux_build_policy.py" --binary "$expanded/squashfs-root/usr/bin/vadgr" \
+      --expect release --architecture "$arch"
     python3 "$trusted/scripts/distribution_matrix.py" payload --target "$target" --root "$expanded/squashfs-root/usr" --pins packaging/cua/pins.toml
     ;;
   wsl)

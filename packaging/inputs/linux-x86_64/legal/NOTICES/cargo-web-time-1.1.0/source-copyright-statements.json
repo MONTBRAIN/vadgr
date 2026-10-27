@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb",
+  "original_statement_files": [
+    {
+      "path": "web-time-1.1.0/LICENSE-APACHE",
+      "sha256": "54a744942eb3fa63a74d8d359989ed6962c04f3f10ff20cfa08ff8aa7efbe4e6",
+      "size": 11338,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2023 dAxpeDDa"
+        }
+      ]
+    },
+    {
+      "path": "web-time-1.1.0/LICENSE-MIT",
+      "sha256": "f428305bbf2e70fbd807af0f3c7ac1b7acfb95311640f451e9d2e48db6d7e96b",
+      "size": 1065,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2023 dAxpeDDa"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "b7ac824320a75a52197e8f2d787f6a38b6718bb6897a35142d749af3c0e8f4fe",
+  "original_statement_files": [
+    {
+      "path": "flagset-0.4.7/src/lib.rs",
+      "sha256": "cebb7204afb35bcc84c42af55433084f49717539c1d8e87314615348efe840c6",
+      "size": 36203,
+      "statements": [
+        {
+          "line": 2,
+          "text": "// Copyright 2019 Red Hat, Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

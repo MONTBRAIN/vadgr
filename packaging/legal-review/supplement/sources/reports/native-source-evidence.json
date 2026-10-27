@@ -1,0 +1,600 @@
+{
+  "components": [
+    {
+      "download_location": "https://www.python.org/ftp/python/3.12.14/Python-3.12.14.tar.xz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "cpython-3.12",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": [
+        "Python-2.0",
+        "CNRI-Python"
+      ],
+      "name": "cpython-3.12",
+      "review_status": "unreviewed",
+      "sha256": "5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+      "source_files": [
+        {
+          "path": "sources/cpython-3.12/000-copyright.rst",
+          "sha256": "9e5e6634a7f5444dd83da55ccb265bac825abf72ecddccf7e394f284636bd9df",
+          "upstream_path": "Python-3.12.14/Doc/copyright.rst"
+        },
+        {
+          "path": "sources/cpython-3.12/001-license.rst",
+          "sha256": "341832873fd316a37927e79385093fbbfd40a467428480835fe435a80cadf4e5",
+          "upstream_path": "Python-3.12.14/Doc/license.rst"
+        },
+        {
+          "path": "sources/cpython-3.12/002-LICENSE",
+          "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+          "upstream_path": "Python-3.12.14/LICENSE"
+        },
+        {
+          "path": "sources/cpython-3.12/003-License.rtf",
+          "sha256": "ab6df6040a4e24babad38f98454eb3263722fa6a1c441bfaa271798efbe55f27",
+          "upstream_path": "Python-3.12.14/Mac/BuildScript/resources/License.rtf"
+        },
+        {
+          "path": "sources/cpython-3.12/004-COPYING",
+          "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+          "upstream_path": "Python-3.12.14/Modules/expat/COPYING"
+        },
+        {
+          "path": "sources/cpython-3.12/005-crtlicense.txt",
+          "sha256": "3c71b3ae243121f6f227374cd1ef7c59ed07b1969b330d0e947f91a3a1b3fd73",
+          "upstream_path": "Python-3.12.14/PC/crtlicense.txt"
+        },
+        {
+          "path": "sources/cpython-3.12/006-getcopyright.c",
+          "sha256": "ebaf5f2e950b09bb709255c5839d5b6ff836e86abbf852954821b024b193e78d",
+          "upstream_path": "Python-3.12.14/Python/getcopyright.c"
+        },
+        {
+          "path": "sources/cpython-3.12/007-LICENSE.txt",
+          "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f",
+          "upstream_path": "Python-3.12.14/Tools/msi/bundle/bootstrap/LICENSE.txt"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "3.12.14"
+    },
+    {
+      "download_location": "https://astral-sh.github.io/mirror/files/bzip2-1.0.8.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "bzip2",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": [
+        "bzip2-1.0.6"
+      ],
+      "name": "bzip2",
+      "review_status": "unreviewed",
+      "sha256": "ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+      "source_files": [
+        {
+          "path": "sources/bzip2/000-LICENSE",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3",
+          "upstream_path": "bzip2-1.0.8/LICENSE"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "1.0.8"
+    },
+    {
+      "download_location": "https://github.com/libexpat/libexpat/releases/download/R_2_8_3/expat-2.8.3.tar.xz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "expat",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": [
+        "MIT"
+      ],
+      "name": "expat",
+      "review_status": "unreviewed",
+      "sha256": "f6256df90c906773d344da084402b7d3e4f22ed41b1a59c989098a83d3ea0c85",
+      "source_files": [
+        {
+          "path": "sources/expat/000-AUTHORS",
+          "sha256": "59f14371c6b75912cfebb46e6247ee5146766e803a0365b124e5d3011e7d0877",
+          "upstream_path": "expat-2.8.3/AUTHORS"
+        },
+        {
+          "path": "sources/expat/001-COPYING",
+          "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+          "upstream_path": "expat-2.8.3/COPYING"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "2.8.3"
+    },
+    {
+      "download_location": "https://astral-sh.github.io/mirror/files/mpdecimal-4.0.0.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "mpdecimal",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": [
+        "BSD-2-Clause"
+      ],
+      "name": "mpdecimal",
+      "review_status": "unreviewed",
+      "sha256": "942445c3245b22730fd41a67a7c5c231d11cb1b9936b9c0f76334fb7d0b4468c",
+      "source_files": [
+        {
+          "path": "sources/mpdecimal/000-COPYRIGHT.txt",
+          "sha256": "2713324211652ce4a60e6e21e54f9dc3004299e591b0933a352f1a89c5fb53c2",
+          "upstream_path": "mpdecimal-4.0.0/COPYRIGHT.txt"
+        },
+        {
+          "path": "sources/mpdecimal/001-COPYRIGHT.txt",
+          "sha256": "25329ef0e2a8823b88786a39f168304a65a3138f720ab39ffc1e9fbee67b74a9",
+          "upstream_path": "mpdecimal-4.0.0/doc/COPYRIGHT.txt"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "4.0.0"
+    },
+    {
+      "download_location": "https://github.com/openssl/openssl/releases/download/openssl-3.5.8/openssl-3.5.8.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "openssl-3.5",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": [
+        "Apache-2.0"
+      ],
+      "name": "openssl-3.5",
+      "review_status": "unreviewed",
+      "sha256": "a8f84a39918ec6415ce765d9b429d313ba97b8143169c172e734b9514464f5b2",
+      "source_files": [
+        {
+          "path": "sources/openssl-3.5/000-LICENSE.txt",
+          "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+          "upstream_path": "openssl-3.5.8/LICENSE.txt"
+        },
+        {
+          "path": "sources/openssl-3.5/001-v3_usernotice.c",
+          "sha256": "db1eb4c4563d44b9b5b92c2467b3ed8211ce13a6511b3e330fd7af81cfba17f7",
+          "upstream_path": "openssl-3.5.8/crypto/x509/v3_usernotice.c"
+        },
+        {
+          "path": "sources/openssl-3.5/002-LICENSE",
+          "sha256": "9837f05336ef3cbacb6a96e1672a0426d81ad01191f214b8d48e22ca62338181",
+          "upstream_path": "openssl-3.5.8/external/perl/Text-Template-1.56/LICENSE"
+        },
+        {
+          "path": "sources/openssl-3.5/003-ext-userNotice.pem",
+          "sha256": "affa69745b5e0ee3b4f289bd9da12d56c5a4a68c339a6e2932a3c9ba4743605c",
+          "upstream_path": "openssl-3.5.8/test/certs/ext-userNotice.pem"
+        },
+        {
+          "path": "sources/openssl-3.5/004-copyright.pm",
+          "sha256": "04213b69dbebc8ba0dd8a6216af1d9422f9b63619c1cf2f1d8aa107b83bbb608",
+          "upstream_path": "openssl-3.5.8/util/perl/OpenSSL/copyright.pm"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "3.5.8"
+    },
+    {
+      "download_location": "https://www.sqlite.org/2026/sqlite-autoconf-3530100.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "sqlite",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": [],
+      "name": "sqlite",
+      "review_status": "unreviewed",
+      "sha256": "83e6b2020a034e9a7ad4a72feea59e1ad52f162e09cbd26735a3ffb98359fc4f",
+      "source_files": [
+        {
+          "path": "sources/sqlite/000-LICENSE",
+          "sha256": "679b9208e67df09977456d1d2ae4d885b9badf02c47b45a28cf95ee27c14cb18",
+          "upstream_path": "sqlite-autoconf-3530100/autosetup/LICENSE"
+        },
+        {
+          "path": "sources/sqlite/001-license.terms",
+          "sha256": "66e056b6e8687f32af30d5187611b98b12a8f46f07aaf62f43585f276e8f0ac9",
+          "upstream_path": "sqlite-autoconf-3530100/tea/license.terms"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "3530100"
+    },
+    {
+      "download_location": "https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "xz",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": [
+        "0BSD"
+      ],
+      "name": "xz",
+      "review_status": "unreviewed",
+      "sha256": "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0",
+      "source_files": [
+        {
+          "path": "sources/xz/000-AUTHORS",
+          "sha256": "01e6df90d71d591f4307db3f397a5a4fac93b18533f5a3862156f1a0a7dc8610",
+          "upstream_path": "xz-5.8.3/AUTHORS"
+        },
+        {
+          "path": "sources/xz/001-COPYING",
+          "sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8",
+          "upstream_path": "xz-5.8.3/COPYING"
+        },
+        {
+          "path": "sources/xz/002-COPYING.0BSD",
+          "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+          "upstream_path": "xz-5.8.3/COPYING.0BSD"
+        },
+        {
+          "path": "sources/xz/003-COPYING.GPLv2",
+          "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+          "upstream_path": "xz-5.8.3/COPYING.GPLv2"
+        },
+        {
+          "path": "sources/xz/004-COPYING.GPLv3",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+          "upstream_path": "xz-5.8.3/COPYING.GPLv3"
+        },
+        {
+          "path": "sources/xz/005-COPYING.LGPLv2.1",
+          "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+          "upstream_path": "xz-5.8.3/COPYING.LGPLv2.1"
+        },
+        {
+          "path": "sources/xz/006-license-check.sh",
+          "sha256": "2b3fa1d23cb2ab084f3d919908159473cc0e1eed059d106e2a2857c0ec8af98a",
+          "upstream_path": "xz-5.8.3/build-aux/license-check.sh"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "5.8.3"
+    },
+    {
+      "download_location": "https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "zlib",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": [
+        "Zlib"
+      ],
+      "name": "zlib",
+      "review_status": "unreviewed",
+      "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+      "source_files": [
+        {
+          "path": "sources/zlib/000-LICENSE",
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+          "upstream_path": "zlib-1.3.2/LICENSE"
+        },
+        {
+          "path": "sources/zlib/001-LICENSE_1_0.txt",
+          "sha256": "36266a8fd073568394cb81cdb2b124f7fdae2c64c1a7ed09db34b4d22efa2951",
+          "upstream_path": "zlib-1.3.2/contrib/dotzlib/LICENSE_1_0.txt"
+        },
+        {
+          "path": "sources/zlib/002-LICENSE.Info-Zip",
+          "sha256": "fc686023047ce5ce3a18a9b8a777156f0e475929d3de06bac279f3c025d2b2ca",
+          "upstream_path": "zlib-1.3.2/contrib/minizip/LICENSE.Info-Zip"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "1.3.2"
+    },
+    {
+      "download_location": "https://github.com/python/cpython-bin-deps/archive/e3c3e9a2856124aa32b608632a52742d479eb7a9.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "tk-windows-bin-8612",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": null,
+      "name": "tk-windows-bin-8612",
+      "review_status": "unreviewed",
+      "sha256": "01ad9c663659224e075d487cbc33ea2fed7a225593965b79bed92ca7f79b676f",
+      "source_files": [
+        {
+          "path": "sources/tk-windows-bin-8612/000-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/amd64/lib/tk8.6/demos/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/001-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/amd64/lib/tk8.6/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/002-tcllicense.terms",
+          "sha256": "41613eabfc08921a7da9c4bfd7f3ce5d5406f55214b253d89f392ed86eebeb8f",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/amd64/tcllicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/003-tixlicense.terms",
+          "sha256": "9d8e18d57d7113da0bfb7d80e915c3918b98e26c43cec725393f8d01b197ec60",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/amd64/tixlicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/004-tklicense.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/amd64/tklicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/005-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/win32/lib/tk8.6/demos/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/006-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/win32/lib/tk8.6/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/007-tcllicense.terms",
+          "sha256": "41613eabfc08921a7da9c4bfd7f3ce5d5406f55214b253d89f392ed86eebeb8f",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/win32/tcllicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/008-tixlicense.terms",
+          "sha256": "9d8e18d57d7113da0bfb7d80e915c3918b98e26c43cec725393f8d01b197ec60",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/win32/tixlicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8612/009-tklicense.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-e3c3e9a2856124aa32b608632a52742d479eb7a9/win32/tklicense.terms"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "8.6.12"
+    },
+    {
+      "download_location": "https://github.com/python/cpython-bin-deps/archive/c624cc881bd0e5071dec9de4b120cbe9985d8c14.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "tk-windows-bin-8614",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": null,
+      "name": "tk-windows-bin-8614",
+      "review_status": "unreviewed",
+      "sha256": "9b8e77d55f40ceaedd140ccca0daa804f0d43346d5abfcead9b547b5590f82f8",
+      "source_files": [
+        {
+          "path": "sources/tk-windows-bin-8614/000-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/amd64/lib/tk8.6/demos/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/001-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/amd64/lib/tk8.6/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/002-tcllicense.terms",
+          "sha256": "41613eabfc08921a7da9c4bfd7f3ce5d5406f55214b253d89f392ed86eebeb8f",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/amd64/tcllicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/003-tklicense.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/amd64/tklicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/004-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/arm64/lib/tk8.6/demos/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/005-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/arm64/lib/tk8.6/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/006-tcllicense.terms",
+          "sha256": "41613eabfc08921a7da9c4bfd7f3ce5d5406f55214b253d89f392ed86eebeb8f",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/arm64/tcllicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/007-tklicense.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/arm64/tklicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/008-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/win32/lib/tk8.6/demos/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/009-license.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/win32/lib/tk8.6/license.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/010-tcllicense.terms",
+          "sha256": "41613eabfc08921a7da9c4bfd7f3ce5d5406f55214b253d89f392ed86eebeb8f",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/win32/tcllicense.terms"
+        },
+        {
+          "path": "sources/tk-windows-bin-8614/011-tklicense.terms",
+          "sha256": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+          "upstream_path": "cpython-bin-deps-c624cc881bd0e5071dec9de4b120cbe9985d8c14/win32/tklicense.terms"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "8.6.14"
+    },
+    {
+      "download_location": "https://github.com/openssl/openssl/releases/download/openssl-4.0.2/openssl-4.0.2.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "cryptography-openssl",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": null,
+      "name": "cryptography-openssl",
+      "review_status": "unreviewed",
+      "sha256": "736b467530f916737b7031310ccb21d8218c6229e61e8e160cd1d3458cd543a8",
+      "source_files": [
+        {
+          "path": "sources/cryptography-openssl/000-LICENSE.txt",
+          "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+          "upstream_path": "openssl-4.0.2/LICENSE.txt"
+        },
+        {
+          "path": "sources/cryptography-openssl/001-v3_usernotice.c",
+          "sha256": "d727ce3badff36a7313b40b8f583b9c9d624c106159e8e5748c0604ecbf3c4dd",
+          "upstream_path": "openssl-4.0.2/crypto/x509/v3_usernotice.c"
+        },
+        {
+          "path": "sources/cryptography-openssl/002-LICENSE",
+          "sha256": "9837f05336ef3cbacb6a96e1672a0426d81ad01191f214b8d48e22ca62338181",
+          "upstream_path": "openssl-4.0.2/external/perl/Text-Template-1.56/LICENSE"
+        },
+        {
+          "path": "sources/cryptography-openssl/003-ext-userNotice.pem",
+          "sha256": "affa69745b5e0ee3b4f289bd9da12d56c5a4a68c339a6e2932a3c9ba4743605c",
+          "upstream_path": "openssl-4.0.2/test/certs/ext-userNotice.pem"
+        },
+        {
+          "path": "sources/cryptography-openssl/004-copyright.pm",
+          "sha256": "04213b69dbebc8ba0dd8a6216af1d9422f9b63619c1cf2f1d8aa107b83bbb608",
+          "upstream_path": "openssl-4.0.2/util/perl/OpenSSL/copyright.pm"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "4.0.2"
+    },
+    {
+      "download_location": "https://files.pythonhosted.org/packages/bb/ad/5d6702db60b1e40b41ef513b6967ff5848f307d50f8449baf1634f5908f1/cryptography-50.0.1.tar.gz",
+      "hash_basis": "pinned-upstream-manifest",
+      "id": "cryptography",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": null,
+      "name": "cryptography",
+      "review_status": "unreviewed",
+      "sha256": "5dd9bda1c12b4162f6ff568eeb5e0ff956c28d14406e875cfe8a63a2d414ff20",
+      "source_files": [
+        {
+          "path": "sources/cryptography/000-LICENSE",
+          "sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb",
+          "upstream_path": "cryptography-50.0.1/LICENSE"
+        },
+        {
+          "path": "sources/cryptography/001-LICENSE.APACHE",
+          "sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe",
+          "upstream_path": "cryptography-50.0.1/LICENSE.APACHE"
+        },
+        {
+          "path": "sources/cryptography/002-LICENSE.BSD",
+          "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb",
+          "upstream_path": "cryptography-50.0.1/LICENSE.BSD"
+        }
+      ],
+      "upstream_commit": null,
+      "version": "50.0.1"
+    },
+    {
+      "download_location": "https://codeload.github.com/wixtoolset/wix/tar.gz/b8977d6f88e7b68e000bac226a2814f236770570",
+      "hash_basis": "downloaded-exact-commit-archive",
+      "id": "wix",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": null,
+      "name": "wix",
+      "review_status": "unreviewed",
+      "sha256": "aef765da7c8051919081235840a8fca10e6bc4f37aab83764a80974ffd1fe09b",
+      "source_files": [
+        {
+          "path": "sources/wix/000-LICENSE.TXT",
+          "sha256": "dfdf2048787635215a6baf3b9d461dee89a2904d246787258a44f072a98d4786",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/LICENSE.TXT"
+        },
+        {
+          "path": "sources/wix/001-LoremIpsumLicense.rtf",
+          "sha256": "15aee9f41cff56ac986684ccbaf7ffa76e9170ab3dd7880c20dfa50bc4fe08ff",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/ext/Bal/stdbas/Resources/LoremIpsumLicense.rtf"
+        },
+        {
+          "path": "sources/wix/002-License.rtf",
+          "sha256": "0b73c0012454f2bf79ed41108ca966efc100515b1fdae767f0b7e93eadaa930a",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/ext/UI/wixlib/License.rtf"
+        },
+        {
+          "path": "sources/wix/003-LicenseAgreementDlg.wxs",
+          "sha256": "dc5902a2e5912bc5641380f5b559610e3252d54caa9ac829d1e7e2d80affe1b9",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/ext/UI/wixlib/LicenseAgreementDlg.wxs"
+        },
+        {
+          "path": "sources/wix/004-CheckLicenseAcceptance.targets",
+          "sha256": "a02d8b6e91108e5eb6401032189490c947328fa87f7979cbc8ae3d4532c1595d",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/internal/targets/CheckLicenseAcceptance.targets"
+        },
+        {
+          "path": "sources/wix/005-license.txt",
+          "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/burn/TestData/FilesInUseTests/PackageA/license.txt"
+        },
+        {
+          "path": "sources/wix/006-LICENSE",
+          "sha256": "7bdab4494c73e3d7271a70d395947a9eb2a68f08d98740fc2308843e319298f9",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/wix/TestData/CsprojWebApplicationNetCore/wwwroot/lib/bootstrap/LICENSE"
+        },
+        {
+          "path": "sources/wix/007-LICENSE.txt",
+          "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/wix/TestData/CsprojWebApplicationNetCore/wwwroot/lib/jquery-validation-unobtrusive/LICENSE.txt"
+        },
+        {
+          "path": "sources/wix/008-LICENSE.md",
+          "sha256": "f398878cab338b869638bdac1aeae76bf3ac11b2b89da6e0b68bc1a645733440",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/wix/TestData/CsprojWebApplicationNetCore/wwwroot/lib/jquery-validation/LICENSE.md"
+        },
+        {
+          "path": "sources/wix/009-LICENSE.txt",
+          "sha256": "2b3ed8ba424423a50b023e728530d94bc385cfc7c328ad65a3dfee9c7c0531c5",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/test/wix/TestData/CsprojWebApplicationNetCore/wwwroot/lib/jquery/LICENSE.txt"
+        },
+        {
+          "path": "sources/wix/010-PrereqLicenseFile.xsd",
+          "sha256": "a55999f9cfd0b8039d1f38030d5dd7fb895640bb71263b58a908fc006bc6612b",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/xsd/bal/PrereqLicenseFile.xsd"
+        },
+        {
+          "path": "sources/wix/011-PrereqLicenseUrl.xsd",
+          "sha256": "b33bb2273096a0b43a4b3c60e7405fb80e117b43feb6d1c01e4876242ea5d98a",
+          "upstream_path": "wix-b8977d6f88e7b68e000bac226a2814f236770570/src/xsd/bal/PrereqLicenseUrl.xsd"
+        }
+      ],
+      "upstream_commit": "b8977d6f88e7b68e000bac226a2814f236770570",
+      "version": "b8977d6f88e7b68e000bac226a2814f236770570"
+    },
+    {
+      "download_location": "https://codeload.github.com/python/cpython-source-deps/tar.gz/16fad4855b3d8c03b5910e405ff3a04395b39a98",
+      "hash_basis": "downloaded-exact-commit-archive",
+      "id": "windows-libffi",
+      "kind": "native-source-evidence",
+      "license_concluded": null,
+      "license_declared": null,
+      "name": "windows-libffi",
+      "review_status": "unreviewed",
+      "sha256": "f21ae7b0cce58cf9428e01d4d22aac9c3b70722a4e9b2c92b3a97d490a1b401c",
+      "source_files": [
+        {
+          "path": "sources/windows-libffi/000-LICENSE",
+          "sha256": "a61d06e8f7be57928e71e800eb9273b05cb8868c484108afe41e4305bb320dde",
+          "upstream_path": "cpython-source-deps-16fad4855b3d8c03b5910e405ff3a04395b39a98/LICENSE"
+        },
+        {
+          "path": "sources/windows-libffi/001-LICENSE-BUILDTOOLS",
+          "sha256": "e67978cd18816c0cb7d29aaaacde7b7447402c2fb321a051698890a8eaedda94",
+          "upstream_path": "cpython-source-deps-16fad4855b3d8c03b5910e405ff3a04395b39a98/LICENSE-BUILDTOOLS"
+        }
+      ],
+      "upstream_commit": "16fad4855b3d8c03b5910e405ff3a04395b39a98",
+      "version": "16fad4855b3d8c03b5910e405ff3a04395b39a98"
+    }
+  ],
+  "status": "unreviewed"
+}

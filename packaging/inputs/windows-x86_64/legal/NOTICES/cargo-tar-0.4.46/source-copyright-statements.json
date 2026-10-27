@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "3f6221d9a6003c78398e3b239969f352578258df48c8eb051caadae0015bc840",
+  "original_statement_files": [
+    {
+      "path": "tar-0.4.46/LICENSE-MIT",
+      "sha256": "8ca6b96cea9e67c6c5c63f452c31bd396db8bd2406231fdea5d48ef462b48077",
+      "size": 1070,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) The tar-rs Project Contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

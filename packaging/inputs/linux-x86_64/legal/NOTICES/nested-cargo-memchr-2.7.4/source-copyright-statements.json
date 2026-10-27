@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3",
+  "original_statement_files": [
+    {
+      "path": "memchr-2.7.4/LICENSE-MIT",
+      "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f",
+      "size": 1081,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Andrew Gallant"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

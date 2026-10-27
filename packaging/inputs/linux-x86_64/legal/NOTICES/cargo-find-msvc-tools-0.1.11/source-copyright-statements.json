@@ -1,0 +1,72 @@
+{
+  "archive_sha256": "d45db016d36b838f563236e9193d0ee6ce38f3f68b6c94e914b4929c96bbb890",
+  "original_statement_files": [
+    {
+      "path": "find-msvc-tools-0.1.11/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "size": 1057,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.11/src/com.rs",
+      "sha256": "6706eb2a4d8d1920b66759776a78ab054b493a81dca99a90f96f9e53c0cd1852",
+      "size": 2817,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2017 winapi-rs developers"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.11/src/find_tools.rs",
+      "sha256": "c50eee79af77d6ca4c14a33cf25cbd775c31757c3ac9a00cef63bc7ee39a011c",
+      "size": 60805,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.11/src/registry.rs",
+      "sha256": "b236fc0c801e16eb9963d4ced941d50ef5de0404533c82783ffcdaf40a91f3f5",
+      "size": 6433,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.11/src/setup_config.rs",
+      "sha256": "fe4bb93105a918134e1112fae3e0180d8129d7a91a6924f7b0567b8c63c10453",
+      "size": 8865,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2017 winapi-rs developers"
+        }
+      ]
+    },
+    {
+      "path": "find-msvc-tools-0.1.11/src/winapi.rs",
+      "sha256": "cfb3bae7f2fa9e1d91f813e3b6b66ede7a3822787d10b716189a46f14f31f24a",
+      "size": 4588,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2015-2017 winapi-rs developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

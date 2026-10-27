@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "961b955a666e25ee5a1091d219128d6e6401e3dab84efb1a2bf6b4035d797b39",
+  "original_statement_files": [
+    {
+      "path": "cmpv2-0.2.0/LICENSE-MIT",
+      "sha256": "df5a6e5866476bcef44f2b2e1712d123ea26e350cc0b54df253beb4333bf0aec",
+      "size": 1077,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,65 @@
+{
+  "archive_sha256": "8ee5873ec9cce0195efcb7a4e9507a04cd49aec9c83d0389df45b1ef7ba2e649",
+  "original_statement_files": [
+    {
+      "path": "siphasher-1.0.3/COPYING",
+      "sha256": "c962ee4d1d05ddc138b202b2540219ebc57893fcf97b364852094a9a94ce1365",
+      "size": 281,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2012-2016 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "Copyright 2016-2026 Frank Denis."
+        }
+      ]
+    },
+    {
+      "path": "siphasher-1.0.3/src/sip.rs",
+      "sha256": "64e6d808ac93c4024ffb1ced16be1891407c6e7026dd0f4eb0145c98605392c3",
+      "size": 15215,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "siphasher-1.0.3/src/sip128.rs",
+      "sha256": "c3d7cf996712e0184c5eaabfc2a0a5b64e2a5b89a1faa2d44da38cd5bc2590da",
+      "size": 17430,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "siphasher-1.0.3/src/tests.rs",
+      "sha256": "6658c1ac8c688ed90682a6dbc759ab569d43a5fc1405df84575374507ce79a6a",
+      "size": 13044,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "siphasher-1.0.3/src/tests128.rs",
+      "sha256": "ae4f63fcc9aa59614e87c53242dd8b533edfe28e55a76e6a6de13f3d51bf0b05",
+      "size": 3862,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

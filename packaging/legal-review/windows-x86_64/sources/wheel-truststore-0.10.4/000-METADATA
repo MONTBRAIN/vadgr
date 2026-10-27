@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: truststore
+Version: 0.10.4
+Summary: Verify certificates using native system trust stores
+Author-email: Seth Michael Larson <sethmichaellarson@gmail.com>, David Glick <david@glicksoftware.com>
+Requires-Python: >= 3.10
+Description-Content-Type: text/markdown
+License-Expression: MIT
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+License-File: LICENSE
+Project-URL: Documentation, https://truststore.readthedocs.io
+Project-URL: Source, https://github.com/sethmlarson/truststore
+
