@@ -127,23 +127,49 @@ function Find-Control {
     param(
         [Parameter(Mandatory)] $Window,
         [Parameter(Mandatory)][string] $Name,
-        [int] $TimeoutSeconds = 60
+        [int] $TimeoutSeconds = 60,
+        # Every window has a title bar Close button with the same accessible
+        # name as the page button beside it. Driving by name alone closes the
+        # window instead of pressing the button, and the run then reads as
+        # finished. A page control carries an automation id; the title bar
+        # control does not.
+        [switch] $PageControl
     )
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     $condition = New-Object System.Windows.Automation.PropertyCondition(
         [System.Windows.Automation.AutomationElement]::NameProperty, $Name)
     while ((Get-Date) -lt $deadline) {
-        $element = $Window.element.FindFirst(
+        $matches = $Window.element.FindAll(
             [System.Windows.Automation.TreeScope]::Descendants, $condition)
-        if ($element -and $element.Current.IsEnabled -and -not $element.Current.IsOffscreen) {
+        foreach ($element in $matches) {
+            if (-not $element.Current.IsEnabled -or $element.Current.IsOffscreen) { continue }
             if ($element.Current.ProcessId -ne $Window.element.Current.ProcessId) {
                 throw "the control named '$Name' belongs to another process"
             }
+            if ($PageControl -and -not $element.Current.AutomationId) { continue }
             return $element
         }
         Start-Sleep -Milliseconds 400
     }
     throw "no enabled control named '$Name' within $TimeoutSeconds seconds"
+}
+
+function Wait-ForText {
+    # Wait until the window's own tree carries one of these strings.
+    param(
+        [Parameter(Mandatory)] $Window,
+        [Parameter(Mandatory)][string[]] $AnyOf,
+        [int] $TimeoutSeconds = 1500
+    )
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        $names = @(Read-WindowTree -Window $Window | ForEach-Object { $_.name })
+        foreach ($wanted in $AnyOf) {
+            if ($names -contains $wanted) { return $wanted }
+        }
+        Start-Sleep -Seconds 5
+    }
+    throw ("none of these appeared within $TimeoutSeconds seconds: " + ($AnyOf -join ', '))
 }
 
 function Read-WindowTree {
@@ -237,18 +263,18 @@ try {
         -Result $(if ($state -eq 'On') { 'pass' } else { 'fail' }) `
         -Detail @{ toggle_state = $state }
 
-    $install = Find-Control -Window $window -Name 'Install Vadgr'
+    $install = Find-Control -Window $window -Name 'Install Vadgr' -PageControl
     Invoke-Control -Element $install
     Add-Step -Name 'the installation starts from the window' -Result 'pass' -Detail @{
         invoked = 'Install Vadgr'
     }
 
-    $close = Find-Control -Window $window -Name 'Close' -TimeoutSeconds 1500
+    $reached = Wait-ForText -Window $window -AnyOf @('Vadgr is ready.', 'Open the setup log')
     $tree = Read-WindowTree -Window $window
-    $ready = @($tree | Where-Object { $_.name -eq 'Vadgr is ready.' }).Count
+    $close = Find-Control -Window $window -Name 'Close' -PageControl
     Add-Step -Name 'the installer reports a finished installation' `
-        -Result $(if ($ready -ge 1) { 'pass' } else { 'fail' }) `
-        -Detail @{ success_text_elements = $ready; tree = $tree }
+        -Result $(if ($reached -eq 'Vadgr is ready.') { 'pass' } else { 'fail' }) `
+        -Detail @{ reached = $reached; tree = $tree }
     Invoke-Control -Element $close
     Start-Sleep -Seconds 3
 
@@ -327,14 +353,14 @@ try {
     $repairLog = Join-Path $Shared 'o1-repair.log'
     $repair = Start-Process -FilePath $setup -ArgumentList @('/log', $repairLog) -PassThru
     $modify = Get-SetupWindow
-    $repairButton = Find-Control -Window $modify -Name 'Repair'
+    $repairButton = Find-Control -Window $modify -Name 'Repair' -PageControl
     Invoke-Control -Element $repairButton
-    $repairClose = Find-Control -Window $modify -Name 'Close' -TimeoutSeconds 1500
+    $repairReached = Wait-ForText -Window $modify -AnyOf @('Vadgr was repaired.', 'Open the setup log')
     $repairTree = Read-WindowTree -Window $modify
-    $repaired = @($repairTree | Where-Object { $_.name -eq 'Vadgr was repaired.' }).Count
+    $repairClose = Find-Control -Window $modify -Name 'Close' -PageControl
     Add-Step -Name 'repair completes from the installed package with no network' `
-        -Result $(if ($repaired -ge 1) { 'pass' } else { 'fail' }) `
-        -Detail @{ repaired_text_elements = $repaired; tree = $repairTree }
+        -Result $(if ($repairReached -eq 'Vadgr was repaired.') { 'pass' } else { 'fail' }) `
+        -Detail @{ reached = $repairReached; tree = $repairTree }
     Invoke-Control -Element $repairClose
     Start-Sleep -Seconds 3
     $healthAfterRepair = Measure-Health
@@ -351,10 +377,12 @@ try {
     $uninstallLog = Join-Path $Shared 'o1-uninstall.log'
     $uninstall = Start-Process -FilePath $setup -ArgumentList @('/log', $uninstallLog) -PassThru
     $removeWindow = Get-SetupWindow
-    $uninstallButton = Find-Control -Window $removeWindow -Name 'Uninstall'
+    $uninstallButton = Find-Control -Window $removeWindow -Name 'Uninstall' -PageControl
     Invoke-Control -Element $uninstallButton
-    $uninstallClose = Find-Control -Window $removeWindow -Name 'Close' -TimeoutSeconds 1500
+    $uninstallReached = Wait-ForText -Window $removeWindow `
+        -AnyOf @('Vadgr was removed. Owner data was preserved.', 'Open the setup log')
     $uninstallTree = Read-WindowTree -Window $removeWindow
+    $uninstallClose = Find-Control -Window $removeWindow -Name 'Close' -PageControl
     Invoke-Control -Element $uninstallClose
     Start-Sleep -Seconds 5
     Add-Step -Name 'uninstall completes and says what it kept' `
