@@ -251,6 +251,120 @@ def require_input_ownership(element, window):
         )
 
 
+GA_ROOT = 2
+MOUSEEVENTF_WHEEL = 0x0800
+WHEEL_DELTA = 120
+
+
+def require_pointer_ownership(window, x: int, y: int):
+    """Refuse to send a wheel event unless this window owns that point.
+
+    A wheel event is delivered by position, not by element, so the element the
+    gesture was aimed at proves nothing. The window under the point is the only
+    thing that decides where the notch goes, and the owner's own application can
+    be under it. So this proves three things before every notch: the target
+    window is the foreground window, the window under the point belongs to the
+    same top level window, and UI Automation reads that point as the target
+    window's own process.
+    """
+    user32 = ctypes.windll.user32
+    expected = int(window.handle)
+    foreground = int(user32.GetForegroundWindow())
+    if foreground != expected:
+        raise SystemExit(
+            f"refusing to send a wheel event: the foreground window is "
+            f"{foreground}, not the target {expected}"
+        )
+    expected_pid = wintypes.DWORD()
+    user32.GetWindowThreadProcessId(expected, ctypes.byref(expected_pid))
+    point = wintypes.POINT(int(x), int(y))
+    under = int(user32.WindowFromPoint(point))
+    if not under:
+        raise SystemExit(f"refusing to send a wheel event: no window at {x},{y}")
+    root = int(user32.GetAncestor(under, GA_ROOT))
+    if root != expected:
+        raise SystemExit(
+            f"refusing to send a wheel event: the window at {x},{y} belongs to "
+            f"{root}, not the target {expected}"
+        )
+    try:
+        element = IUIA().iuia.ElementFromPoint(point)
+    except Exception as error:  # noqa: BLE001 - any failure here must refuse
+        raise SystemExit(f"refusing to send a wheel event: no element at {x},{y} ({error})")
+    if int(element.CurrentProcessId) != int(expected_pid.value):
+        raise SystemExit(
+            f"refusing to send a wheel event: the element at {x},{y} belongs to "
+            f"process {int(element.CurrentProcessId)}, not {int(expected_pid.value)}"
+        )
+
+
+def moved_rows(before: list[dict], after: list[dict]) -> list[dict]:
+    """The named rows whose vertical position changed, by name.
+
+    This exists because the probe that failed read the same coordinates back
+    and could not tell a refused gesture from a scrolled list. An oracle that
+    reports movement where there is none is worse than no oracle, so the
+    comparison is on the recorded rectangles alone.
+    """
+    positions = {}
+    for row in before:
+        rectangle = row.get("rectangle")
+        if row.get("name") and rectangle:
+            positions.setdefault(row["name"], []).append(rectangle[1])
+    moved = []
+    for row in after:
+        rectangle = row.get("rectangle")
+        name = row.get("name")
+        if not name or not rectangle or name not in positions:
+            continue
+        earlier = positions[name]
+        if len(earlier) != 1:
+            # An ambiguous name cannot be followed across the gesture.
+            continue
+        if earlier[0] != rectangle[1]:
+            moved.append({"name": name, "top_before": earlier[0], "top_after": rectangle[1]})
+    return moved
+
+
+def scroll_over(element, window, clicks: int) -> dict:
+    """One real wheel gesture over an element, with its own readback.
+
+    The gesture is what a user performs, so it is a real wheel event at the
+    element's own position rather than a message posted to a window handle.
+    Posted and sent messages were already probed on this host and moved
+    nothing.
+    """
+    user32 = ctypes.windll.user32
+    rectangle = element.rectangle()
+    x, y = int(rectangle.mid_point().x), int(rectangle.mid_point().y)
+    before = [element_row(item) for item in window.descendants()]
+    origin = wintypes.POINT()
+    user32.GetCursorPos(ctypes.byref(origin))
+    notches = 0
+    try:
+        for _ in range(abs(clicks)):
+            if not user32.SetCursorPos(x, y):
+                raise SystemExit(f"could not place the pointer at {x},{y}")
+            require_pointer_ownership(window, x, y)
+            delta = WHEEL_DELTA if clicks > 0 else -WHEEL_DELTA
+            user32.mouse_event(MOUSEEVENTF_WHEEL, 0, 0, ctypes.c_int(delta), 0)
+            notches += 1
+            # The list animates its scroll, so the readback waits for paint.
+            time.sleep(0.15)
+    finally:
+        # The owner's pointer goes back where it was, whatever happened above.
+        user32.SetCursorPos(int(origin.x), int(origin.y))
+    after = [element_row(item) for item in window.descendants()]
+    return {
+        "point": [x, y],
+        "notches": notches,
+        "direction": "up" if clicks > 0 else "down",
+        "rows_before": len(before),
+        "rows_after": len(after),
+        "moved": moved_rows(before, after),
+    }
+
+
 def invoke(element, action: str, text: str | None, window=None):
     if action == "invoke":
         element.iface_invoke.Invoke()
@@ -443,10 +557,14 @@ def main() -> int:
         if name == "act":
             command.add_argument(
                 "--action",
-                choices=("invoke", "click", "press-enter", "toggle", "select", "set-value"),
+                choices=("invoke", "click", "press-enter", "toggle", "select",
+                         "set-value", "scroll"),
                 required=True,
             )
             command.add_argument("--text")
+            # Positive notches scroll up, negative notches scroll down, which
+            # is the sign the operating system itself uses for a wheel.
+            command.add_argument("--scroll-clicks", type=int, default=-3)
         if name == "capture":
             command.add_argument("--output", type=Path, required=True)
             # The composited egui console renders only with the full-content
@@ -477,6 +595,10 @@ def main() -> int:
             args.enabled_only,
         )
         before = element_row(element)
+        if args.action == "scroll":
+            result = scroll_over(element, window, args.scroll_clicks)
+            print(json.dumps({"before": before, "action": args.action, **result}, indent=2))
+            return 0
         invoke(element, args.action, args.text, window)
         print(json.dumps({"before": before, "action": args.action}, indent=2))
     elif args.command == "capture":

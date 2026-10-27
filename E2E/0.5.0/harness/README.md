@@ -95,6 +95,30 @@ after every transition, and verify mutations with the independent oracle named
 by the cell. Do not file captures that contain credentials or owner-private
 identifiers.
 
+### The `scroll` action, and why it proves a point rather than an element
+
+`act --action scroll` performs one real wheel gesture over the selected
+element. Use `--scroll-clicks`: a negative count scrolls down and a positive
+count scrolls up, which is the sign the operating system uses. It prints the
+point it used, the notch count, and every named row whose top edge moved,
+read from the accessibility tree before and after the gesture.
+
+Use it only when the cell asks for the user gesture. A product that scrolls its
+own list to a selection is driven through `select` or `invoke`, which cannot
+reach another application at all.
+
+A wheel event goes to the window under the pointer, so the element it was aimed
+at proves nothing about where it lands. Before every notch the helper proves
+that the target window is the foreground window, that the window under the
+point has the same top level window, and that UI Automation reads that point as
+the target process. Any one of those failing exits non zero and sends nothing.
+The pointer returns to where the owner left it.
+
+This action needs the physical console session. A remote session reports no
+foreground window, and `SPI_SETFOREGROUNDLOCKTIMEOUT` refuses with error 87
+there, so the proof above cannot pass and the helper refuses rather than
+sending a notch into another window.
+
 ### Use `--full-content`, and read `flat_share`
 
 `capture` passes `PW_RENDERFULLCONTENT` only with `--full-content`. Pass it for
