@@ -3,10 +3,21 @@
 import os
 import platform
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
 import unittest
+
+
+# A required gate runs this on a shared Windows runner, where the first rustc
+# invocation of a job waits on cold disk and on the scanner that inspects the
+# executable it writes. Sixty seconds was not a measurement of the compile, it
+# was a guess, and it failed a whole run on 2026-10-23 while the same commit
+# passed on the other hosts. These budgets exist to catch a hang, so they are
+# far longer than any real compile and still much shorter than the job limit.
+COMPILE_BUDGET_SECONDS = 600
+SELECTOR_BUDGET_SECONDS = 120
 
 
 @unittest.skipUnless(shutil.which("rustc"), "build-selector tests need the Rust compiler")
@@ -18,7 +29,7 @@ class BuildPinsTests(unittest.TestCase):
         cls.binary = cls.root / ("build-selector.exe" if os.name == "nt" else "build-selector")
         source = Path(__file__).resolve().parents[2] / "build.rs"
         subprocess.run(["rustc", "--edition=2024", str(source), "-o", str(cls.binary)],
-                       check=True, capture_output=True, timeout=60)
+                       check=True, capture_output=True, timeout=COMPILE_BUDGET_SECONDS)
 
     @classmethod
     def tearDownClass(cls):
@@ -48,7 +59,8 @@ class BuildPinsTests(unittest.TestCase):
                 environment["VADGR_RELEASE_PAYLOAD_BUILD"] = "1"
             if profile is not None:
                 environment["VADGR_RELEASE_PROFILE"] = profile
-            result = subprocess.run([str(self.binary)], env=environment, capture_output=True, timeout=10)
+            result = subprocess.run([str(self.binary)], env=environment, capture_output=True,
+                                    timeout=SELECTOR_BUDGET_SECONDS)
             self.last_stdout = result.stdout.decode()
             generated = output / "cua_release_pins.rs"
             return result.returncode, generated.read_text() if generated.exists() else ""
@@ -126,6 +138,29 @@ class BuildPinsTests(unittest.TestCase):
         for key in identity:
             for value in ("", "a" * 39, "A" * 40, "g" * 40):
                 self.assertNotEqual(self.run_selector(**arguments, identity=dict(identity, **{key: value}))[0], 0)
+
+
+class CompileBudgetTests(unittest.TestCase):
+    """The budgets run everywhere, so this class never needs the compiler.
+
+    A required gate failed on 2026-10-23 because the compile budget was 60
+    seconds: eight tests errored with a timeout on the shared Windows runner
+    while the same commit passed on the other hosts. A budget that a loaded
+    runner can exhaust reports the runner, not the product.
+    """
+
+    def test_the_compile_budget_survives_a_loaded_runner(self):
+        self.assertGreaterEqual(COMPILE_BUDGET_SECONDS, 300)
+
+    def test_the_selector_budget_survives_a_loaded_runner(self):
+        self.assertGreaterEqual(SELECTOR_BUDGET_SECONDS, 60)
+
+    def test_every_wait_in_this_module_comes_from_a_named_budget(self):
+        source = Path(__file__).read_text(encoding="utf-8")
+        waits = re.findall(r"timeout=([A-Za-z0-9_]+)", source)
+        self.assertTrue(waits)
+        for wait in waits:
+            self.assertIn(wait, ("COMPILE_BUDGET_SECONDS", "SELECTOR_BUDGET_SECONDS"))
 
 
 if __name__ == "__main__":
