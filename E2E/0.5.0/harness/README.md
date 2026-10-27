@@ -139,3 +139,36 @@ the single most common colour, counting a transparent pixel as the background
 that shows through it. A capture that is entirely one colour is refused
 outright, because it never rendered. A high but incomplete share is reported
 rather than refused, so read the number before filing the image.
+
+## `windows_sandbox_o1.ps1` and `windows_sandbox_o1_inside.ps1`
+
+These two run the O1 offline lifecycle on Windows. O1 needs an isolated
+snapshot whose external network is already unavailable, and it forbids any
+change to the host firewall, DNS, routes, proxy or VPN. A Windows Sandbox
+session configured with no network adapter satisfies both: the guest has no
+route to anything, the host keeps every setting it had, and the snapshot is
+discarded when its window closes.
+
+`windows_sandbox_o1.ps1` stays on the host. It proves the feature is present,
+assembles the single folder the guest can see, writes the configuration, starts
+the session and waits for the record the guest writes back. The guest sees that
+one folder: no owner profile, no credential file and no source tree.
+
+`windows_sandbox_o1_inside.ps1` runs as the logon command inside the snapshot.
+It measures the isolation before anything is installed, drives the installation
+vehicle through its own window, because a new installation refuses a quiet
+install by design, then launches the CLI and the console, reads the bundled
+legal notices, restarts the daemon twice, repairs, reads the rollback state and
+uninstalls. Every step appends to `o1-record.json` as it happens, because the
+snapshot can be closed at any moment and a step with no record is not a result.
+
+```powershell
+powershell -NoProfile -File E2E\0.5.0\harness\windows_sandbox_o1.ps1 `
+    -Vehicle <pass root>\vehicle\Vadgr-0.5.0-windows-x64-setup.exe `
+    -WorkRoot <pass root>\o1
+```
+
+Windows Sandbox needs the optional feature `Containers-DisposableClientVM`,
+which an administrator enables once and which needs a restart. That is an
+elevated prompt and a restart, so it belongs to the owner. The host script
+refuses with the feature state rather than asking for elevation itself.
