@@ -168,6 +168,16 @@ powershell -NoProfile -File E2E\0.5.0\harness\windows_sandbox_o1.ps1 `
     -WorkRoot <pass root>\o1
 ```
 
+The guest driver also answers the prompt Windows Installer raises when files
+are held. That prompt is a task dialog of the installer's own, not a page in
+the setup window, so a driver that watches only the setup window waits for an
+answer nobody gives: measured on 2026-10-27, an unanswered prompt ends the
+package after about eleven minutes with `0x80070642` and a full rollback, and
+the only sign of it is a window the driver never looked at. The driver answers
+it only when the dialog belongs to the process that owns the setup window,
+because any application can own a dialog of that class, including the owner's
+own tools.
+
 Windows Sandbox needs the optional feature `Containers-DisposableClientVM`,
 which an administrator enables once and which needs a restart. That is an
 elevated prompt and a restart, so it belongs to the owner. The host script

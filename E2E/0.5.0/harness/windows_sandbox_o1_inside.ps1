@@ -154,6 +154,48 @@ function Find-Control {
     throw "no enabled control named '$Name' within $TimeoutSeconds seconds"
 }
 
+function Answer-FilesInUse {
+    # Windows Installer asks about held files in a task dialog of its own, not
+    # in the setup window, so a driver that watches only the setup window waits
+    # for an answer nobody gives. Measured on 2026-10-27: an unanswered prompt
+    # ends the package after about eleven minutes with 0x80070642 and a full
+    # rollback, and the only visible sign is a window the driver never looked
+    # at.
+    #
+    # The process check is not a formality. Any application can own a dialog of
+    # this class, including the owner's own tools, so the dialog is answered
+    # only when it belongs to the process that owns the setup window.
+    param([Parameter(Mandatory)] $Window)
+    $condition = New-Object System.Windows.Automation.PropertyCondition(
+        [System.Windows.Automation.AutomationElement]::ClassNameProperty, '#32770')
+    $dialogs = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+        [System.Windows.Automation.TreeScope]::Children, $condition)
+    foreach ($dialog in $dialogs) {
+        if ($dialog.Current.ProcessId -ne $Window.element.Current.ProcessId) { continue }
+        $owned = [System.Windows.Automation.AutomationElement]::FromHandle(
+            [IntPtr]$dialog.Current.NativeWindowHandle)
+        $names = @()
+        $all = $owned.FindAll([System.Windows.Automation.TreeScope]::Descendants,
+            [System.Windows.Automation.Condition]::TrueCondition)
+        foreach ($element in $all) { $names += $element.Current.Name }
+        $radio = $null
+        $ok = $null
+        foreach ($element in $all) {
+            if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::RadioButton -and
+                $element.Current.Name -like 'Close the applications*') { $radio = $element }
+            if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button -and
+                $element.Current.Name -eq 'OK') { $ok = $element }
+        }
+        if (-not $radio -or -not $ok) { continue }
+        $radio.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
+        $ok.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
+        Add-Step -Name 'the installer asked about held files and the driver answered it' `
+            -Result 'observed' -Detail @{ title = $owned.Current.Name; elements = $names }
+        return $true
+    }
+    return $false
+}
+
 function Wait-ForText {
     # Wait until the window's own tree carries one of these strings.
     param(
@@ -167,6 +209,7 @@ function Wait-ForText {
         foreach ($wanted in $AnyOf) {
             if ($names -contains $wanted) { return $wanted }
         }
+        [void](Answer-FilesInUse -Window $Window)
         Start-Sleep -Seconds 5
     }
     throw ("none of these appeared within $TimeoutSeconds seconds: " + ($AnyOf -join ', '))

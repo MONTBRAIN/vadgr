@@ -87,3 +87,6 @@ def test_the_wheel_gesture_proves_the_point_before_it_sends_anything():
     assert proof < event, "the point must be proved before the notch is sent"
     assert "for _ in range(abs(clicks))" in body[:proof], "the proof runs per notch"
     assert "SetCursorPos(int(origin.x), int(origin.y))" in body, "the pointer is restored"
+    # The list moves under the pointer, so each notch has its own recipient and
+    # keeping only the last one reads as a contradiction of the rectangles.
+    assert "received.append(" in body, "every notch records what received it"

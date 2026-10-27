@@ -256,16 +256,21 @@ MOUSEEVENTF_WHEEL = 0x0800
 WHEEL_DELTA = 120
 
 
-def require_pointer_ownership(window, x: int, y: int):
-    """Refuse to send a wheel event unless this window owns that point.
+def require_pointer_ownership(window, x: int, y: int, expected_name: str | None = None):
+    """Refuse to send a mouse event unless this window owns that point.
 
-    A wheel event is delivered by position, not by element, so the element the
+    A mouse event is delivered by position, not by element, so the element the
     gesture was aimed at proves nothing. The window under the point is the only
-    thing that decides where the notch goes, and the owner's own application can
-    be under it. So this proves three things before every notch: the target
+    thing that decides where the event goes, and the owner's own application can
+    be under it. So this proves three things before every event: the target
     window is the foreground window, the window under the point belongs to the
     same top level window, and UI Automation reads that point as the target
     window's own process.
+
+    `expected_name` adds the fourth proof wherever the caller knows it: the
+    element that will really receive the event is the one that was selected.
+    That is stronger than asking which element holds keyboard focus, because a
+    mouse event never goes to the focused element.
     """
     user32 = ctypes.windll.user32
     expected = int(window.handle)
@@ -296,6 +301,12 @@ def require_pointer_ownership(window, x: int, y: int):
             f"refusing to send a wheel event: the element at {x},{y} belongs to "
             f"process {int(element.CurrentProcessId)}, not {int(expected_pid.value)}"
         )
+    if expected_name is not None and element.CurrentName != expected_name:
+        raise SystemExit(
+            f"refusing to send input: the element at {x},{y} is "
+            f"{element.CurrentName!r}, not {expected_name!r}"
+        )
+    return element.CurrentName
 
 
 def moved_rows(before: list[dict], after: list[dict]) -> list[dict]:
@@ -341,11 +352,17 @@ def scroll_over(element, window, clicks: int) -> dict:
     origin = wintypes.POINT()
     user32.GetCursorPos(ctypes.byref(origin))
     notches = 0
+    received = []
     try:
         for _ in range(abs(clicks)):
             if not user32.SetCursorPos(x, y):
                 raise SystemExit(f"could not place the pointer at {x},{y}")
-            require_pointer_ownership(window, x, y)
+            # The notch goes to whatever sits at the point, which can be a
+            # part of the row rather than the row itself, so the name that
+            # received it is recorded instead of required. Every notch is
+            # recorded, because the list moves under the pointer and the last
+            # recipient alone reads as a contradiction of the rectangles.
+            received.append(require_pointer_ownership(window, x, y))
             delta = WHEEL_DELTA if clicks > 0 else -WHEEL_DELTA
             user32.mouse_event(MOUSEEVENTF_WHEEL, 0, 0, ctypes.c_int(delta), 0)
             notches += 1
@@ -359,6 +376,7 @@ def scroll_over(element, window, clicks: int) -> dict:
         "point": [x, y],
         "notches": notches,
         "direction": "up" if clicks > 0 else "down",
+        "received_by": received,
         "rows_before": len(before),
         "rows_after": len(after),
         "moved": moved_rows(before, after),
@@ -376,8 +394,15 @@ def invoke(element, action: str, text: str | None, window=None):
         # human or image recognition.
         #
         # This is a real mouse event at the element's screen position, so it
-        # lands on whatever window is in front of that position.
-        require_input_ownership(element, window)
+        # lands on whatever window is in front of that position. The proof is
+        # therefore about the position: the focused element is not the
+        # recipient of a click and asking about it refuses correct clicks on a
+        # toolkit that reports focus only for the window.
+        if window is None:
+            raise SystemExit("refusing to click without the target window")
+        middle = element.rectangle().mid_point()
+        require_pointer_ownership(window, int(middle.x), int(middle.y),
+                                  element.element_info.name)
         element.click_input()
     elif action == "press-enter":
         # Exercise the semantic keyboard route used by screen-reader users.
