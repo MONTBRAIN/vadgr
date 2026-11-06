@@ -393,6 +393,9 @@ function Measure-Health {
     return @{ status = 0; error = "no answer on loopback within $TimeoutSeconds seconds" }
 }
 
+# Always call this inside @(). PowerShell unwraps a one element result, and a
+# hashtable's Count is the number of its keys, so one running daemon counted as
+# two and three correct steps were recorded as failures on 2026-11-06.
 function Get-DaemonProcesses {
     return @(Get-Process -Name 'vadgr' -ErrorAction SilentlyContinue |
         Where-Object { $_.Path -and $_.Path.StartsWith($installRoot, 'OrdinalIgnoreCase') } |
@@ -477,7 +480,7 @@ try {
 
     $start = Invoke-Capture -Command $cli -Arguments @('start')
     $health = Measure-Health
-    $daemons = Get-DaemonProcesses
+    $daemons = @(Get-DaemonProcesses)
     Add-Step -Name 'the daemon starts and answers on loopback with no network' `
         -Result $(if ($health.status -eq 200 -and $daemons.Count -eq 1) { 'pass' } else { 'fail' }) `
         -Detail @{ start = $start; health = $health; daemons = $daemons }
@@ -487,7 +490,7 @@ try {
         Start-Sleep -Seconds 2
         $restart = Invoke-Capture -Command $cli -Arguments @('start')
         $after = Measure-Health
-        $running = Get-DaemonProcesses
+        $running = @(Get-DaemonProcesses)
         Add-Step -Name "restart $round leaves exactly one healthy daemon" `
             -Result $(if ($after.status -eq 200 -and $running.Count -eq 1) { 'pass' } else { 'fail' }) `
             -Detail @{ stop = $stop; start = $restart; health = $after; daemons = $running }
@@ -523,7 +526,7 @@ try {
             seconds = $(if ($captured) { $captured.seconds } else { 'over the 120 second budget' })
             exit_code = $(if ($captured) { $captured.exit_code } else { $null })
             health = $healthAfterCapture
-            daemons = Get-DaemonProcesses
+            daemons = @(Get-DaemonProcesses)
         }
 
     $console = Start-Process -FilePath $app -PassThru
@@ -566,7 +569,7 @@ try {
     $healthAfterRepair = Measure-Health
     Add-Step -Name 'the daemon is healthy after the repair' `
         -Result $(if ($healthAfterRepair.status -eq 200) { 'pass' } else { 'fail' }) `
-        -Detail @{ health = $healthAfterRepair; daemons = Get-DaemonProcesses }
+        -Detail @{ health = $healthAfterRepair; daemons = @(Get-DaemonProcesses) }
 
     $rollback = Invoke-Capture -Command $cli -Arguments @('rollback')
     Add-Step -Name 'rollback states the truth on a first installation' -Result 'observed' `
@@ -590,7 +593,7 @@ try {
         -Detail @{
             install_root_present = (Test-Path -LiteralPath $installRoot)
             tree = $uninstallTree
-            remaining_daemons = Get-DaemonProcesses
+            remaining_daemons = @(Get-DaemonProcesses)
         }
 
     $profileState = @()

@@ -134,3 +134,18 @@ def test_the_host_waits_for_a_previous_virtual_machine_before_starting():
     start = source.index("vmmemWindowsSandbox")
     launch = source.index("Start-Process -FilePath $sandbox")
     assert start < launch, "the check must come before the session is started"
+
+
+def test_the_daemon_count_is_never_read_from_an_unwrapped_result():
+    """One daemon counted as two: a hashtable's Count is its number of keys."""
+    calls = []
+    for line in guest_source().splitlines():
+        if "Get-DaemonProcesses" not in line:
+            continue
+        if line.strip().startswith("function "):
+            continue
+        if "@(Get-DaemonProcesses)" not in line:
+            calls.append(line.strip())
+    assert not calls, f"every call must be wrapped in @(): {calls}"
+    assert guest_source().count("@(Get-DaemonProcesses)") >= 5, \
+        "each call site must keep its result an array"
