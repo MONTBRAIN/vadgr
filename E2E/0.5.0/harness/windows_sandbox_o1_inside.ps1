@@ -131,8 +131,17 @@ function Find-Control {
         # Every window has a title bar Close button with the same accessible
         # name as the page button beside it. Driving by name alone closes the
         # window instead of pressing the button, and the run then reads as
-        # finished. A page control carries an automation id; the title bar
-        # control does not.
+        # finished.
+        #
+        # The discriminator is the shape of the automation id, not its
+        # presence. Measured on this theme on 2026-11-06: the title bar button
+        # reports the id `Close`, so requiring an id at all admits exactly the
+        # control this switch exists to refuse. Minimize, Maximize and the four
+        # scroll buttons report names as ids too.
+        #
+        # Every page control carries the dialog control id as a number:
+        # Install Vadgr 32768, Decline 111, the page Close 132 and
+        # Uninstall 32773.
         [switch] $PageControl
     )
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
@@ -146,7 +155,7 @@ function Find-Control {
             if ($element.Current.ProcessId -ne $Window.element.Current.ProcessId) {
                 throw "the control named '$Name' belongs to another process"
             }
-            if ($PageControl -and -not $element.Current.AutomationId) { continue }
+            if ($PageControl -and ($element.Current.AutomationId -notmatch '^\d+$')) { continue }
             return $element
         }
         Start-Sleep -Milliseconds 400
