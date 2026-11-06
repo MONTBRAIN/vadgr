@@ -595,7 +595,26 @@ try {
         -Detail @{ process = $console.Id; elements = $consoleRows.Count
                    rollback_rows = @($consoleRows | Where-Object { $_.name -like '*oll back*' }) }
 
+    # Stopping the launcher does not stop the console. `vadgr-app.exe` starts
+    # the backend with `--console` and exits its own window, so the process
+    # that holds the installed files is a `vadgr.exe`, not the launcher. The
+    # repair that follows met eight applications holding files on 2026-11-06
+    # because this stopped the launcher and left the console running.
     Get-Process -Id $console.Id -ErrorAction SilentlyContinue | Stop-Process -Force
+    $held = Invoke-Capture -Command $cli -Arguments @('stop')
+    $stillRunning = @(Get-Process -Name 'vadgr', 'vadgr-app' -ErrorAction SilentlyContinue |
+        Where-Object { $_.Path -and $_.Path.StartsWith($installRoot, 'OrdinalIgnoreCase') })
+    foreach ($process in $stillRunning) {
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    }
+    Start-Sleep -Seconds 3
+    Add-Step -Name 'nothing of the product holds its own files before the repair' `
+        -Result $(if (@(Get-DaemonProcesses).Count -eq 0) { 'pass' } else { 'fail' }) `
+        -Detail @{
+            stop = $held
+            stopped_by_name = @($stillRunning | ForEach-Object { @{ id = $_.Id; name = $_.ProcessName } })
+            remaining = @(Get-DaemonProcesses)
+        }
     Start-Sleep -Seconds 2
 
     $repairLog = Join-Path $Shared 'o1-repair.log'

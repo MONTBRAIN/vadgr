@@ -187,3 +187,14 @@ def test_a_stalled_step_records_everything_on_the_guest_screen():
         "the stalled step must record what was on screen when it stalled"
     inventory = source.split("function Get-TopLevelWindows", 1)[1].split("\nfunction ", 1)[0]
     assert "TrueCondition" in inventory, "the inventory must not filter by name or class"
+
+
+def test_the_console_is_stopped_by_what_actually_holds_the_files():
+    """The launcher exits; the console that holds the installed files does not."""
+    source = guest_source()
+    before_repair = source.split("$repairLog = Join-Path", 1)[0]
+    tail = before_repair[-2000:]
+    assert "nothing of the product holds its own files before the repair" in tail, \
+        "the run must prove the product released its files before repairing"
+    assert "'vadgr', 'vadgr-app'" in tail, \
+        "both the console process and the launcher must be stopped by name"
