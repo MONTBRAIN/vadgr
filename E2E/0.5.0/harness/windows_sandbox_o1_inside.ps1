@@ -287,10 +287,56 @@ function Wait-ForText {
         foreach ($wanted in $AnyOf) {
             if ($names -contains $wanted) { return $wanted }
         }
+        # A wait that reports nothing is indistinguishable from a stopped run,
+        # and the host outside the snapshot has nothing else to read.
+        Write-Heartbeat ("waiting for: " + ($AnyOf -join ' | '))
         [void](Answer-FilesInUse -Window $Window)
+        # Windows Installer reports a failed custom action in a dialog of its
+        # own and then waits for a person. Waiting for success text while that
+        # dialog is on screen spends the whole budget and reports a timeout,
+        # which names neither the failure nor the action that caused it. The
+        # text is returned so the step records the real reason instead.
+        $problem = Read-InstallerProblem -Window $Window
+        if ($problem) { return $problem }
         Start-Sleep -Seconds 5
     }
     throw ("none of these appeared within $TimeoutSeconds seconds: " + ($AnyOf -join ', '))
+}
+
+function Read-InstallerProblem {
+    # An installer error dialog belongs to the setup process, carries no
+    # choice beyond acknowledging it, and says what went wrong in its text.
+    param([Parameter(Mandatory)] $Window)
+    $condition = New-Object System.Windows.Automation.PropertyCondition(
+        [System.Windows.Automation.AutomationElement]::ClassNameProperty, '#32770')
+    $dialogs = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+        [System.Windows.Automation.TreeScope]::Children, $condition)
+    foreach ($dialog in $dialogs) {
+        if ($dialog.Current.ProcessId -ne $Window.element.Current.ProcessId) { continue }
+        $owned = [System.Windows.Automation.AutomationElement]::FromHandle(
+            [IntPtr]$dialog.Current.NativeWindowHandle)
+        $all = $owned.FindAll([System.Windows.Automation.TreeScope]::Descendants,
+            [System.Windows.Automation.Condition]::TrueCondition)
+        $texts = @()
+        $buttons = @()
+        foreach ($element in $all) {
+            if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::Text) {
+                $texts += $element.Current.Name
+            }
+            if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button) {
+                $buttons += $element.Current.Name
+            }
+        }
+        $message = ($texts -join ' ').Trim()
+        if (-not $message) { continue }
+        # The files in use prompt is answered elsewhere and offers a choice.
+        if ($buttons -contains 'Cancel' -or $message -like '*files in use*') { continue }
+        if ($message -like '*problem with this Windows Installer package*' -or
+            $message -like 'Error *' -or $message -like '*did not finish as expected*') {
+            return "INSTALLER PROBLEM: $message"
+        }
+    }
+    return $null
 }
 
 function Read-WindowTree {

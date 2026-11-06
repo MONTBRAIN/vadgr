@@ -95,3 +95,30 @@ def test_the_record_keeps_the_detail_the_transcript_only_samples():
     assert "Substring(0, 2000)" in add_step, "the transcript line must be capped"
     assert "kept in the record" in add_step, "the cap must say where the rest went"
     assert "detail = $Detail" in add_step, "the record itself keeps the whole detail"
+
+
+def test_the_wait_loop_beats_while_it_waits():
+    """A long wait and a stopped guest look identical without a pulse."""
+    source = guest_source()
+    loop = source.split("function Wait-ForText", 1)[1].split("\nfunction ", 1)[0]
+    assert "Write-Heartbeat" in loop, "the wait loop must report that it is still waiting"
+
+
+def test_the_wait_loop_reads_an_installer_error_instead_of_waiting_it_out():
+    """Windows Installer reports a failed action in a dialog and then waits."""
+    source = guest_source()
+    loop = source.split("function Wait-ForText", 1)[1].split("\nfunction ", 1)[0]
+    assert "Read-InstallerProblem" in loop, \
+        "the wait must notice an error dialog rather than spend its whole budget"
+    assert "return $problem" in loop, \
+        "the failure text must reach the step, which decides pass or fail"
+
+
+def test_an_installer_error_is_only_read_from_the_setup_process():
+    """Any application can own a dialog of this class, including the owner's."""
+    source = guest_source()
+    reader = source.split("function Read-InstallerProblem", 1)[1].split("\nfunction ", 1)[0]
+    assert "ProcessId -ne $Window.element.Current.ProcessId" in reader, \
+        "a dialog of another process must be ignored"
+    assert "files in use" in reader, \
+        "the files in use prompt is answered elsewhere and must not be read as a failure"
