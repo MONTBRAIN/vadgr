@@ -1837,7 +1837,51 @@ fn detach(command: &mut Command) {
         use std::os::windows::process::CommandExt;
         const CREATE_NO_WINDOW: u32 = 0x0800_0000;
         command.creation_flags(CREATE_NO_WINDOW);
+        keep_our_streams_out_of_the_daemon();
     }
+}
+
+/// Stop the daemon inheriting the streams this process was handed.
+///
+/// Giving a child explicit handles for its three standard streams does not stop
+/// it inheriting every other inheritable handle, and on Windows our own stdout
+/// is one of them. When the caller is a pipe rather than a terminal, the daemon
+/// then holds the write end for as long as it runs, the pipe never reaches end
+/// of file, and the caller waits forever on a command that already exited.
+///
+/// Measured on 2026-11-06: `vadgr start` inside a PowerShell pipeline returned
+/// exit 0 and left its caller blocked for ten minutes, until the daemon was
+/// stopped. That reaches ordinary use, because capturing the output of a
+/// command is how a script reads it.
+#[cfg(windows)]
+fn keep_our_streams_out_of_the_daemon() {
+    use std::io::{stderr, stdin, stdout};
+    use std::os::windows::io::AsRawHandle;
+
+    for handle in [
+        stdin().as_raw_handle(),
+        stdout().as_raw_handle(),
+        stderr().as_raw_handle(),
+    ] {
+        // A stream can be absent, which is not a failure: a service has no
+        // console, and there is then nothing for the daemon to inherit.
+        if handle.is_null() {
+            continue;
+        }
+        stop_inheriting(handle);
+    }
+}
+
+/// Clear the inherit flag on one handle. Separated so it can be proved against
+/// a handle a test owns rather than against whatever the harness hands us.
+#[cfg(windows)]
+fn stop_inheriting(handle: std::os::windows::io::RawHandle) {
+    use windows_sys::Win32::Foundation::{HANDLE_FLAG_INHERIT, SetHandleInformation};
+
+    // SAFETY: the handle comes from a live standard stream or from a pipe the
+    // caller owns, and clearing the flag changes nothing for this process: it
+    // only stops children receiving a copy.
+    unsafe { SetHandleInformation(handle, HANDLE_FLAG_INHERIT, 0) };
 }
 
 pub fn stop() -> Result<(), CliError> {
@@ -2580,6 +2624,73 @@ fn install_binaries(repo: &Path) -> Result<usize, CliError> {
 #[cfg(test)]
 mod startup_tests {
     use super::*;
+
+    /// The caller of `vadgr start` waits on its pipe, not on the command. A
+    /// daemon that inherits that pipe holds it open for its whole life, so the
+    /// caller never returns from a command that already exited. The flag is
+    /// proved against a pipe this test owns, because the handles a test harness
+    /// hands us are not ours to characterise.
+    #[cfg(windows)]
+    #[test]
+    fn a_stream_the_daemon_must_not_inherit_loses_its_inherit_flag() {
+        use std::os::windows::io::AsRawHandle;
+        use windows_sys::Win32::Foundation::{
+            GetHandleInformation, HANDLE_FLAG_INHERIT, SetHandleInformation,
+        };
+
+        let (reader, _writer) = std::io::pipe().expect("a pipe");
+        let handle = reader.as_raw_handle();
+
+        // SAFETY: the pipe is alive for the whole test and owns this handle.
+        unsafe {
+            assert_ne!(
+                SetHandleInformation(handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT),
+                0,
+                "the test could not make its own handle inheritable"
+            );
+        }
+        let mut flags = 0u32;
+        // SAFETY: as above.
+        unsafe { assert_ne!(GetHandleInformation(handle, &mut flags), 0) };
+        assert_eq!(
+            flags & HANDLE_FLAG_INHERIT,
+            HANDLE_FLAG_INHERIT,
+            "the test did not reach the state it measures"
+        );
+
+        stop_inheriting(handle);
+
+        // SAFETY: as above.
+        unsafe { assert_ne!(GetHandleInformation(handle, &mut flags), 0) };
+        assert_eq!(
+            flags & HANDLE_FLAG_INHERIT,
+            0,
+            "the daemon would inherit this stream and hold its caller open"
+        );
+    }
+
+    /// The clearing has to happen on the spawn path, not merely exist.
+    #[cfg(windows)]
+    #[test]
+    fn the_daemon_spawn_path_clears_our_streams() {
+        let source = include_str!("service.rs");
+        let detach = source
+            .split_once("fn detach(command: &mut Command)")
+            .expect("the daemon spawn path still detaches")
+            .1;
+        let windows_branch = detach
+            .split_once("#[cfg(windows)]")
+            .expect("detach still has a Windows branch")
+            .1;
+        let body = windows_branch
+            .split_once("\n}")
+            .expect("the Windows branch ends")
+            .0;
+        assert!(
+            body.contains("keep_our_streams_out_of_the_daemon()"),
+            "detach must stop the daemon inheriting this process's streams"
+        );
+    }
 
     #[cfg(unix)]
     #[test]
