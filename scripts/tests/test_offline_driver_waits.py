@@ -122,3 +122,15 @@ def test_an_installer_error_is_only_read_from_the_setup_process():
         "a dialog of another process must be ignored"
     assert "files in use" in reader, \
         "the files in use prompt is answered elsewhere and must not be read as a failure"
+
+
+def test_the_host_waits_for_a_previous_virtual_machine_before_starting():
+    """Two sessions cannot coexist, and the second is logged off with the first."""
+    source = host_source()
+    assert "vmmemWindowsSandbox" in source, \
+        "the host must notice a previous session's virtual machine"
+    assert re.search(r"\$PreviousSessionMinutes\s*=\s*\d+", source), \
+        "that wait needs its own named limit"
+    start = source.index("vmmemWindowsSandbox")
+    launch = source.index("Start-Process -FilePath $sandbox")
+    assert start < launch, "the check must come before the session is started"

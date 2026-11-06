@@ -24,7 +24,9 @@ param(
     [int] $TimeoutMinutes = 90,
     # The longest the guest may write nothing at all. Its slowest honest step
     # is the packaged startup wait, which the product bounds at 300 seconds.
-    [int] $StallMinutes = 12
+    [int] $StallMinutes = 12,
+    # The longest to wait for a previous session's virtual machine to go.
+    [int] $PreviousSessionMinutes = 10
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -37,6 +39,25 @@ if (-not (Test-Path -LiteralPath $sandbox)) {
 }
 if (-not (Test-Path -LiteralPath $Vehicle -PathType Leaf)) {
     throw "no installation vehicle at $Vehicle"
+}
+
+# Windows Sandbox hosts one session at a time, and a closed session keeps its
+# virtual machine alive for a while afterwards. Starting into that window gets
+# the new session logged off with the old one: measured on 2026-11-06, the
+# guest never reached its first line and the snapshot showed "The remote
+# environment is logging off". Waiting for the machine to go is the whole fix,
+# and it is bounded so a machine that never goes is reported rather than
+# waited on.
+$waited = 0
+while ((Get-Process -Name 'vmmemWindowsSandbox' -ErrorAction SilentlyContinue) -and
+       $waited -lt ($PreviousSessionMinutes * 60)) {
+    if ($waited -eq 0) { Write-Output 'a previous sandbox virtual machine is still running; waiting for it' }
+    Start-Sleep -Seconds 10
+    $waited += 10
+}
+if (Get-Process -Name 'vmmemWindowsSandbox' -ErrorAction SilentlyContinue) {
+    throw ("a previous sandbox virtual machine is still running after $PreviousSessionMinutes " +
+        'minutes. Starting now would log this session off with it.')
 }
 
 $shared = Join-Path $WorkRoot 'shared'
