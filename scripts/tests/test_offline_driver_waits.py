@@ -48,15 +48,27 @@ def test_every_capture_bound_comes_from_a_named_budget():
     source = guest_source()
     assert re.search(r"\$script:CommandBudgetSeconds\s*=\s*\d+", source), \
         "the budget must be named rather than written at each call"
-    for waited in re.findall(r"WaitForExit\(([^)]*)\)", source):
-        assert waited.strip(), "WaitForExit() with no bound waits forever"
+    # One unbounded wait is correct and only one: after a bounded wait has
+    # already returned, it reads the exit code of a process that has ended.
+    # Any other would be a wait on something that may never happen.
+    unbounded = [w for w in re.findall(r"WaitForExit\(([^)]*)\)", source) if not w.strip()]
+    assert len(unbounded) == 1, \
+        f"expected exactly one exit-code read, found {len(unbounded)} unbounded waits"
+    after_bounded = source.split("$finished = $process.WaitForExit(", 1)
+    assert len(after_bounded) == 2 and "$process.WaitForExit()" in after_bounded[1], \
+        "the unbounded wait must follow the bounded one, not replace it"
 
 
 def test_a_command_that_passes_its_budget_is_recorded_rather_than_hidden():
     source = guest_source()
     capture = source.split("function Invoke-Capture", 1)[1].split("\nfunction ", 1)[0]
     assert "timed_out" in capture, "a step must be able to say that it ran out of budget"
-    assert ".Kill()" in capture, "a command past its budget must be stopped"
+    # The whole tree: a child of the stopped command keeps the redirected
+    # files open, so stopping the command alone leaves them locked.
+    assert "taskkill.exe /T /F" in capture, \
+        "a command past its budget must have its whole process tree stopped"
+    assert "$null = $process.Handle" in capture, \
+        "the handle must be cached before the wait, or every exit code reads back empty"
 
 
 def test_the_guest_writes_a_pulse_the_host_can_read():
