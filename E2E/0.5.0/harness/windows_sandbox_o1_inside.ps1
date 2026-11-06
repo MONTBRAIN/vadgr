@@ -660,10 +660,21 @@ try {
         Invoke-Control -Element $repairClose
         Start-Sleep -Seconds 3
     }
+    # The repair runs with the product stopped, which is what lets it finish,
+    # and repairing a package does not start a service that was not running.
+    # Asking for health straight afterwards asks this path for something it
+    # never promises. What matters is that the repaired installation runs, so
+    # the run starts it and reads health then.
+    $startAfterRepair = Invoke-Capture -Command $cli -Arguments @('start')
     $healthAfterRepair = Measure-Health
-    Add-Step -Name 'the daemon is healthy after the repair' `
-        -Result $(if ($healthAfterRepair.status -eq 200) { 'pass' } else { 'fail' }) `
-        -Detail @{ health = $healthAfterRepair; daemons = @(Get-DaemonProcesses) }
+    $daemonsAfterRepair = @(Get-DaemonProcesses)
+    Add-Step -Name 'the repaired installation runs again with no network' `
+        -Result $(if ($healthAfterRepair.status -eq 200 -and $daemonsAfterRepair.Count -eq 1) { 'pass' } else { 'fail' }) `
+        -Detail @{
+            start = $startAfterRepair
+            health = $healthAfterRepair
+            daemons = $daemonsAfterRepair
+        }
 
     $rollback = Invoke-Capture -Command $cli -Arguments @('rollback')
     Add-Step -Name 'rollback states the truth on a first installation' -Result 'observed' `
