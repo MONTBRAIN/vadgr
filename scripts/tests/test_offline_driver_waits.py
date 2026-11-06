@@ -149,3 +149,22 @@ def test_the_daemon_count_is_never_read_from_an_unwrapped_result():
     assert not calls, f"every call must be wrapped in @(): {calls}"
     assert guest_source().count("@(Get-DaemonProcesses)") >= 5, \
         "each call site must keep its result an array"
+
+
+def test_the_held_files_prompt_is_answered_in_both_its_shapes():
+    """Eight applications held files and the radio the driver required was absent."""
+    source = guest_source()
+    answer = source.split("function Answer-FilesInUse", 1)[1].split("\nfunction ", 1)[0]
+    assert "if (-not $ok)" in answer, \
+        "a prompt without the restart radio must still be answered through OK"
+    assert "could not be answered" in answer, \
+        "a dialog this driver cannot answer must be recorded, not skipped in silence"
+    assert "$radio" in answer and "SelectionItemPattern" in answer, \
+        "the restart choice is still taken when the prompt offers it"
+
+
+def test_the_repair_wait_is_shorter_than_the_default():
+    """A repair that is stuck should be reported in minutes, not in half an hour."""
+    source = guest_source()
+    repair = source.split("$repairReached = Wait-ForText", 1)[1][:200]
+    assert "-TimeoutSeconds" in repair, "the repair wait must carry its own budget"

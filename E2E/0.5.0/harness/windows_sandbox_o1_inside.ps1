@@ -256,19 +256,45 @@ function Answer-FilesInUse {
         $all = $owned.FindAll([System.Windows.Automation.TreeScope]::Descendants,
             [System.Windows.Automation.Condition]::TrueCondition)
         foreach ($element in $all) { $names += $element.Current.Name }
+        # This prompt has two shapes, and the driver met the second one only
+        # after assuming the first. With applications Restart Manager can close
+        # and restart, it offers that as a radio button. With applications it
+        # cannot, it lists them and offers only an acknowledgement. Measured on
+        # 2026-11-06: a repair reported eight applications holding files, the
+        # radio the driver required was not there, and the step waited out its
+        # whole budget without answering anything.
         $radio = $null
         $ok = $null
+        $buttons = @()
         foreach ($element in $all) {
             if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::RadioButton -and
                 $element.Current.Name -like 'Close the applications*') { $radio = $element }
-            if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button -and
-                $element.Current.Name -eq 'OK') { $ok = $element }
+            if ($element.Current.ControlType -eq [System.Windows.Automation.ControlType]::Button) {
+                $buttons += $element.Current.Name
+                if ($element.Current.Name -eq 'OK') { $ok = $element }
+            }
         }
-        if (-not $radio -or -not $ok) { continue }
-        $radio.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
+        if (-not $ok) {
+            # Not a prompt this driver can answer. Record it once, with its
+            # tree, so the next run is read rather than guessed at.
+            if (-not $script:unknownDialogRecorded) {
+                $script:unknownDialogRecorded = $true
+                Add-Step -Name 'a dialog of the setup process could not be answered' `
+                    -Result 'observed' -Detail @{
+                        title = $owned.Current.Name; elements = $names; buttons = $buttons }
+            }
+            continue
+        }
+        $answered = 'acknowledged the list of applications holding files'
+        if ($radio) {
+            $radio.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select()
+            $answered = 'chose to close and restart the applications holding files'
+        }
         $ok.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
         Add-Step -Name 'the installer asked about held files and the driver answered it' `
-            -Result 'observed' -Detail @{ title = $owned.Current.Name; elements = $names }
+            -Result 'observed' -Detail @{
+                title = $owned.Current.Name; answer = $answered
+                buttons = $buttons; elements = $names }
         return $true
     }
     return $false
@@ -558,7 +584,11 @@ try {
     $modify = Get-SetupWindow
     $repairButton = Find-Control -Window $modify -Name 'Repair' -PageControl
     Invoke-Control -Element $repairButton
-    $repairReached = Wait-ForText -Window $modify -AnyOf @('Vadgr was repaired.', 'Open the setup log')
+    # Repair is the shortest of the three operations when nothing blocks it:
+    # the host measured it in minutes. A budget of 25 minutes here only
+    # delays the report of a repair that is stuck.
+    $repairReached = Wait-ForText -Window $modify -TimeoutSeconds 600 `
+        -AnyOf @('Vadgr was repaired.', 'Open the setup log')
     $repairTree = Read-WindowTree -Window $modify
     $repairClose = Find-Control -Window $modify -Name 'Close' -PageControl
     Add-Step -Name 'repair completes from the installed package with no network' `
