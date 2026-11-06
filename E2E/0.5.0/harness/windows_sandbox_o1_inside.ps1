@@ -95,23 +95,41 @@ function Invoke-Capture {
     $started = Get-Date
     $process = Start-Process -FilePath $Command -ArgumentList $Arguments -PassThru `
         -NoNewWindow -RedirectStandardOutput $outPath -RedirectStandardError $errPath
+    # Reading the handle here caches it. Without that the exit code reads back
+    # empty once the process ends, and an empty exit code is worse than none:
+    # a failed command then looks like a successful one.
+    $null = $process.Handle
     $finished = $process.WaitForExit($BudgetSeconds * 1000)
     if (-not $finished) {
         Write-Heartbeat ("budget reached: $Command after $BudgetSeconds seconds")
-        try { $process.Kill() } catch { }
-        $process.WaitForExit(15000) | Out-Null
+        # The whole tree, because a child of the command keeps the redirected
+        # files open and the command's own death does not release them.
+        & taskkill.exe /T /F /PID $process.Id 2>&1 | Out-Null
+        [void]$process.WaitForExit(15000)
     }
+    # The bounded wait returns before the exit code is readable, so the
+    # unbounded one follows it. The process has already ended either way, so
+    # this cannot reintroduce a wait: it only finishes reading what happened.
+    # Without it every captured command reports an empty exit code, which is
+    # worse than no capture, because a failure then reads as a success.
+    $process.WaitForExit()
+    $exitCode = $null
+    try { $exitCode = $process.ExitCode } catch { $exitCode = $null }
+
     $output = @()
     foreach ($path in @($outPath, $errPath)) {
-        if (Test-Path -LiteralPath $path) {
-            $output += @(Get-Content -LiteralPath $path -ErrorAction SilentlyContinue)
-            Remove-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        $output += @(Get-Content -LiteralPath $path -ErrorAction SilentlyContinue)
+        # A killed process can still hold its redirect file for a moment.
+        foreach ($attempt in 1..10) {
+            try { Remove-Item -LiteralPath $path -Force -ErrorAction Stop; break }
+            catch { Start-Sleep -Milliseconds 200 }
         }
     }
     return @{
-        exit_code = $(if ($finished) { $process.ExitCode } else { $null })
+        exit_code = $exitCode
         timed_out = (-not $finished)
-        seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
+        seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 2)
         output = (($output | ForEach-Object { "$_" }) -join "`n")
     }
 }
