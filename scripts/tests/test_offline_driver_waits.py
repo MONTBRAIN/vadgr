@@ -168,3 +168,22 @@ def test_the_repair_wait_is_shorter_than_the_default():
     source = guest_source()
     repair = source.split("$repairReached = Wait-ForText", 1)[1][:200]
     assert "-TimeoutSeconds" in repair, "the repair wait must carry its own budget"
+
+
+def test_a_stalled_step_does_not_end_the_whole_run():
+    """Repair stalled twice and took the uninstall cells down with it."""
+    source = guest_source()
+    assert "$repairStall" in source, "a stalled repair must be caught and recorded"
+    repair = source.split("$repairReached = $null", 1)[1].split("Add-Step", 1)[0]
+    assert "try {" in repair and "catch {" in repair, \
+        "the wait must be caught so the cells after it still run"
+
+
+def test_a_stalled_step_records_everything_on_the_guest_screen():
+    """The snapshot is discarded, so an unfiltered inventory is the only record."""
+    source = guest_source()
+    assert "function Get-TopLevelWindows" in source
+    assert "windows_on_screen" in source, \
+        "the stalled step must record what was on screen when it stalled"
+    inventory = source.split("function Get-TopLevelWindows", 1)[1].split("\nfunction ", 1)[0]
+    assert "TrueCondition" in inventory, "the inventory must not filter by name or class"

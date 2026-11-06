@@ -329,6 +329,25 @@ function Wait-ForText {
     throw ("none of these appeared within $TimeoutSeconds seconds: " + ($AnyOf -join ', '))
 }
 
+function Get-TopLevelWindows {
+    # Everything on the guest's screen, with no filter. A filtered look is how
+    # the held files prompt went unseen for eleven minutes on 2026-10-27, and
+    # a stalled step inside a snapshot leaves nothing else to read afterwards.
+    $rows = @()
+    $all = [System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+        [System.Windows.Automation.TreeScope]::Children,
+        [System.Windows.Automation.Condition]::TrueCondition)
+    foreach ($element in $all) {
+        $rows += @{
+            name = $element.Current.Name
+            class_name = $element.Current.ClassName
+            process_id = $element.Current.ProcessId
+            offscreen = [bool]$element.Current.IsOffscreen
+        }
+    }
+    return $rows
+}
+
 function Read-InstallerProblem {
     # An installer error dialog belongs to the setup process, carries no
     # choice beyond acknowledging it, and says what went wrong in its text.
@@ -587,15 +606,41 @@ try {
     # Repair is the shortest of the three operations when nothing blocks it:
     # the host measured it in minutes. A budget of 25 minutes here only
     # delays the report of a repair that is stuck.
-    $repairReached = Wait-ForText -Window $modify -TimeoutSeconds 600 `
-        -AnyOf @('Vadgr was repaired.', 'Open the setup log')
-    $repairTree = Read-WindowTree -Window $modify
-    $repairClose = Find-Control -Window $modify -Name 'Close' -PageControl
+    # A step that cannot finish is a failed step, not a failed pass. Repair
+    # stalled twice on 2026-11-06 and took the uninstall and owner data cells
+    # down with it, which are the ones this cell exists for. The failure is
+    # recorded with everything that was on the guest's screen, because the
+    # snapshot is discarded and that inventory is the only way to learn what
+    # the installer was waiting on.
+    $repairReached = $null
+    $repairStall = $null
+    try {
+        $repairReached = Wait-ForText -Window $modify -TimeoutSeconds 600 `
+            -AnyOf @('Vadgr was repaired.', 'Open the setup log')
+    }
+    catch {
+        $repairStall = "$($_.Exception.Message)"
+    }
+    $repairTree = $(try { Read-WindowTree -Window $modify } catch { @() })
     Add-Step -Name 'repair completes from the installed package with no network' `
         -Result $(if ($repairReached -eq 'Vadgr was repaired.') { 'pass' } else { 'fail' }) `
-        -Detail @{ reached = $repairReached; tree = $repairTree }
-    Invoke-Control -Element $repairClose
-    Start-Sleep -Seconds 3
+        -Detail @{
+            reached = $repairReached
+            stalled = $repairStall
+            tree = $repairTree
+            windows_on_screen = @(Get-TopLevelWindows)
+        }
+    if ($repairStall) {
+        # Leave the stalled setup process behind rather than driving a window
+        # that is not answering, and carry on to the cells that remain.
+        Get-Process -Id $repair.Id -ErrorAction SilentlyContinue | Stop-Process -Force
+        Start-Sleep -Seconds 5
+    }
+    else {
+        $repairClose = Find-Control -Window $modify -Name 'Close' -PageControl
+        Invoke-Control -Element $repairClose
+        Start-Sleep -Seconds 3
+    }
     $healthAfterRepair = Measure-Health
     Add-Step -Name 'the daemon is healthy after the repair' `
         -Result $(if ($healthAfterRepair.status -eq 200) { 'pass' } else { 'fail' }) `
