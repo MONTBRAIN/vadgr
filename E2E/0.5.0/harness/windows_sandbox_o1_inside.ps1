@@ -56,23 +56,73 @@ function Add-Step {
     }
     [void]$script:record.steps.Add($entry)
     Write-Output ("[{0}] {1}" -f $Result.ToUpperInvariant(), $Name)
-    if ($Detail) { $Detail | ConvertTo-Json -Depth 6 -Compress | Write-Output }
+    if ($Detail) {
+        # The transcript gets the shape, not the bulk. One run wrote 47 MB of
+        # transcript and a 4.5 MB record, almost all of it window trees printed
+        # twice, which buries the one line a reader needs.
+        $line = $Detail | ConvertTo-Json -Depth 6 -Compress
+        if ($line.Length -gt 2000) {
+            $line = $line.Substring(0, 2000) + ("... [{0} more characters, kept in the record]" -f ($line.Length - 2000))
+        }
+        Write-Output $line
+    }
+    Write-Heartbeat ("recorded: $Name")
     # The snapshot can be closed at any moment, so the record is written after
     # every step rather than at the end.
     Save-Record
 }
 
+# Nothing in this driver waits without a bound, and it says so when a bound is
+# reached. The snapshot is discarded when it closes, so a wait that never ends
+# destroys the only evidence the cell would have produced. This cost the pass
+# twice: an installer prompt nobody answered for eleven minutes, and a command
+# that had already exited while its caller held a pipe open for thirty six.
+$script:CommandBudgetSeconds = 420
+
 function Invoke-Capture {
-    param([Parameter(Mandatory)][string] $Command, [string[]] $Arguments = @())
-    $previous = $ErrorActionPreference
-    $ErrorActionPreference = 'Continue'
-    try {
-        $output = & $Command @Arguments 2>&1 | ForEach-Object { "$_" }
+    param(
+        [Parameter(Mandatory)][string] $Command,
+        [string[]] $Arguments = @(),
+        [int] $BudgetSeconds = $script:CommandBudgetSeconds
+    )
+    # The streams go to files rather than through a pipeline. A pipeline ends
+    # when every writer closes it, which is not the same question as whether
+    # the command finished, and the difference is exactly what hung this cell.
+    $stamp = [guid]::NewGuid().ToString('N')
+    $outPath = Join-Path $Shared "capture-$stamp.out"
+    $errPath = Join-Path $Shared "capture-$stamp.err"
+    $started = Get-Date
+    $process = Start-Process -FilePath $Command -ArgumentList $Arguments -PassThru `
+        -NoNewWindow -RedirectStandardOutput $outPath -RedirectStandardError $errPath
+    $finished = $process.WaitForExit($BudgetSeconds * 1000)
+    if (-not $finished) {
+        Write-Heartbeat ("budget reached: $Command after $BudgetSeconds seconds")
+        try { $process.Kill() } catch { }
+        $process.WaitForExit(15000) | Out-Null
     }
-    finally {
-        $ErrorActionPreference = $previous
+    $output = @()
+    foreach ($path in @($outPath, $errPath)) {
+        if (Test-Path -LiteralPath $path) {
+            $output += @(Get-Content -LiteralPath $path -ErrorAction SilentlyContinue)
+            Remove-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
+        }
     }
-    return @{ exit_code = $LASTEXITCODE; output = ($output -join "`n") }
+    return @{
+        exit_code = $(if ($finished) { $process.ExitCode } else { $null })
+        timed_out = (-not $finished)
+        seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
+        output = (($output | ForEach-Object { "$_" }) -join "`n")
+    }
+}
+
+# A snapshot the host cannot see inside needs a pulse it can. The host reads
+# this file, so a stalled step is visible within seconds instead of looking
+# exactly like a slow one.
+function Write-Heartbeat {
+    param([Parameter(Mandatory)][string] $What)
+    $line = "{0}  {1}" -f (Get-Date).ToUniversalTime().ToString('o'), $What
+    try { Set-Content -LiteralPath (Join-Path $Shared 'o1-heartbeat.txt') -Value $line -Encoding utf8 }
+    catch { }
 }
 
 # --- the isolation this cell starts from -----------------------------------

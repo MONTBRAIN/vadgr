@@ -21,7 +21,10 @@
 param(
     [Parameter(Mandatory)][string] $Vehicle,
     [Parameter(Mandatory)][string] $WorkRoot,
-    [int] $TimeoutMinutes = 90
+    [int] $TimeoutMinutes = 90,
+    # The longest the guest may write nothing at all. Its slowest honest step
+    # is the packaged startup wait, which the product bounds at 300 seconds.
+    [int] $StallMinutes = 12
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -76,6 +79,9 @@ Write-Output 'the snapshot is starting; the guest drives the lifecycle from its 
 
 $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
 $lastCount = -1
+$heartbeat = Join-Path $shared 'o1-heartbeat.txt'
+$lastPulse = ''
+$pulseChanged = Get-Date
 while ((Get-Date) -lt $deadline) {
     if (Test-Path -LiteralPath $done) { break }
     if (Test-Path -LiteralPath $record) {
@@ -87,6 +93,21 @@ while ((Get-Date) -lt $deadline) {
             }
         }
         catch { }
+    }
+    # The guest is behind a window the host cannot read, so a stall and slow
+    # progress look identical without a pulse. A silent guest is reported here
+    # rather than at the end of the whole budget, because the snapshot keeps
+    # the only copy of what it was doing.
+    $pulse = $(if (Test-Path -LiteralPath $heartbeat) {
+        (Get-Content -Raw -LiteralPath $heartbeat -ErrorAction SilentlyContinue) } else { '' })
+    if ($pulse -ne $lastPulse) {
+        $lastPulse = $pulse
+        $pulseChanged = Get-Date
+        if ($pulse) { Write-Output ("  " + $pulse.Trim()) }
+    }
+    elseif (((Get-Date) - $pulseChanged).TotalMinutes -ge $StallMinutes) {
+        throw ("the guest wrote nothing for $StallMinutes minutes. Its last pulse was " +
+            "'" + $lastPulse.Trim() + "'. The partial record is $record")
     }
     Start-Sleep -Seconds 10
 }
