@@ -88,6 +88,7 @@ function Invoke-Capture {
     # The streams go to files rather than through a pipeline. A pipeline ends
     # when every writer closes it, which is not the same question as whether
     # the command finished, and the difference is exactly what hung this cell.
+    Write-Heartbeat ("running: $Command " + ($Arguments -join ' '))
     $stamp = [guid]::NewGuid().ToString('N')
     $outPath = Join-Path $Shared "capture-$stamp.out"
     $errPath = Join-Path $Shared "capture-$stamp.err"
@@ -427,6 +428,39 @@ try {
             -Result $(if ($after.status -eq 200 -and $running.Count -eq 1) { 'pass' } else { 'fail' }) `
             -Detail @{ stop = $stop; start = $restart; health = $after; daemons = $running }
     }
+
+    # W12, against the installed package rather than a development build. A
+    # script reads a command by capturing its output, and capturing it is what
+    # exposed the daemon holding its caller's pipe: the caller waited for the
+    # daemon's whole life on a command that had already returned. The capture
+    # runs in a job, so a return of that defect fails this step instead of
+    # ending the run, and the job is the only place a pipeline is used here.
+    $stopBefore = Invoke-Capture -Command $cli -Arguments @('stop')
+    Start-Sleep -Seconds 2
+    $capture = Start-Job -ScriptBlock {
+        param($cli)
+        $started = Get-Date
+        $output = & $cli start 2>&1 | ForEach-Object { "$_" }
+        @{
+            exit_code = $LASTEXITCODE
+            seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
+            output = ($output -join "`n")
+        }
+    } -ArgumentList $cli
+    $returned = $null -ne (Wait-Job -Job $capture -Timeout 120)
+    $captured = $(if ($returned) { Receive-Job -Job $capture } else { $null })
+    Remove-Job -Job $capture -Force
+    $healthAfterCapture = Measure-Health
+    Add-Step -Name 'capturing the output of start does not hold the caller open' `
+        -Result $(if ($returned -and $healthAfterCapture.status -eq 200) { 'pass' } else { 'fail' }) `
+        -Detail @{
+            stopped_first = $stopBefore
+            returned = $returned
+            seconds = $(if ($captured) { $captured.seconds } else { 'over the 120 second budget' })
+            exit_code = $(if ($captured) { $captured.exit_code } else { $null })
+            health = $healthAfterCapture
+            daemons = Get-DaemonProcesses
+        }
 
     $console = Start-Process -FilePath $app -PassThru
     Start-Sleep -Seconds 6
