@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "75b325c5dbd37f80359721ad39aca5a29fb04c89279657cffdda8736d0c0b9d2",
+  "original_statement_files": [
+    {
+      "path": "downcast-rs-1.2.1/LICENSE-MIT",
+      "sha256": "fb252fecf98d9af8f1d9201c5860319a514f5a8a24700dc84fc6ea287a7a4958",
+      "size": 1073,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020 Ashish Myles and contributors"
+        }
+      ]
+    },
+    {
+      "path": "downcast-rs-1.2.1/README.md",
+      "sha256": "b2821528972c2e81e8227698d3115996144fd319dcc505e38131d23e2e02456c",
+      "size": 5365,
+      "statements": [
+        {
+          "line": 161,
+          "text": "Copyright 2020, Ashish Myles (maintainer) and contributors."
+        }
+      ]
+    },
+    {
+      "path": "downcast-rs-1.2.1/README.tpl",
+      "sha256": "05ff2e25c6b8df663726cf7acef6dc237fe9c3f615d3c95cb127456a4ef36a7d",
+      "size": 625,
+      "statements": [
+        {
+          "line": 10,
+          "text": "Copyright 2020, Ashish Myles (maintainer) and contributors."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e025feb26210bc196b908e72deb063b1b4000754304341cbc168a1e72c857ebc",
+  "original_statement_files": [
+    {
+      "path": "rpds-1.2.1/LICENSE.md",
+      "sha256": "e326b5fef9084c437878cc2184ba6dfa15503f46e5359dd67246f51761ea709f",
+      "size": 1068,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2025 Diogo Sousa"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

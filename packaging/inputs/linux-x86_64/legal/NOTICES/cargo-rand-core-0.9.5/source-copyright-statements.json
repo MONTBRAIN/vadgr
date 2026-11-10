@@ -1,0 +1,80 @@
+{
+  "archive_sha256": "76afc826de14238e6e8c374ddcc1fa19e374fd8dd986b0d2af0d02377261d83c",
+  "original_statement_files": [
+    {
+      "path": "rand_core-0.9.5/LICENSE-MIT",
+      "sha256": "209fbbe0ad52d9235e37badf9cadfe4dbdc87203179c0899e738b39ade42177b",
+      "size": 1117,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2018 Developers of the Rand project"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.9.5/src/block.rs",
+      "sha256": "105cb275cd8f38f5d4f51ea574beb2263ae1d510a8b1737a41d8d622f730ddbb",
+      "size": 17721,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.9.5/src/impls.rs",
+      "sha256": "145ec30e733af5aa0fd8556a706aa932723de45cfa964aacf284bc59e951ca5a",
+      "size": 7363,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.9.5/src/le.rs",
+      "sha256": "e1d01e111ce8d2b6fdc8c85e1fcf400b490b302db5c5f32e040c5b9e6b528013",
+      "size": 1981,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.9.5/src/lib.rs",
+      "sha256": "694b8736371fcda0a78e62346519034af9f7d493e417575f55cfbb9c3c3cfe6d",
+      "size": 28129,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2017-2018 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "rand_core-0.9.5/src/os.rs",
+      "sha256": "10ef59c924aa6286b4ded0dd03086fb1b6b0b7a2fd106aada70d3270ee135fea",
+      "size": 3645,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 Developers of the Rand project."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

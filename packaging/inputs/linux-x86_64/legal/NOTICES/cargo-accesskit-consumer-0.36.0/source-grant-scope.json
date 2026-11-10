@@ -1,0 +1,30 @@
+{
+  "archive_sha256": "25e0d7e25d06f4dc21d1774d67146e9e80d6789216cbd4d1e88185b0095dba60",
+  "basis": [
+    {
+      "accounted_grants": [
+        "Apache-2.0",
+        "BSD-3-Clause",
+        "MIT"
+      ],
+      "archive_sha256": "25e0d7e25d06f4dc21d1774d67146e9e80d6789216cbd4d1e88185b0095dba60",
+      "expression": "Apache-2.0 AND BSD-3-Clause",
+      "observed_cargo_features": [],
+      "reason": "Named runtime source files explicitly retain Chromium's BSD grant in addition to AccessKit's Apache-or-MIT terms.",
+      "source_files": [
+        {
+          "path": "accesskit_consumer-0.36.0/src/iterators.rs",
+          "sha256": "984175319d0f0f606b6b8838e953be9ed8ec52a8e66b3c9b5c97528e81efefb0",
+          "size": 33089
+        },
+        {
+          "path": "accesskit_consumer-0.36.0/src/node.rs",
+          "sha256": "ad6600c99446d0b912d91151cced32a5ef5e2ca143f42ccad10a806c44ecd3b9",
+          "size": 62996
+        }
+      ],
+      "status": "source-scope-proposal-not-package-approval"
+    }
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "4583a4551df46e2792f82ceeac45e850d2e2d5debba0b91f102385cda5b11f06",
+  "original_statement_files": [
+    {
+      "path": "data-encoding-2.11.1/LICENSE",
+      "sha256": "b68ad1a3367b825447089e1f8d6829b97f47a89eb78d2f4ebaef4672f5606186",
+      "size": 1121,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015-2020 Julien Cretin"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2017-2020 Google Inc."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

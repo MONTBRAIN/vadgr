@@ -1,0 +1,37 @@
+--- Weston-1.5.0/fullscreen-shell.xml
++++ Plasma-0.3.12/fullscreen-shell.xml
+@@ -45,7 +45,7 @@
+ 
+ 	ARBITRARY_MODE:
+ 	This is a hint to the client that indicates that the compositor is
+-	capable of setting practially any mode on its outputs.  If this
++	capable of setting practically any mode on its outputs.  If this
+ 	capability is provided, wl_fullscreen_shell.present_surface_for_mode
+ 	will almost never fail and clients should feel free to set whatever
+ 	mode they like.  If the compositor does not advertise this, it may
+@@ -62,7 +62,7 @@
+ 	its own cursor and set wl_pointer.cursor(NULL).
+       </description>
+       <entry name="arbitrary_modes" value="1" summary="compositor is capable of almost any output mode"/>
+-      <entry name="cursor_plane" value="2" summary="compositor has a seperate cursor plane"/>
++      <entry name="cursor_plane" value="2" summary="compositor has a separate cursor plane"/>
+     </enum>
+ 
+     <event name="capability">
+@@ -72,11 +72,11 @@
+ 	When the wl_fullscreen_shell interface is bound, this event is emitted
+ 	once for each capability advertised.  Valid capabilities are given by
+ 	the wl_fullscreen_shell.capability enum.  If clients want to take
+-	advantage of any of these capabilities, they sould use a
+-	wl_display.sync request immediatly after binding to ensure that they
+-	recieve all the capability events.
+-      </description>
+-      <arg name="capabilty" type="uint"/>
++	advantage of any of these capabilities, they should use a
++	wl_display.sync request immediately after binding to ensure that they
++	receive all the capability events.
++      </description>
++      <arg name="capability" type="uint"/>
+     </event>
+ 
+     <enum name="present_method">

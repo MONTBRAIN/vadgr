@@ -1,0 +1,105 @@
+{
+  "archive_sha256": "d012d2b9d65aca7f18f4d9878a045bc17899bba951561ba5ec3c2ba1eed9a061",
+  "original_statement_files": [
+    {
+      "path": "clap_derive-4.6.4/LICENSE-MIT",
+      "sha256": "6efb0476a1cc085077ed49357026d8c173bf33017278ef440f222fb9cbcb66e6",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Individual contributors"
+        }
+      ]
+    },
+    {
+      "path": "clap_derive-4.6.4/src/derives/args.rs",
+      "sha256": "b9c766b770d5dd02855e3897978e23b07ce78d4afbce8851240d228fdb64484a",
+      "size": 28555,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,"
+        }
+      ]
+    },
+    {
+      "path": "clap_derive-4.6.4/src/derives/into_app.rs",
+      "sha256": "fb1d0708ede65e15ae3ec80ced5a38fa4960c372ceae65c916b48bcc9bd5a9dc",
+      "size": 3854,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,"
+        }
+      ]
+    },
+    {
+      "path": "clap_derive-4.6.4/src/derives/mod.rs",
+      "sha256": "660c5d27942993d7331025ddfc29ee4c1d7f3a7f49ae2ee2293624e6b2abd952",
+      "size": 900,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,"
+        }
+      ]
+    },
+    {
+      "path": "clap_derive-4.6.4/src/derives/parser.rs",
+      "sha256": "11af0826ebec312d44dfec3d94d8c516e4bf9fdb1bd0712e26fd9207b643fbc0",
+      "size": 4388,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,"
+        }
+      ]
+    },
+    {
+      "path": "clap_derive-4.6.4/src/derives/subcommand.rs",
+      "sha256": "2e4a569fe37a4a682b9b26a42ad117160c9fd1dd1caf497eece0a9bf9cf71ac5",
+      "size": 26690,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,"
+        }
+      ]
+    },
+    {
+      "path": "clap_derive-4.6.4/src/derives/value_enum.rs",
+      "sha256": "251a794bfa7e8a267abca8db518175ddfaeb6b68e75591742bae06f986da722a",
+      "size": 4173,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,"
+        }
+      ]
+    },
+    {
+      "path": "clap_derive-4.6.4/src/item.rs",
+      "sha256": "382ef691d65bdc867eaa5465a408374ffda528e96824cebeff88de7f9d40e2eb",
+      "size": 55483,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,"
+        }
+      ]
+    },
+    {
+      "path": "clap_derive-4.6.4/src/lib.rs",
+      "sha256": "ecb7d751f03cb24ae5ba7c963d2298716d67cae9baa16c7b301b198e810ca893",
+      "size": 4082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Guillaume Pinot (@TeXitoi) <texitoi@texitoi.eu>,"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

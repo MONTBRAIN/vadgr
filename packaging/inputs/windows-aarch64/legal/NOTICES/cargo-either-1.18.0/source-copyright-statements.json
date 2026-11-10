@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "252afb9ae5eaa683babdc6a068b3f5726eb19e05070c731f9b2a23a7c3e8ed34",
+  "original_statement_files": [
+    {
+      "path": "either-1.18.0/LICENSE-MIT",
+      "sha256": "7576269ea71f767b99297934c0b2367532690f8c4badc695edf8e04ab6a1e545",
+      "size": 1043,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c977ac91dfaa651633fd9722e4ce9ccb32cda4c748b89a5cb57e504036e37c13",
+  "original_statement_files": [
+    {
+      "path": "egui-0.36.1/README.md",
+      "sha256": "60f8ac6d5102ae83d83b2e5651aa37352d262db095c1bc46dc8ff2a1755c5e9a",
+      "size": 25259,
+      "statements": [
+        {
+          "line": 364,
+          "text": "* `emoji-icon-font.ttf`: [Copyright (c) 2014 John Slegers](https://github.com/jslegers/emoji-icon-font) , MIT License"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

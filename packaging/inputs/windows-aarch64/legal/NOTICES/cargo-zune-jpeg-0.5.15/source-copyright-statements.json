@@ -1,0 +1,314 @@
+{
+  "archive_sha256": "27bc9d5b815bc103f142aa054f561d9187d191692ec7c2d1e2b4737f8dbd7296",
+  "original_statement_files": [
+    {
+      "path": "zune-jpeg-0.5.15/LICENSE-MIT",
+      "sha256": "d30047bca3b516639339a3c279bb84c3483124fb5a9dafe3c75056a85090e745",
+      "size": 1073,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) zune-image developers"
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/bitstream.rs",
+      "sha256": "0f053b8d4443b8818fe187be90304a4f3c645ee43bc9984b8baad4c8b39ce387",
+      "size": 30157,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/color_convert/avx.rs",
+      "sha256": "7be52b218a32ca06d8727dbd5d9ff18f0e09ee05c2147e2469e1b78f25e4f1f5",
+      "size": 10276,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/color_convert/neon64.rs",
+      "sha256": "7f7f1bf474a9a4778d1a021ebddba7cd98bbd256f14e8158c37c364592fe14d5",
+      "size": 5055,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2025."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/color_convert/scalar.rs",
+      "sha256": "daf7a7595775ce00bec28997330bc72f0fd3cd113d764cf742a7b502ca93c108",
+      "size": 4129,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/color_convert.rs",
+      "sha256": "e401a9c71beffd50a0b17330a5f64de82ad944e7f7cfe42a8a8bbf6b24ac245a",
+      "size": 3500,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/components.rs",
+      "sha256": "1699aab5b99818e51bdbfc43afb9567e4ac0ac67e68fbda9bfb3ac86b62489ea",
+      "size": 7595,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/decoder.rs",
+      "sha256": "7fdf4e5f585a1f7bfdba51b3ab3a851fb519a326324fdb9f44a236864c26a554",
+      "size": 36950,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/errors.rs",
+      "sha256": "106e9bca458efccd9b290ff5cf9365ad195d7afc3e414108111cc88b9c344e8f",
+      "size": 5986,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/headers.rs",
+      "sha256": "95d98217434a99171cc17453018658475659516eacefad63f4136550407b6147",
+      "size": 23751,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/huffman.rs",
+      "sha256": "921649bd61aeeecb11bf91d7e76afad583e54717255824bf0c2d4bb6160d6b10",
+      "size": 9033,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/idct/avx2.rs",
+      "sha256": "7e2d93e1e0cfe6735a75562866162f3a5d78072301d6189b7b02fba4dfbd2d88",
+      "size": 13415,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/idct/neon.rs",
+      "sha256": "33ef1506f2d14889f2039e483988ad3afe58c7daadd2d241be61e69908dd32dc",
+      "size": 9951,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/idct/scalar.rs",
+      "sha256": "1994c32030ac7ff9ab904f3b890dcd44dfa231551bd033749faab565c014b3f9",
+      "size": 7840,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/idct.rs",
+      "sha256": "be856aec47d17f28dfaa98072f2317eb78be0f6b9dc9535f5d309e97da5cf8e8",
+      "size": 6890,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/lib.rs",
+      "sha256": "31cfd2c21b47b86595dde3b39e93e2754031541f35deb35a43ee8a56488de68d",
+      "size": 6227,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/marker.rs",
+      "sha256": "10014f879004c0b1ca4bca66155eb2385820cce02ae6e48a9e9b37ca60ecd294",
+      "size": 2777,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/mcu.rs",
+      "sha256": "b2234b35227ee76fc43df76b64f5b68e44a395250d187016765d5922849dcfb3",
+      "size": 41016,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/mcu_prog.rs",
+      "sha256": "bfeba9b8f801baf0ce66b73ed9c688fd789244fe380d7223d3ea39d1ece26fa1",
+      "size": 34720,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/misc.rs",
+      "sha256": "1ba8300b38095fc0cb2e91f615d401d7a6b45d20115f314df66153add7b776da",
+      "size": 18760,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/unsafe_utils_avx2.rs",
+      "sha256": "2e2a8294a8c8c6ca3e92356b47a088090c2c62853b37cfcadeba4ab55f545721",
+      "size": 5332,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/unsafe_utils_neon.rs",
+      "sha256": "1c869e09726cec6ae699fddcc8c0551a9e798ebaa5d55b3514b3bfb4874282c5",
+      "size": 8219,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/upsampler/avx2.rs",
+      "sha256": "3416787605115cee9f7eb918b3dd05f6596c8ed15e4942d18a12d301f5d843bc",
+      "size": 6777,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2025."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/upsampler/neon.rs",
+      "sha256": "91465d872b387de31919d1e29688bd33ca54046f8e1825056bd61f2a28c6b6c8",
+      "size": 6019,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2025."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/upsampler/portable_simd.rs",
+      "sha256": "36bfef56cc9c36c796cfccca77c13c7e394042c9ebf53bb18ffaaeba2311913d",
+      "size": 5190,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/upsampler/scalar.rs",
+      "sha256": "cc86288e29db2d6cbb25f5238f3064e3ad30179d0c1cfdab35d51fd54b074710",
+      "size": 3993,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/upsampler.rs",
+      "sha256": "81ca309c31baf578b293abc6dbeb4d37b69f14b0e2811d15fe3bb9aa637cc01a",
+      "size": 11047,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    },
+    {
+      "path": "zune-jpeg-0.5.15/src/worker.rs",
+      "sha256": "6f939fa614844d11b826c196ea56ea13846ba7725025da0e2418b2d453fecc6d",
+      "size": 22727,
+      "statements": [
+        {
+          "line": 2,
+          "text": "* Copyright (c) 2023."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

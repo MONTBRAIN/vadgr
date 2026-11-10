@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "d3b7f7f85a7e5f68090000ed7622545829afd484d210358702ae4cb97dd0c320",
+  "original_statement_files": [
+    {
+      "path": "accesskit-0.24.1/src/geometry.rs",
+      "sha256": "2f2c37da6a856f1463c593bd2c01d07f237951556c3f72594cb05a2561afa7ed",
+      "size": 22258,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2023 The AccessKit Authors. All rights reserved."
+        },
+        {
+          "line": 7,
+          "text": "// Copyright 2018 The kurbo Authors."
+        }
+      ]
+    },
+    {
+      "path": "accesskit-0.24.1/src/lib.rs",
+      "sha256": "da99bad8c05747eee4c1cee0850488c4e61170f7f55cbf6b39e79cd4e4a1acbf",
+      "size": 109170,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 The AccessKit Authors. All rights reserved."
+        },
+        {
+          "line": 7,
+          "text": "// Copyright 2018 The Chromium Authors. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

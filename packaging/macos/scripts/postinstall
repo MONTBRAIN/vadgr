@@ -1,0 +1,102 @@
+#!/bin/sh
+set -eu
+
+app=/Applications/Vadgr.app
+backend="$app/Contents/MacOS/vadgr"
+login_helper="$app/Contents/Helpers/vadgr-login-item"
+terms="$app/Contents/Resources/legal/TERMS.txt"
+package=${PACKAGE_PATH:-}
+transaction_root='/Library/Application Support/MONTBRAIN/Vadgr/install-transaction'
+backup="$transaction_root/previous.app"
+owner=$(/usr/bin/stat -f '%Su' /dev/console)
+[ "$owner" != root ] && [ "$owner" != loginwindow ] || { echo "No interactive owner is available." >&2; exit 1; }
+owner_home=$(/usr/bin/dscl . -read "/Users/$owner" NFSHomeDirectory | /usr/bin/awk '{print $2}')
+owner_uid=$(/usr/bin/id -u "$owner")
+cache="$owner_home/Library/Application Support/vadgr/package-cache"
+pending="$cache/.pending.pkg"
+pid_file="$owner_home/.vadgr/pids/api.pid"
+previous_pid=
+started_pid=
+started_identity=
+committed=false
+
+remember_started_daemon() {
+  candidate=$(/bin/cat "$pid_file" 2>/dev/null || true)
+  case "$candidate" in ''|*[!0-9]*) return 0;; esac
+  [ "$candidate" != "$previous_pid" ] || return 0
+  uid=$(/bin/ps -p "$candidate" -o uid= 2>/dev/null | /usr/bin/tr -d ' ')
+  [ "$uid" = "$owner_uid" ] || return 0
+  command=$(/bin/ps -p "$candidate" -o command= 2>/dev/null || true)
+  case "$command" in "$backend serve "*) ;; *) return 0;; esac
+  identity=$(/bin/ps -p "$candidate" -o lstart= -o command= 2>/dev/null || true)
+  [ -n "$identity" ] || return 0
+  started_pid=$candidate
+  started_identity=$identity
+}
+
+stop_started_daemon() {
+  [ -n "$started_pid" ] || return 0
+  identity=$(/bin/ps -p "$started_pid" -o lstart= -o command= 2>/dev/null || true)
+  [ -n "$identity" ] || return 0
+  if [ "$identity" != "$started_identity" ]; then
+    echo "The Vadgr process identity changed; automatic rollback stopped." >&2
+    return 1
+  fi
+  /usr/bin/sudo -H -u "$owner" /bin/kill -TERM "$started_pid" || return 1
+  attempts=0
+  while [ "$attempts" -lt 50 ]; do
+    identity=$(/bin/ps -p "$started_pid" -o lstart= -o command= 2>/dev/null || true)
+    [ "$identity" = "$started_identity" ] || return 0
+    /bin/sleep 0.1
+    attempts=$((attempts + 1))
+  done
+  echo "The new Vadgr daemon did not stop; the application and rollback copy were preserved." >&2
+  return 1
+}
+
+restore_previous() {
+  [ "$committed" = false ] || return 0
+  stop_started_daemon || return 1
+  /bin/rm -f -- "$pending"
+  /bin/rm -rf -- "$app"
+  if [ -d "$backup" ]; then
+    /bin/mv "$backup" "$app"
+    /usr/bin/sudo -H -u "$owner" "$app/Contents/MacOS/vadgr" start >/dev/null 2>&1 || true
+  fi
+}
+trap restore_previous EXIT HUP INT TERM
+
+[ -x "$backend" ] || { echo "The installed Vadgr executable is missing." >&2; exit 1; }
+[ -f "$terms" ] || { echo "The installed terms are missing." >&2; exit 1; }
+[ -f "$package" ] || { echo "Installer did not provide the package path." >&2; exit 1; }
+
+# The state root shares this parent, so create it as the owner before startup.
+/usr/bin/sudo -H -u "$owner" /bin/mkdir -p "$cache"
+/usr/bin/sudo -H -u "$owner" /bin/cp "$package" "$pending"
+
+previous_pid=$(/bin/cat "$pid_file" 2>/dev/null || true)
+start_status=0
+/usr/bin/sudo -H -u "$owner" "$backend" start || start_status=$?
+remember_started_daemon
+if [ "$start_status" -ne 0 ]; then
+  echo "The installed Vadgr daemon did not become healthy." >&2
+  exit 1
+fi
+
+/usr/bin/sudo -H -u "$owner" "$backend" __record-terms-acceptance \
+  --terms-version 1.0 --installer-version 0.5.0 \
+  --terms-file "$terms" --installer-file "$package"
+
+if [ -x "$login_helper" ]; then
+  /usr/bin/sudo -H -u "$owner" "$login_helper" enable || true
+fi
+
+if [ -f "$cache/current.pkg" ]; then
+  /bin/mv -f "$cache/current.pkg" "$cache/previous.pkg"
+fi
+/bin/mv "$pending" "$cache/current.pkg"
+committed=true
+/bin/rm -rf -- "$backup"
+/bin/rmdir "$transaction_root" 2>/dev/null || true
+trap - EXIT HUP INT TERM
+exit 0

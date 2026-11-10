@@ -1,0 +1,50 @@
+{
+  "archive_sha256": "d85363c37faeca707aef026efa9f3b34d077bce547e48f770770625c6013679e",
+  "original_statement_files": [
+    {
+      "path": "crossbeam-channel-0.5.16/LICENSE-MIT",
+      "sha256": "5734ed989dfca1f625b40281ee9f4530f91b2411ec01cb748223e7eb87e201ab",
+      "size": 1099,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 The Crossbeam Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "crossbeam-channel-0.5.16/LICENSE-THIRD-PARTY",
+      "sha256": "b16db96b93b1d7cf7bea533f572091ec6bca3234fbe0a83038be772ff391a44c",
+      "size": 33447,
+      "statements": [
+        {
+          "line": 331,
+          "text": "Copyright (c) 2009 The Go Authors. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "crossbeam-channel-0.5.16/tests/golang.rs",
+      "sha256": "7b2ef219ba8a21841c133512f3a540f8279a2458304e9bbed7da81d6091ecd82",
+      "size": 55485,
+      "statements": [
+        {
+          "line": 7,
+          "text": "//!   - Copyright (c) 2009 The Go Authors"
+        }
+      ]
+    },
+    {
+      "path": "crossbeam-channel-0.5.16/tests/mpsc.rs",
+      "sha256": "a88f2c756536328aa2fd3d05d1d277df8dc8dbe5f560133ac12cd101fc50cda5",
+      "size": 55667,
+      "statements": [
+        {
+          "line": 18,
+          "text": "//!   - Copyright 2013-2014 The Rust Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

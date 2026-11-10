@@ -1,0 +1,126 @@
+{
+  "archive_sha256": "5ac8b6f42ead25368cf5b098aeb3dc8a1a2c05a3eee8a9a1a68c640edbfc79d9",
+  "original_statement_files": [
+    {
+      "path": "uuid-1.23.0/LICENSE-MIT",
+      "sha256": "436bc5a105d8e57dcd8778730f3754f7bf39c14d2f530e4cde4bd2d17a83ec3d",
+      "size": 1157,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2018 Ashley Mannix, Christopher Armstrong, Dylan DPC, Hunar Roop Kahlon"
+        }
+      ]
+    },
+    {
+      "path": "uuid-1.23.0/src/builder.rs",
+      "sha256": "d332dbf9380bd6275f8c416758a8971db875ce2a661440c8e476cc6f827736c9",
+      "size": 24818,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2018 The Uuid Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "uuid-1.23.0/src/external/serde_support.rs",
+      "sha256": "287045626559f6a4855ce2eadf0172e3008ab637207f0d9a02257fcd092bbf38",
+      "size": 31268,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2018 The Uuid Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "uuid-1.23.0/src/external/slog_support.rs",
+      "sha256": "8ba03d4b6c8b37dd8e3d08f47b254ca68ffa6f4a29a2c98dd277dbafdcb810dc",
+      "size": 1355,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2018 The Uuid Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "uuid-1.23.0/src/fmt.rs",
+      "sha256": "ec3faa801a4e9e381f8398f2d124828d3dbc5917f7a2ed8db67a9c4f97f1a05f",
+      "size": 31968,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2018 The Uuid Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "uuid-1.23.0/src/lib.rs",
+      "sha256": "5418bd5f9cac045de9dadb9d835d6dd4c6447239193d7641b95f2e5679ceb6c1",
+      "size": 52236,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2018 The Uuid Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "uuid-1.23.0/src/parser.rs",
+      "sha256": "a81a43f74f4a40e9c0a97cb1f475ec4c089c0acc624f841fd3a65032a5864f56",
+      "size": 17606,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2013-2014 The Rust Project Developers."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2018 The Uuid Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "uuid-1.23.0/src/rng.rs",
+      "sha256": "0025abde1ac4171b96fff8d137bb4cdc56b41387d426ab23797c30c97eb10444",
+      "size": 9850,
+      "statements": [
+        {
+          "line": 219,
+          "text": "Copyright (c) 2018-2024 The rust-random Project Developers"
+        },
+        {
+          "line": 220,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

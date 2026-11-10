@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "71704c03f739f7745053bde45fa203a46c58d25bc5c4efba1d9a60e9dba81226",
+  "original_statement_files": [
+    {
+      "path": "smithay-clipboard-0.7.3/LICENSE",
+      "sha256": "21c2bc064d4ad1bba2a66c6b6d111b859a616283687a11f7a32c1350814542c9",
+      "size": 1073,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018 Lucas Timmins & Victor Berger"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

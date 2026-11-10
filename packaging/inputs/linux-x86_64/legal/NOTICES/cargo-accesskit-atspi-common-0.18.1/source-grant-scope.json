@@ -1,0 +1,7 @@
+{
+  "archive_sha256": "1e8c61bee90b42a772d39d06a740207dc71a4e780004ace1db8d99fb1baaa954",
+  "basis": [
+    "The adapter.rs and node.rs runtime files explicitly retain Chromium BSD grants alongside AccessKit alternatives. Apache-2.0 is selected for the AccessKit portion."
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

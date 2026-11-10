@@ -1,0 +1,16 @@
+{
+  "component_sha256": "4ffcf16034f71a801bd2108aeffb6337d104c9459e8b1a218d16a917c8a2d2e9",
+  "original_statement_files": [
+    {
+      "path": "dbus_fast/__version__.py",
+      "sha256": "6264b5e4603292710ffd9d145bb0a48b7f930731264cbc24d27df8de697ae939",
+      "statements": [
+        {
+          "line": 10,
+          "text": "__copyright__ = \"Copyright 2022 Bluetooth Devices authors, 2019 Tony Crisci\""
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "6dbf3de79e51f3d586ab4cb9d5c3e2c14aa28ed23d180cf89b4df0454a69cc87",
+  "original_statement_files": [
+    {
+      "path": "httparse-1.10.1/LICENSE-MIT",
+      "sha256": "391a5396cec6230bfabd4ef4eb2350eb895bc5efce377a2218f5702ed020d3e3",
+      "size": 1063,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015-2025 Sean McArthur"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

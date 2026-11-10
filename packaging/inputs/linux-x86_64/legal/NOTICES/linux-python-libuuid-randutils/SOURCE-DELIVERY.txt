@@ -1,0 +1,8 @@
+The libuuid randutils.c file declares GNU LGPL without a version number.
+The accompanying LGPL 2.1 text is retained for that grant. Complete libuuid source,
+CPython source, Python producer sources/patches and native build inputs accompany
+the shared source files listed for this component. This source route permits
+rebuilding the private Python with modified libuuid; source delivery is immediate,
+not a promise of a later publisher response. See the Berkeley DB SOURCE-DELIVERY
+build command and complete application source volume. No binary-identical rebuild
+has been asserted. This file-specific LGPL grant is additional to libuuid BSD terms.

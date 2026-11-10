@@ -1,0 +1,16 @@
+{
+  "component_sha256": "f53e442b08449d42821fa4a4fba000095af9f62742a500f978a9f557ec44339a",
+  "original_statement_files": [
+    {
+      "path": "cffi/_cffi_gen_src.py",
+      "sha256": "c94479de91526ec6b7b2c17bfd53aa5d368a78be402531ccfddc99f48198f6cc",
+      "statements": [
+        {
+          "line": 7,
+          "text": "# Copyright (c) 2024, Rose Davidson"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

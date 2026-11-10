@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "fdc8ff3388f852bede6b579ad4e978ab004f139284d7b28715f773507b946f6e",
+  "original_statement_files": [
+    {
+      "path": "icu_locid_transform_data-1.5.0/LICENSE",
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2",
+      "size": 2195,
+      "statements": [
+        {
+          "line": 5,
+          "text": "Copyright \u00a9 2020-2024 Unicode, Inc."
+        },
+        {
+          "line": 46,
+          "text": "ICU 1.8.1 to ICU 57.1 \u00a9 1995-2016 International Business Machines Corporation and others."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

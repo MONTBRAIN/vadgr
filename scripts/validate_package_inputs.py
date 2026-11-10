@@ -20,6 +20,11 @@ from urllib.parse import urlsplit
 
 import tomllib
 
+if __package__:
+    from scripts import rust_path_patches
+else:
+    import rust_path_patches
+
 SOURCE_INPUTS = ("Cargo.lock", "packaging/cua/pins.toml", "packaging/cua/requirements.lock", "packaging/toolchain.json")
 CLOSURE_MEANINGS = {
     "publisher": "The Publisher-owner approved the exact identity and public contacts.",
@@ -96,21 +101,38 @@ def release_source_inputs(target: str) -> set[str]:
 def profile_source_inputs(profile: str) -> set[str]:
     require(re.fullmatch(r"(windows|macos|linux|wsl)-(x86_64|aarch64)", profile) is not None,
             "invalid release profile")
-    return (set(SOURCE_INPUTS) - {"packaging/cua/requirements.lock"}) | {
+    names = (set(SOURCE_INPUTS) - {"packaging/cua/requirements.lock"}) | {
         f"packaging/cua/profile-locks/{profile}.lock", "packaging/cua/native-wheel-manifest.json",
         "packaging/cua/profile-inputs.json", "packaging/cua/cua-profile-catalog.json",
         "packaging/cua/cua-profile-catalog.sigstore.json"}
+    # The embedded loader contains additional static libraries. Its identity
+    # must not change without invalidating the native Linux legal review.
+    if profile.startswith("linux-"):
+        names.add("packaging/linux/runtime.json")
+    return names
 
 
 def profile_from_inputs(names, target):
+    names = set(names)
+    if rust_path_patches.REGISTRY in names:
+        if not rust_path_patches.SOURCE_INPUTS <= names:
+            return None
+        names -= rust_path_patches.SOURCE_INPUTS
     for system in ("windows", "macos", "linux", "wsl"):
         suffix = {"windows": "pc-windows-msvc", "macos": "apple-darwin",
                   "linux": "unknown-linux-gnu", "wsl": "unknown-linux-gnu"}[system]
         for architecture in ("x86_64", "aarch64"):
             profile = system + "-" + architecture
-            if target == architecture + "-" + suffix and set(names) == profile_source_inputs(profile):
+            if target == architecture + "-" + suffix and names == profile_source_inputs(profile):
                 return profile
     return None
+
+
+def base_source_inputs(names):
+    names = set(names)
+    if rust_path_patches.REGISTRY in names and rust_path_patches.SOURCE_INPUTS <= names:
+        names -= rust_path_patches.SOURCE_INPUTS
+    return names
 
 
 def relative_path(value: object) -> str:
@@ -212,7 +234,7 @@ def validate_inventory(inventory: dict) -> None:
     require(isinstance(inventory["terms_version"], str) and re.fullmatch(r"\d+(?:\.\d+)+", inventory["terms_version"]), "invalid inventory")
     require(valid_hash(inventory["terms_sha256"]) and valid_hash(inventory["payload_manifest_sha256"]), "invalid inventory")
     require(isinstance(inventory["source_inputs"], dict)
-            and (set(inventory["source_inputs"]) in (set(SOURCE_INPUTS), release_source_inputs(inventory["target"]))
+            and (base_source_inputs(inventory["source_inputs"]) in (set(SOURCE_INPUTS), release_source_inputs(inventory["target"]))
                  or profile_from_inputs(inventory["source_inputs"], inventory["target"]) is not None)
             and all(valid_hash(value) for value in inventory["source_inputs"].values()), "invalid inventory")
     coverage = inventory["coverage"]
@@ -333,15 +355,20 @@ def validate_copyright_absence(inventory, files):
                 and canonical_json(actual) == files[evidence["path"]], "copyright absence evidence differs")
 
 
-def render_rtf(text: str) -> bytes:
-    result = [r"{\rtf1\ansi\deff0\uc1 "]
+RTF_HEADER = r"{\rtf1\ansi\deff0\uc1 "
+# Half-point sizes. Theme font 0 is 13 logical pixels, which is 9.75 point, so
+# body text matches the rest of the installer at 10 point.
+RTF_BODY_SIZE = 20
+RTF_TITLE_SIZE = 28
+RTF_SECTION_SIZE = 22
+
+
+def escape_rtf(text: str) -> str:
+    """Escape one run of document text. Never emits a control word of its own."""
+    result = []
     for char in text:
         if char in "\\{}":
             result.append("\\" + char)
-        elif char == "\n":
-            result.append("\\par\n")
-        elif char == "\r":
-            result.append("\\u13?")
         elif char == "\t":
             result.append("\\tab ")
         elif 32 <= ord(char) < 127:
@@ -351,6 +378,79 @@ def render_rtf(text: str) -> bytes:
             for offset in range(0, len(encoded), 2):
                 unit = int.from_bytes(encoded[offset:offset + 2], "little", signed=True)
                 result.append(f"\\u{unit}?")
+    return "".join(result)
+
+
+def rtf_runs(text: str) -> str:
+    """Render `**bold**` spans as real bold runs.
+
+    An odd number of markers means the source is malformed. Dropping the stray
+    marker would hide the mistake and showing it would print a literal `**`, so
+    neither is acceptable and this refuses instead.
+    """
+    parts = text.split("**")
+    require(len(parts) % 2 == 1, "unbalanced bold marker in the packaged terms")
+    return "".join(
+        (r"{\b " + escape_rtf(part) + "}") if index % 2 else escape_rtf(part)
+        for index, part in enumerate(parts)
+        if part
+    )
+
+
+def rtf_blocks(text: str) -> list[list]:
+    """Group the source lines into headings, bullets and paragraphs.
+
+    The source wraps its paragraphs at a fixed width. A reader's window is a
+    different width, so those wrap points must not survive as line breaks: each
+    paragraph is rejoined here and the control wraps it to whatever room it has.
+    """
+    blocks: list[list | None] = []
+    for line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        stripped = line.strip()
+        if not stripped:
+            # A blank line ends the block above it, so the next line starts a
+            # new one instead of continuing the paragraph.
+            blocks.append(None)
+            continue
+        heading = re.match(r"^(#{1,6})\s+(.*\S)\s*$", stripped)
+        bullet = re.match(r"^[-*]\s+(.*\S)\s*$", stripped)
+        if heading:
+            blocks.append(["heading", len(heading.group(1)), [heading.group(2)]])
+        elif bullet:
+            blocks.append(["bullet", 0, [bullet.group(1)]])
+        elif blocks and blocks[-1] and blocks[-1][0] in ("paragraph", "bullet"):
+            blocks[-1][2].append(stripped)
+        else:
+            blocks.append(["paragraph", 0, [stripped]])
+    return [block for block in blocks if block]
+
+
+def render_rtf(text: str) -> bytes:
+    """Render the packaged terms as RTF.
+
+    The installer shows this file in a Richedit control, which renders RTF and
+    nothing else. Handing it the markdown source unchanged printed `###` and
+    `**` to the reader as literal characters, so the markup is rendered here,
+    once, and every profile derives its TERMS.rtf from the same bytes.
+
+    No font or colour table is emitted on purpose. The Richedit control
+    supplies its own, and on Windows it renders this document as black text on
+    a white page whatever the surrounding installer theme is. Writing colours
+    into the document would fight that rather than follow it, and would fix one
+    appearance for every host. Only bold, size and paragraph shape are set
+    here, which the control honours.
+    """
+    result = [RTF_HEADER]
+    for index, (kind, level, lines) in enumerate(rtf_blocks(text)):
+        body = rtf_runs(" ".join(lines))
+        if kind == "heading":
+            size = RTF_TITLE_SIZE if level <= 3 else RTF_SECTION_SIZE
+            before = 0 if index == 0 else 200
+            result.append(f"\\pard\\sb{before}\\sa120\\b\\fs{size} {body}\\b0\\fs{RTF_BODY_SIZE}\\par\n")
+        elif kind == "bullet":
+            result.append(f"\\pard\\fi-220\\li440\\sa60\\fs{RTF_BODY_SIZE} \\bullet\\tab {body}\\par\n")
+        else:
+            result.append(f"\\pard\\sa120\\fs{RTF_BODY_SIZE} {body}\\par\n")
     return ("".join(result) + "}\n").encode("ascii")
 
 
@@ -408,6 +508,41 @@ def validate_package_inputs(root: Path, source_root: Path, version: str, target:
         raise PackageInputError("invalid package inputs") from None
 
 
+def validate_patched_sources(source_root, inventory):
+    """The lock alone cannot bind the bytes of selected path dependencies."""
+    try:
+        patches = rust_path_patches.load(source_root)
+    except (ValueError, OSError, KeyError, TypeError) as error:
+        raise PackageInputError("invalid patched Cargo source binding") from error
+    inputs = inventory["source_inputs"]
+    if not patches:
+        require(rust_path_patches.REGISTRY not in inputs, "obsolete patch source inputs")
+        return
+    require(rust_path_patches.SOURCE_INPUTS <= set(inputs), "unbound patched Cargo source inputs")
+    require(all(source_input_matches(name, read_owned(source_root, name), inputs[name])
+                for name in rust_path_patches.SOURCE_INPUTS), "patched Cargo source inputs changed")
+    components = {row["name"]: row for row in inventory["components"] if row["kind"] == "cargo"}
+    profile = profile_from_inputs(inputs, inventory["target"])
+    # WSL shares the Rust target triple but ships the headless build, not the
+    # native Linux GUI. Only its exact profile input set selects this branch.
+    if not inventory["target"].endswith("unknown-linux-gnu") or (profile and profile.startswith("wsl-")):
+        require(not (set(patches) & set(components)), "Linux GUI patch component on another profile")
+        return
+    for name, patch in patches.items():
+        item = components.get(name)
+        require(item is not None and item["version"] == patch["version"]
+                and item["sha256"] == patch["manifest_sha256"]
+                and item["license_declared"] == "MIT OR Apache-2.0"
+                and item["license_concluded"] == rust_path_patches.CONCLUSIONS[name],
+                "patched Cargo inventory differs")
+        try:
+            # Trusted review checks the historical URL object. Builds also work
+            # from source archives or shallow checkouts: bind current bytes here.
+            rust_path_patches.location_commit(patch, item["download_location"])
+        except (ValueError, OSError) as error:
+            raise PackageInputError("patched Cargo provenance differs") from error
+
+
 def _validate_package_inputs(root, source_root, version, target, payload_manifest, source_only):
     require(type(source_only) is bool and target in TARGETS, "invalid target")
     require(not (source_only and payload_manifest is not None), "ambiguous validation scope")
@@ -428,9 +563,10 @@ def _validate_package_inputs(root, source_root, version, target, payload_manifes
                 for name, data in source_bytes.items()), "source input mismatch")
     source_version = tomllib.loads(read_owned(source_root, "Cargo.toml").decode("utf-8"))["package"]["version"]
     require(source_version == version, "source version mismatch")
+    validate_patched_sources(source_root, inventory)
     pins = tomllib.loads(source_bytes["packaging/cua/pins.toml"].decode("utf-8"))
     target_pins = pins["targets"][target]
-    schema_two = set(source_bytes) == release_source_inputs(target)
+    schema_two = base_source_inputs(source_bytes) == release_source_inputs(target)
     profile = profile_from_inputs(source_bytes, target)
     lock_name = (f"packaging/cua/profile-locks/{profile}.lock" if profile else
                  f"packaging/cua/locks/{target}.lock" if schema_two else "packaging/cua/requirements.lock")

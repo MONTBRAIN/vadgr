@@ -525,6 +525,171 @@ async fn computer_use_status_does_not_claim_an_engine_is_available() {
     assert!(["native", "wsl2"].contains(&body["platform"].as_str().unwrap()));
 }
 
+#[tokio::test]
+async fn machine_read_and_patch_share_the_persistent_store() {
+    let state = state_with(Box::new(LoopbackTransport));
+    let (status, before) = send(state.clone(), get("/api/machine"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    assert!(!before["id"].as_str().unwrap().is_empty());
+
+    let request = Request::builder()
+        .method("PATCH")
+        .uri("/api/machine")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            r#"{"name":"Studio workstation","autonomy":{"mode":"paranoid"}}"#,
+        ))
+        .unwrap();
+    let (status, changed) = send(state.clone(), request, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK, "{changed}");
+    assert_eq!(changed["id"], before["id"]);
+    assert_eq!(changed["name"], "Studio workstation");
+    assert_eq!(changed["autonomy"]["mode"], "paranoid");
+
+    let (_, reread) = send(state, get("/api/machine"), "127.0.0.1").await;
+    assert_eq!(reread, changed);
+}
+
+#[tokio::test]
+async fn machine_patch_distinguishes_null_from_an_omitted_field() {
+    let state = state_with(Box::new(LoopbackTransport));
+    let workspace = std::env::temp_dir()
+        .join("vadgr-route-workspace")
+        .to_string_lossy()
+        .into_owned();
+    let set_values = Request::builder()
+        .method("PATCH")
+        .uri("/api/machine")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            serde_json::json!({
+                "role_prompt": "Temporary role",
+                "workspace": workspace.clone(),
+            })
+            .to_string(),
+        ))
+        .unwrap();
+    let (status, changed) = send(state.clone(), set_values, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK, "{changed}");
+    assert_eq!(changed["role_prompt"], "Temporary role");
+    assert_eq!(changed["workspace"], workspace);
+
+    let clear_values = Request::builder()
+        .method("PATCH")
+        .uri("/api/machine")
+        .header("content-type", "application/json")
+        .body(Body::from(r#"{"role_prompt":null,"workspace":null}"#))
+        .unwrap();
+    let (status, cleared) = send(state, clear_values, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK, "{cleared}");
+    assert_eq!(
+        cleared["role_prompt"],
+        "Prefer the smallest action that finishes the job."
+    );
+    assert_eq!(cleared["workspace"], Value::Null);
+}
+
+#[tokio::test]
+async fn machine_read_reports_only_the_safe_terms_summary() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let root = state.config.state_home.as_ref().unwrap();
+    std::fs::create_dir_all(root).unwrap();
+    std::fs::write(
+        root.join("terms-acceptance.json"),
+        serde_json::to_vec(&serde_json::json!({
+            "schema": 1,
+            "terms_version": "1.0",
+            "terms_sha256": "0".repeat(64),
+            "accepted_at": "2026-09-02T12:00:00Z",
+            "installer_version": "0.5.0",
+            "installer_artifact_sha256": "1".repeat(64),
+            "install_scope": "user",
+            "installation_id": "installation-test",
+            "assent_method": "unchecked_checkbox_then_install"
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let (status, body) = send(state, get("/api/machine"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["terms"]["version"], "1.0");
+    assert_eq!(body["terms"]["accepted_at"], "2026-09-02T12:00:00Z");
+    assert!(body["terms"].get("installation_id").is_none());
+    assert!(body["terms"].get("installer_artifact_sha256").is_none());
+}
+
+#[tokio::test]
+async fn machine_patch_refuses_read_only_fields_and_incomplete_defaults() {
+    let state = state_with(Box::new(LoopbackTransport));
+    for (body, field) in [
+        (serde_json::json!({"id": "replacement"}), None),
+        (
+            serde_json::json!({"default_provider": "anthropic"}),
+            Some("default_provider"),
+        ),
+    ] {
+        let request = Request::builder()
+            .method("PATCH")
+            .uri("/api/machine")
+            .header("content-type", "application/json")
+            .body(Body::from(body.to_string()))
+            .unwrap();
+        let (status, response) = send(state.clone(), request, "127.0.0.1").await;
+        assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY, "{response}");
+        if let Some(field) = field {
+            assert_eq!(response["error"]["details"]["field"], field);
+        }
+    }
+}
+
+#[tokio::test]
+async fn pairing_cancel_closes_the_window_and_names_an_absent_one() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let pair = Request::builder()
+        .method("POST")
+        .uri("/api/auth/pair")
+        .body(Body::empty())
+        .unwrap();
+    let (status, _) = send(state.clone(), pair, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::OK);
+
+    let cancel = || {
+        Request::builder()
+            .method("DELETE")
+            .uri("/api/auth/pair")
+            .body(Body::empty())
+            .unwrap()
+    };
+    let (status, body) = send(state.clone(), cancel(), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["status"], "cancelled");
+
+    let (status, body) = send(state, cancel(), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"]["code"], "PAIRING_WINDOW_NOT_FOUND");
+}
+
+#[tokio::test]
+async fn pairing_cancel_is_local_only() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let pair = Request::builder()
+        .method("POST")
+        .uri("/api/auth/pair")
+        .body(Body::empty())
+        .unwrap();
+    let (status, _) = send(state.clone(), pair, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::OK);
+
+    let cancel = Request::builder()
+        .method("DELETE")
+        .uri("/api/auth/pair")
+        .body(Body::empty())
+        .unwrap();
+    let (status, body) = send(state, cancel, "100.64.0.9").await;
+    assert_eq!(status, StatusCode::FORBIDDEN, "{body}");
+    assert_eq!(body["error"]["code"], "SOURCE_NOT_AUTHORIZED");
+}
+
 async fn websocket_attempt(state: AppState, path: &str) -> Vec<u8> {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
@@ -1180,6 +1345,67 @@ async fn a_hostile_device_name_is_a_422_naming_the_field_on_every_transport() {
 }
 
 // ----------------------------------------------------------------- the shapes
+
+#[tokio::test]
+async fn pairing_reports_the_current_saved_machine_name_without_restart() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    for name in ["Studio workstation", "Renamed studio workstation"] {
+        let request = Request::builder()
+            .method("PATCH")
+            .uri("/api/machine")
+            .header("content-type", "application/json")
+            .body(Body::from(serde_json::json!({"name": name}).to_string()))
+            .unwrap();
+        let (status, machine) = send(state.clone(), request, "127.0.0.1").await;
+        assert_eq!(status, StatusCode::OK);
+        let (status, pair) = send(
+            state.clone(),
+            Request::builder()
+                .method("POST")
+                .uri("/api/auth/pair")
+                .body(Body::empty())
+                .unwrap(),
+            "127.0.0.1",
+        )
+        .await;
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(pair["machine_name"], machine["name"]);
+    }
+}
+
+#[tokio::test]
+async fn claiming_reports_the_saved_machine_name_and_keeps_the_phone_name_separate() {
+    let state = state_with(Box::new(EveryoneIsAPeer));
+    let code = state.pairing.mint();
+    let request = Request::builder()
+        .method("PATCH")
+        .uri("/api/machine")
+        .header("content-type", "application/json")
+        .body(Body::from(r#"{"name":"Renamed after opening pairing"}"#))
+        .unwrap();
+    let (status, machine) = send(state.clone(), request, "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, claim) = send_stamped(
+        state.clone(),
+        post_json(
+            "/api/auth/claim",
+            serde_json::json!({"pairing_token": code, "device_name": "Studio phone"}),
+        ),
+        Some(iroh_peer("phone-endpoint-id")),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(claim["machine_name"], machine["name"]);
+    let (status, devices) = send(state, get("/api/devices"), "127.0.0.1").await;
+    assert_eq!(status, StatusCode::OK);
+    let device = devices
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|device| device["id"] == claim["device_id"])
+        .unwrap();
+    assert_eq!(device["machine_name"], "Studio phone");
+}
 
 /// `transports` carries one member per supported transport, always: null for
 /// one that cannot be dialed right now, never an absent key. The top-level

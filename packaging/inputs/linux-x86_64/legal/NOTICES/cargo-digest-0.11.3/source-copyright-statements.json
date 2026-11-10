@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "f1dd6dbb5841937940781866fa1281a1ff7bd3bf827091440879f9994983d5c2",
+  "original_statement_files": [
+    {
+      "path": "digest-0.11.3/LICENSE-MIT",
+      "sha256": "af59cea35d7f5e2777a713b8d155d65efa2c339eb43f3c14e868c6ac8506edad",
+      "size": 1103,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017-2025 RustCrypto Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2017 Artyom Pavlov"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

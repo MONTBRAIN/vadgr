@@ -1,0 +1,16 @@
+{
+  "component_sha256": "e79f428899280e7e64e38365b5bfed683851ebea807eeaeadaf06eb8e0d67197",
+  "original_statement_files": [
+    {
+      "path": "mss/__init__.py",
+      "sha256": "e3533b25bd4ae0e3d8535242176db2f25ab41b1ff023b1ad5b3c62222f70b6f9",
+      "statements": [
+        {
+          "line": 18,
+          "text": "Copyright (c) {__date__}, {__author__}"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

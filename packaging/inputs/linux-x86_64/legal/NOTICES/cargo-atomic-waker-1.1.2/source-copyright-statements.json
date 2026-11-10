@@ -1,0 +1,29 @@
+{
+  "archive_sha256": "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0",
+  "original_statement_files": [
+    {
+      "path": "atomic-waker-1.1.2/LICENSE-THIRD-PARTY",
+      "sha256": "6226d0632e2e1a80c23597e964da9812ae193c535fe058154afb034e94167aa5",
+      "size": 1849,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2016 Alex Crichton"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2017 The Tokio Authors"
+        },
+        {
+          "line": 20,
+          "text": "Copyright (c) 2016 Alex Crichton"
+        },
+        {
+          "line": 21,
+          "text": "Copyright (c) 2017 The Tokio Authors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

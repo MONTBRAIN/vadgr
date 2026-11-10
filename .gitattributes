@@ -1,13 +1,27 @@
 *.sh text eol=lf
 packaging/cua/requirements.lock text eol=lf
 packaging/release-trusted-root.jsonl text eol=lf
+packaging/legal/*.txt text eol=lf
+packaging/legal-review/**/*.json text eol=lf
+packaging/legal-review/**/sources/** -text -diff -whitespace
 packaging/cua/native-wheel-manifest.json text eol=lf
 packaging/cua/native-wheel-manifest.json.bundle.jsonl text eol=lf
 packaging/cua/locks/*.lock text eol=lf
-packaging/cua/profile-inputs.json text eol=lf
-packaging/cua/cua-profile-catalog.json text eol=lf
-packaging/cua/cua-profile-catalog.sigstore.json text eol=lf
-packaging/cua/cua-profile-publication.json text eol=lf
+packaging/cua/*.json text eol=lf
 packaging/cua/profile-locks/*.lock text eol=lf
 packaging/cua/helper-signing/*.json text eol=lf
 packaging/candidate-legal-approval.json text eol=lf
+scripts/synthesize_windows_legal.py text eol=lf
+packaging/inputs/** -text -diff -whitespace
+packaging/inputs/README.md text eol=lf diff
+packaging/inputs/windows-*/package-input-*.json text eol=lf diff
+packaging/inputs/windows-*/review-ledger.json text eol=lf diff
+packaging/inputs/windows-*/cargo-scope.json text eol=lf diff
+packaging/inputs/windows-observation-bindings.json text eol=lf diff
+packaging/inputs/windows-*/preparation-binding.json text eol=lf diff
+packaging/inputs/windows-*/nested-source-scope.json text eol=lf diff
+packaging/inputs/windows-*/python-native-source-mapping.json text eol=lf diff
+packaging/inputs/windows-*/wix-source-mapping.json text eol=lf diff
+scripts/copyright_absence.py text eol=lf
+scripts/inspect_legal_crate_sources.py text eol=lf
+scripts/windows_legal_source_evidence.py text eol=lf

@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "7b48fea5a88e9ae728a2dcbedbfc0e730f7d60da42e1cb049a83c9fb8b789889",
+  "original_statement_files": [
+    {
+      "path": "clap_builder-4.6.6/LICENSE-MIT",
+      "sha256": "6efb0476a1cc085077ed49357026d8c173bf33017278ef440f222fb9cbcb66e6",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Individual contributors"
+        }
+      ]
+    },
+    {
+      "path": "clap_builder-4.6.6/src/parser/matches/arg_matches.rs",
+      "sha256": "bff90ec6afeaa8133369277036ab7c191274fe6751ed0c78b621d9ad6addedba",
+      "size": 66814,
+      "statements": [
+        {
+          "line": 1618,
+          "text": "// license: MIT - Copyright (c) 2015 The Rust Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

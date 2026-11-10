@@ -37,16 +37,34 @@
     </StandardDirectory>
 
     <Feature Id="Complete" Title="Vadgr" Level="1">
-      <ComponentGroupRef Id="PrivatePayload" />
       <ComponentRef Id="VadgrBackend" />
       <ComponentRef Id="VadgrApplication" />
-      <ComponentRef Id="PackageMetadata" />
-      <ComponentGroupRef Id="LegalPayload" />
-      <ComponentGroupRef Id="SbomPayload" />
       <ComponentRef Id="InstallFolderCleanup" />
       <ComponentRef Id="StartMenuEntry" />
       <ComponentRef Id="StartupEntry" />
       <ComponentRef Id="PackageCacheCleanup" />
+      <!--
+        Repair force-reinstalls this feature and nothing else.
+
+        Windows Installer protects an unversioned file whose modification date
+        is later than its creation date: it reads that as the owner's own data
+        and leaves it alone. Every repair mode except `a` honours that rule, so
+        a Repair of an edited package-owned notice reported success and
+        restored nothing. `a` is required, and a feature is the only thing that
+        bounds which files it rewrites.
+
+        The two executables stay in the parent feature on purpose. The console
+        that asks for a repair is itself running `vadgr.exe`, and Windows
+        cannot replace a running image, so forcing them fails the whole
+        transaction with 1603 and `Error 1310`. They are version-compared by
+        the second, unforced repair pass instead.
+      -->
+      <Feature Id="OwnedFiles" Title="Vadgr files" Level="1">
+        <ComponentGroupRef Id="PrivatePayload" />
+        <ComponentRef Id="PackageMetadata" />
+        <ComponentGroupRef Id="LegalPayload" />
+        <ComponentGroupRef Id="SbomPayload" />
+      </Feature>
     </Feature>
 
     <Component Id="VadgrBackend" Directory="INSTALLFOLDER" Guid="{CE560AD1-3C47-4BE8-9844-A34E1F2A65B0}">
@@ -62,6 +80,15 @@
       <File Id="OfflineReadmeFile" Source="$(var.PayloadDir)\README-OFFLINE.txt" />
       <File Id="PackageInputInventoryFile" Source="$(var.PayloadDir)\package-input-inventory.json" />
       <File Id="PackageInputReviewFile" Source="$(var.PayloadDir)\package-input-review.json" />
+      <?if $(var.DevelopmentUnsigned) = true ?>
+      <!-- The development admission for the bundled runtime. The install
+           receipt records this file's digest, and the daemon refuses to start
+           that runtime unless every byte the receipt inventories still matches.
+           A release package never contains one, which is why this file is
+           authored under the same condition that drops the Authenticode
+           vehicle cache. -->
+      <File Id="DevelopmentReceiptFile" Source="$(var.PayloadDir)\development-receipt.json" />
+      <?endif?>
       <RegistryValue Root="HKCU" Key="Software\MONTBRAIN\Vadgr\Components" Name="Metadata" Type="integer" Value="1" KeyPath="yes" />
     </Component>
     <Component Id="InstallFolderCleanup" Directory="INSTALLFOLDER" Guid="{F769D82B-844F-4D60-B8CE-8F1A39032D9F}">

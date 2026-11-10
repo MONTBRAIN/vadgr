@@ -135,9 +135,24 @@ impl GeminiClient {
         let mut content = Vec::new();
         for part in parts {
             if let Some(text) = part.get("text").and_then(Value::as_str) {
-                content.push(ContentBlock::Text {
-                    text: text.to_owned(),
-                });
+                // Thought summaries are separate from the answer, even when
+                // the endpoint returns both as text parts in the same turn.
+                content.push(
+                    if part.get("thought").and_then(Value::as_bool) == Some(true) {
+                        ContentBlock::Thinking {
+                            thinking: text.to_owned(),
+                            signature: part
+                                .get("thoughtSignature")
+                                .and_then(Value::as_str)
+                                .unwrap_or_default()
+                                .to_owned(),
+                        }
+                    } else {
+                        ContentBlock::Text {
+                            text: text.to_owned(),
+                        }
+                    },
+                );
             }
             if let Some(call) = part.get("functionCall") {
                 content.push(ContentBlock::ToolUse {
@@ -171,19 +186,27 @@ impl GeminiClient {
         let usage = value.get("usageMetadata").ok_or_else(|| {
             ProviderError::InvalidResponse("response has no usage metadata".to_owned())
         })?;
+        // An empty turn can omit the candidate count. Thinking tokens are
+        // generated output too, charged in addition to the candidate tokens.
+        let output_tokens = usage
+            .get("candidatesTokenCount")
+            .and_then(Value::as_u64)
+            .unwrap_or(0)
+            .checked_add(
+                usage
+                    .get("thoughtsTokenCount")
+                    .and_then(Value::as_u64)
+                    .unwrap_or(0),
+            )
+            .ok_or_else(|| {
+                ProviderError::InvalidResponse("output token count overflow".to_owned())
+            })?;
         Ok(ModelResponse {
             content,
             stop_reason: Some(stop_reason),
             usage: Usage {
                 input_tokens: required_u64(usage, "promptTokenCount")?,
-                // Absent on the same empty turn, for the same reason: the model
-                // produced no output, so the endpoint omits the count rather
-                // than sending a zero. Requiring it turned that turn into a
-                // second failure behind the first one.
-                output_tokens: usage
-                    .get("candidatesTokenCount")
-                    .and_then(Value::as_u64)
-                    .unwrap_or(0),
+                output_tokens,
             },
         })
     }
@@ -276,6 +299,19 @@ fn convert_messages(messages: &[Message]) -> Vec<Value> {
                         Some("text") => {
                             if let Some(text) = block.get("text").and_then(Value::as_str) {
                                 parts.push(json!({"text":text}));
+                            }
+                        }
+                        Some("thinking") => {
+                            if let Some(text) = block.get("thinking").and_then(Value::as_str) {
+                                let mut part = json!({"text":text,"thought":true});
+                                if let Some(signature) = block
+                                    .get("signature")
+                                    .and_then(Value::as_str)
+                                    .filter(|signature| !signature.is_empty())
+                                {
+                                    part["thoughtSignature"] = Value::String(signature.to_owned());
+                                }
+                                parts.push(part);
                             }
                         }
                         Some("image") => {
@@ -698,6 +734,111 @@ mod tests {
                 provider_signature: Some(signature),
                 ..
             } if signature == "signed"
+        ));
+    }
+
+    #[test]
+    fn thought_text_is_not_answer_text() {
+        let response = GeminiClient::decode(json!({
+            "candidates":[{"content":{"parts":[
+                {"text":"private reasoning summary","thought":true,"thoughtSignature":"signed-thought"},
+                {"text":"another summary","thought":true},
+                {"text":"MARKER","thought":false},
+                {"text":"ordinary s.thought text"}
+            ]},"finishReason":"STOP"}],
+            "usageMetadata":{"promptTokenCount":2,"candidatesTokenCount":3}
+        })).unwrap();
+        assert_eq!(
+            response.content,
+            vec![
+                ContentBlock::Thinking {
+                    thinking: "private reasoning summary".to_owned(),
+                    signature: "signed-thought".to_owned(),
+                },
+                ContentBlock::Thinking {
+                    thinking: "another summary".to_owned(),
+                    signature: String::new(),
+                },
+                ContentBlock::Text {
+                    text: "MARKER".to_owned()
+                },
+                ContentBlock::Text {
+                    text: "ordinary s.thought text".to_owned()
+                },
+            ]
+        );
+        assert_eq!(response.stop_reason, Some(StopReason::EndTurn));
+        assert_eq!(
+            response.usage,
+            Usage {
+                input_tokens: 2,
+                output_tokens: 3
+            }
+        );
+    }
+
+    #[test]
+    fn thought_parts_and_signatures_survive_image_tool_continuation() {
+        let original_parts = json!([
+            {"text":"signed summary","thought":true,"thoughtSignature":"thought-signature"},
+            {"text":"unsigned summary","thought":true},
+            {"functionCall":{"id":"c1","name":"test__screenshot","args":{}},"thoughtSignature":"call-signature"}
+        ]);
+        let response = GeminiClient::decode(json!({
+            "candidates":[{"content":{"parts":original_parts},"finishReason":"STOP"}],
+            "usageMetadata":{"promptTokenCount":2,"candidatesTokenCount":3}
+        }))
+        .unwrap();
+        assert_eq!(response.stop_reason, Some(StopReason::ToolUse));
+        let messages = vec![
+            Message {
+                role: "assistant".to_owned(),
+                content: serde_json::to_value(&response.content).unwrap(),
+            },
+            Message {
+                role: "user".to_owned(),
+                content: json!([{"type":"tool_result","tool_use_id":"c1","content":[
+                    {"type":"text","text":"captured"},
+                    {"type":"image","source":{"type":"base64","media_type":"image/png","data":"aW1hZ2U="}}
+                ]}]),
+            },
+        ];
+        let body = client().body(&messages, &[], 512);
+        assert_eq!(body["contents"][0]["role"], "model");
+        assert_eq!(body["contents"][0]["parts"], original_parts);
+        assert_eq!(
+            body["contents"][1]["parts"][0]["functionResponse"]["name"],
+            "test__screenshot"
+        );
+        assert_eq!(
+            body["contents"][1]["parts"][1]["inlineData"]["data"],
+            "aW1hZ2U="
+        );
+    }
+
+    #[test]
+    fn output_usage_includes_thinking_tokens() {
+        for (candidates, thoughts, expected) in [(3, 7, 10), (3, 0, 3), (0, 0, 0)] {
+            let mut value = finished_with_nothing_to_say();
+            value["usageMetadata"]["candidatesTokenCount"] = json!(candidates);
+            value["usageMetadata"]["thoughtsTokenCount"] = json!(thoughts);
+            let response = GeminiClient::decode(value).unwrap();
+            assert_eq!(response.usage.output_tokens, expected);
+            assert_eq!(response.usage.input_tokens, 123);
+        }
+        let mut value = finished_with_nothing_to_say();
+        value["usageMetadata"]["thoughtsTokenCount"] = json!(7);
+        assert_eq!(GeminiClient::decode(value).unwrap().usage.output_tokens, 7);
+    }
+
+    #[test]
+    fn overflowing_output_usage_is_rejected() {
+        let mut value = finished_with_nothing_to_say();
+        value["usageMetadata"]["candidatesTokenCount"] = json!(u64::MAX);
+        value["usageMetadata"]["thoughtsTokenCount"] = json!(1);
+        assert!(matches!(
+            GeminiClient::decode(value),
+            Err(ProviderError::InvalidResponse(message)) if message == "output token count overflow"
         ));
     }
 }

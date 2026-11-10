@@ -3,6 +3,7 @@
 import copy
 import io
 import struct
+from types import SimpleNamespace
 import zipfile
 
 import pytest
@@ -10,6 +11,18 @@ import pytest
 from scripts import cua_profiles as profiles
 from scripts import cua_wheelhouse as wheels
 from scripts.validate_package_inputs import PackageInputError, sha256_bytes
+
+
+def test_repository_origin_query_has_no_trailing_slash(monkeypatch):
+    commands = []
+
+    def run(command, **kwargs):
+        commands.append(command)
+        return SimpleNamespace(returncode=0, stdout=b'{"id":1}\n')
+
+    monkeypatch.setattr(profiles.subprocess, "run", run)
+    assert profiles._gh("") == {"id": 1}
+    assert commands == [["gh", "api", "--method", "GET", "repos/MONTBRAIN/vadgr-computer-use"]]
 
 
 def pe(arch="x86_64"):
@@ -121,3 +134,9 @@ def test_profile_target_not_only_interpreter_platform():
 def test_missing_promotion_never_falls_back(tmp_path):
     with pytest.raises(PackageInputError):
         profiles.reviewed(tmp_path, tmp_path, "windows-x86_64")
+
+
+def test_producer_workflow_head_is_distinct_from_candidate_source():
+    producer = {"source_commit": "a" * 40, "tooling_commit": "b" * 40}
+    assert profiles.producer_head(producer) == "b" * 40
+    assert profiles.producer_head(producer) != producer["source_commit"]

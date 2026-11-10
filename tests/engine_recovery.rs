@@ -166,15 +166,41 @@ impl HostFactory for RecoveryHostFactory {
     }
 }
 
+/// How long a run may take to settle before the wait gives up.
+///
+/// This was a fixed hundred polls of twenty milliseconds, which is two
+/// seconds, and two seconds is not long enough for a whole run to execute on a
+/// loaded hosted runner. The test then failed on the machine rather than on
+/// the code, which is the worst kind of red gate: it teaches everyone to rerun
+/// instead of to read. The poll interval stays short, so a genuine failure is
+/// still reported quickly.
+const SETTLE_BUDGET: Duration = Duration::from_secs(60);
+
 async fn wait_for_status(db: &Db, id: &str, expected: &str) -> Value {
-    for _ in 0..100 {
+    let started = std::time::Instant::now();
+    loop {
         let row = db::runs::get(db, id).unwrap().unwrap();
         if row["status"] == expected {
             return row;
         }
+        let waited = started.elapsed();
+        assert!(
+            waited < SETTLE_BUDGET,
+            "run {id} did not reach {expected} within {waited:?}"
+        );
         tokio::time::sleep(Duration::from_millis(20)).await;
     }
-    panic!("run {id} did not reach {expected}");
+}
+
+#[test]
+fn the_settle_budget_survives_a_loaded_runner() {
+    // The observed failure took longer than two seconds on a hosted Windows
+    // runner that was running a second full test pass. Anything back near that
+    // order reintroduces the same intermittent red gate.
+    assert!(
+        SETTLE_BUDGET >= Duration::from_secs(30),
+        "a run may need far longer than a quiet workstation suggests"
+    );
 }
 
 #[tokio::test]

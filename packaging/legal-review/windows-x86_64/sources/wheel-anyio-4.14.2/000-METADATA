@@ -1,0 +1,32 @@
+Metadata-Version: 2.4
+Name: anyio
+Version: 4.14.2
+Summary: High-level concurrency and networking framework on top of asyncio or Trio
+Author-email: Alex Grönholm <alex.gronholm@nextday.fi>
+License-Expression: MIT
+Project-URL: Documentation, https://anyio.readthedocs.io/en/latest/
+Project-URL: Changelog, https://anyio.readthedocs.io/en/stable/versionhistory.html
+Project-URL: Source code, https://github.com/agronholm/anyio
+Project-URL: Issue tracker, https://github.com/agronholm/anyio/issues
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Framework :: AnyIO
+Classifier: Typing :: Typed
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: 3.15
+Requires-Python: >=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: exceptiongroup>=1.0.2; python_version < "3.11"
+Requires-Dist: idna>=2.8
+Requires-Dist: typing_extensions>=4.5; python_version < "3.13"
+Provides-Extra: trio
+Requires-Dist: trio>=0.32.0; extra == "trio"
+Dynamic: license-file
+

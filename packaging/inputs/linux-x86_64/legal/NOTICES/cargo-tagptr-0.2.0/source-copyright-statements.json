@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "7b2093cf4c8eb1e67749a6762251bc9cd836b6fc171623bd0a9d324d37af2417",
+  "original_statement_files": [
+    {
+      "path": "tagptr-0.2.0/LICENSE-APACHE",
+      "sha256": "a2b15e1e900414317d0e00d887dd2747d4abd00382c6addeb5daf746bed4b52b",
+      "size": 555,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2021 Oliver Giersch"
+        }
+      ]
+    },
+    {
+      "path": "tagptr-0.2.0/LICENSE-MIT",
+      "sha256": "175d33d2e88fc3944f1f54125e886e7232a85380b73dce505e9088fe4e91c576",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2021 Oliver Giersch"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

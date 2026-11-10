@@ -1,0 +1,491 @@
+{
+  "graphs": {
+    "nested-sboms/wheel-cryptography-50.0.1/000-cryptography-rust.cyclonedx.json": {
+      "contexts": {
+        "path+file:///C:/a/_temp/native-wheel-work/cryptography/cryptography-50.0.1/src/rust#cryptography-rust@0.50.1": [
+          "target-link-relevant"
+        ],
+        "path+file:///C:/a/_temp/native-wheel-work/cryptography/cryptography-50.0.1/src/rust/cryptography-cffi#0.50.1": [
+          "target-link-relevant"
+        ],
+        "path+file:///C:/a/_temp/native-wheel-work/cryptography/cryptography-50.0.1/src/rust/cryptography-crypto#0.50.1": [
+          "target-link-relevant"
+        ],
+        "path+file:///C:/a/_temp/native-wheel-work/cryptography/cryptography-50.0.1/src/rust/cryptography-keepalive#0.50.1": [
+          "target-link-relevant"
+        ],
+        "path+file:///C:/a/_temp/native-wheel-work/cryptography/cryptography-50.0.1/src/rust/cryptography-key-parsing#0.50.1": [
+          "target-link-relevant"
+        ],
+        "path+file:///C:/a/_temp/native-wheel-work/cryptography/cryptography-50.0.1/src/rust/cryptography-openssl#0.50.1": [
+          "target-link-relevant"
+        ],
+        "path+file:///C:/a/_temp/native-wheel-work/cryptography/cryptography-50.0.1/src/rust/cryptography-x509#0.50.1": [
+          "target-link-relevant"
+        ],
+        "path+file:///C:/a/_temp/native-wheel-work/cryptography/cryptography-50.0.1/src/rust/cryptography-x509-verification#0.50.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#asn1@0.24.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#asn1_derive@0.24.1": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#base64@0.23.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#bitflags@2.13.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#cc@1.4.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#cfg-if@1.0.4": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#find-msvc-tools@0.1.9": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#foreign-types-shared@0.1.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#foreign-types@0.3.2": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#heck@0.5.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#itoa@1.0.18": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#libc@0.2.189": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#once_cell@1.21.4": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#openssl-macros@0.1.1": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#openssl-sys@0.9.117": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#openssl@0.10.81": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pem@4.0.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pkg-config@0.3.33": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#portable-atomic@1.14.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.107": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-build-config@0.29.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-ffi@0.29.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-macros-backend@0.29.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-macros@0.29.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3@0.29.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.47": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#self_cell@1.3.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#shlex@2.0.1": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.119": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#target-lexicon@0.13.5": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#unicode-ident@1.0.24": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#vcpkg@0.2.15": [
+          "build-or-generated-code"
+        ]
+      },
+      "missing_source_manifests": [],
+      "sha256": "45850696f75bdc8fd18916b9a20ce4de588e0eb0471b67371a15d62a27501cb4"
+    },
+    "nested-sboms/wheel-pydantic-core-2.46.5/000-pydantic-core.cyclonedx.json": {
+      "contexts": {
+        "path+file:///C:/a/pydantic/pydantic/pydantic-core#2.46.5": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#ahash@0.8.12": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#aho-corasick@1.1.3": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#allocator-api2@0.2.21": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#autocfg@1.3.0": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#base64@0.22.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#bitvec@1.0.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#cc@1.0.101": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#cfg-if@1.0.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#displaydoc@0.2.5": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#enum_dispatch@0.3.13": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#equivalent@1.0.2": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#foldhash@0.2.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#form_urlencoded@1.2.2": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#funty@2.0.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#getrandom@0.3.3": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#hashbrown@0.16.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#heck@0.5.0": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#hex@0.4.3": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_collections@1.5.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_locid@1.5.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_locid_transform@1.5.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_locid_transform_data@1.5.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_normalizer@1.5.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_normalizer_data@1.5.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_properties@1.5.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_properties_data@1.5.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_provider@1.5.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#icu_provider_macros@1.5.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#idna@1.1.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#idna_adapter@1.2.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#itoa@1.0.11": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#jiter@0.14.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#lexical-parse-float@1.0.5": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#lexical-parse-integer@1.0.5": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#lexical-util@1.0.6": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#libc@0.2.185": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#litemap@0.7.3": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#lru@0.16.3": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#memchr@2.7.4": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#num-bigint@0.4.6": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#num-integer@0.1.46": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#num-traits@0.2.19": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#once_cell@1.21.3": [
+          "build-or-generated-code",
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#percent-encoding@2.3.2": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.86": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-build-config@0.28.3": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-ffi@0.28.3": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-macros-backend@0.28.3": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-macros@0.28.3": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3@0.28.3": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#python3-dll-a@0.2.14": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.44": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#radium@0.7.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#regex-automata@0.4.13": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#regex-syntax@0.8.5": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#regex@1.12.3": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#serde@1.0.228": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#serde_core@1.0.228": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#serde_derive@1.0.228": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#serde_json@1.0.149": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#smallvec@1.15.1": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#speedate@0.17.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#stable_deref_trait@1.2.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#static_assertions@1.1.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#strum@0.27.2": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#strum_macros@0.27.2": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.82": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#synstructure@0.13.1": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#tap@1.0.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#target-lexicon@0.13.4": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#tinystr@0.7.6": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#unicode-ident@1.0.12": [
+          "build-or-generated-code",
+          "development"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#url@2.5.8": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#utf16_iter@1.0.5": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#utf8_iter@1.0.4": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#uuid@1.23.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#version_check@0.9.5": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#write16@1.0.0": [
+          "development",
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#writeable@0.5.5": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#wyz@0.5.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#yoke-derive@0.7.4": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#yoke@0.7.4": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#zerocopy@0.8.25": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#zerofrom-derive@0.1.4": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#zerofrom@0.1.4": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#zerovec-derive@0.10.3": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#zerovec@0.10.4": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#zmij@1.0.6": [
+          "target-link-relevant"
+        ]
+      },
+      "missing_source_manifests": [],
+      "sha256": "569291dbeb18946397081babc0448cb1e7f494d2e4271fb8ae3c7c1278bb561b"
+    },
+    "nested-sboms/wheel-rpds-py-2026.6.3/000-rpds-py.cyclonedx.json": {
+      "contexts": {
+        "path+file:///C:/a/rpds/rpds#rpds-py@2026.6.3": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#archery@1.2.2": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#heck@0.5.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#libc@0.2.177": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#once_cell@1.21.3": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#proc-macro2@1.0.103": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-build-config@0.29.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-ffi@0.29.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-macros-backend@0.29.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3-macros@0.29.0": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#pyo3@0.29.0": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#quote@1.0.42": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#rpds@1.2.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#smallvec@1.15.1": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#syn@2.0.111": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#target-lexicon@0.13.3": [
+          "build-or-generated-code"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#triomphe@0.1.15": [
+          "target-link-relevant"
+        ],
+        "registry+https://github.com/rust-lang/crates.io-index#unicode-ident@1.0.22": [
+          "build-or-generated-code"
+        ]
+      },
+      "missing_source_manifests": [],
+      "sha256": "45bf22929d96676e41b2258725fa7c995f0894b771f154f7aa6b839bfa63de6d"
+    }
+  },
+  "limitation": "Exact wheel SBOM edges filtered by pinned source dependency kinds and Windows cfg. Optional feature edges are conservatively retained. Reachability is link relevance, not proof every symbol survives linking; generated-code obligations remain reviewable.",
+  "schema": 1,
+  "status": "source-observations-not-approval"
+}

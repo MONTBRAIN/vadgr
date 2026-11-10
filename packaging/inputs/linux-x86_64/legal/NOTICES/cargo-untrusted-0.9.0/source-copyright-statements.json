@@ -1,0 +1,83 @@
+{
+  "archive_sha256": "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1",
+  "original_statement_files": [
+    {
+      "path": "untrusted-0.9.0/LICENSE.txt",
+      "sha256": "7abd9b6960dcf7d4d0a48606a5b71bfe37d472db68d70637f3a58a56785f1621",
+      "size": 769,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2016 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "untrusted-0.9.0/mk/cargo.sh",
+      "sha256": "766c00df2767ac0998000e9b55d076b6dbbeb05ecf4c4d9b317df8551fae1bbe",
+      "size": 6277,
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright 2020 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "untrusted-0.9.0/mk/install-build-tools.sh",
+      "sha256": "90ec3cce41b1660b5103a37803e537ff167bae17badaca2d89f492116555919d",
+      "size": 2985,
+      "statements": [
+        {
+          "line": 3,
+          "text": "# Copyright 2020 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "untrusted-0.9.0/src/input.rs",
+      "sha256": "aaa007b7051f03b32f6c71fa8164780435e637bb2242df7792942b699d2d9cbd",
+      "size": 3416,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "untrusted-0.9.0/src/lib.rs",
+      "sha256": "860cdbec448f82196aa2242ad52945dfc60f29fcfbc28d244877fca0c0331fcc",
+      "size": 5736,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "untrusted-0.9.0/src/reader.rs",
+      "sha256": "3826d4de44a970ed42e3f7dead6f4b51b60ccf02c03b9ac7140c80a9e57b104d",
+      "size": 5031,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2021 Brian Smith."
+        }
+      ]
+    },
+    {
+      "path": "untrusted-0.9.0/tests/tests.rs",
+      "sha256": "cefcc4543e3d49e1af0e6e6efebebbdfb61cad131d0ea2d69c14ed11f398cca5",
+      "size": 3956,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015-2019 Brian Smith."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

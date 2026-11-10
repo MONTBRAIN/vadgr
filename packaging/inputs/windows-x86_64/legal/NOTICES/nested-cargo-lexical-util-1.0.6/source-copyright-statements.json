@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "5a82e24bf537fd24c177ffbbdc6ebcc8d54732c35b50a3f28cc3f4e4c949a0b3",
+  "original_statement_files": [
+    {
+      "path": "lexical-util-1.0.6/src/num.rs",
+      "sha256": "4ce924903327ce6e2c71a276990db429b27b7c80cdc85ab671893352530fe60d",
+      "size": 39601,
+      "statements": [
+        {
+          "line": 1246,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        },
+        {
+          "line": 1368,
+          "text": "* Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

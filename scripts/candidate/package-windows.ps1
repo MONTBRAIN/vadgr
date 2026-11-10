@@ -51,11 +51,11 @@ try {
         'detach' {
             & dotnet tool install wix --tool-path (Join-Path $output 'wix') --version 7.0.0
             if ($LASTEXITCODE -ne 0) { throw 'Pinned WiX installation failed.' }
-            & "$output/wix/wix.exe" burn detach $bundle -engine $engine
+            & "$output/wix/wix.exe" -acceptEula wix7 burn detach $bundle -engine $engine
             if ($LASTEXITCODE -ne 0) { throw 'Burn detach failed.' }
         }
         'reattach' {
-            & "$output/wix/wix.exe" burn reattach $bundle -engine $engine -o $final
+            & "$output/wix/wix.exe" -acceptEula wix7 burn reattach $bundle -engine $engine -o $final
             if ($LASTEXITCODE -ne 0) { throw 'Burn reattach failed.' }
         }
     }

@@ -1,0 +1,696 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/__init__.py",
+      "member": "uniseg/__init__.py",
+      "sha256": "07aa000e7ee08270c531f2ee9f0ddd38bbd4dd930cb7db43da8b2b3415a98235",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/breaking.py",
+      "member": "uniseg/breaking.py",
+      "sha256": "3053b2e2567596fe0df02dbc67b24b66a9968fa6c6f4696edd317183756cd12a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/db.py",
+      "member": "uniseg/db.py",
+      "sha256": "b1d6743b2df981d64af421deee4a7b91b19f613b15c33c762909c7c53896e4f0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/db_lookups.py",
+      "member": "uniseg/db_lookups.py",
+      "sha256": "570ed7f9743607426527ed0233a84087359a0414485beae18656a1b7bc675225",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/derived.py",
+      "member": "uniseg/derived.py",
+      "sha256": "776946a09fc5babe6cc2baf4552955f2e580d7dc081003079dd8db6b242464e0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/emoji.py",
+      "member": "uniseg/emoji.py",
+      "sha256": "eeb5e8ae3046afe6873b00b5269fb873d4c8e16e073ec211265630dcbb23e870",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/graphemecluster.py",
+      "member": "uniseg/graphemecluster.py",
+      "sha256": "147e2c08a0e9528868333897256141451214fc28a638b2ff4ebd3f0c06597268",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/linebreak.py",
+      "member": "uniseg/linebreak.py",
+      "sha256": "2bd20d7e5b9df28439df9302d09ffa426db9fa0f1f37183f9ac23fcbc9f3a475",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/sentencebreak.py",
+      "member": "uniseg/sentencebreak.py",
+      "sha256": "61096ee9b1e2a2ba4fa8700416c0bf3188653b5aaf2ed6a422ffb6fc0081380b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/unicodedatawrapper.py",
+      "member": "uniseg/unicodedatawrapper.py",
+      "sha256": "d8f09f2586c2e19bebc153c7f30442aa67657e300344e25a779c93990330ba62",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/unicodeproperty.py",
+      "member": "uniseg/unicodeproperty.py",
+      "sha256": "cac922339bc32d05db898ba1fed48f48f04a00799be4df62221b4966cb34b5c4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/wordbreak.py",
+      "member": "uniseg/wordbreak.py",
+      "sha256": "dbfcdb1211a24bb4f866c7a92cc7c5f9bb279a649fe14b6b9b5669713f3ff028",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/wrap.py",
+      "member": "uniseg/wrap.py",
+      "sha256": "ae9bb3806868bb60b2a7b3372d33f22d0a4fb3353caed5a4ab0197803f68afbe",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/codepoint.html",
+      "member": "uniseg/docs/html/codepoint.html",
+      "sha256": "f6a0ae316ac4aec0ade322987d830cefbe8a81e0b2a67c551884234c52777918",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/genindex.html",
+      "member": "uniseg/docs/html/genindex.html",
+      "sha256": "ebade410968be09bd111074305db673e11d8f515aab2346cd974f3f5d25949b1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/graphemecluster.html",
+      "member": "uniseg/docs/html/graphemecluster.html",
+      "sha256": "12a738a39390daecd0281e07f15cba323ee875a5c6750dc3aff751eecfef6386",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/index.html",
+      "member": "uniseg/docs/html/index.html",
+      "sha256": "7c72cd34dfb60ae363d760c3388e48fd8b046a147777f61735bf6045ffd15f6e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/introduction.html",
+      "member": "uniseg/docs/html/introduction.html",
+      "sha256": "2ad15f4fc26e99cd6197a4a0fafd7182dc70eabfdea815da4df073d4830d4143",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/license.html",
+      "member": "uniseg/docs/html/license.html",
+      "sha256": "be709098f4a5a7e9b59f82efa8d49752d7921050f94e9bf475548d1626b23521",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/linebreak.html",
+      "member": "uniseg/docs/html/linebreak.html",
+      "sha256": "7bc87e09029f334dc8df93db31b63cceac63ac19973b3f9acb20aa514e64ec49",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/modules.html",
+      "member": "uniseg/docs/html/modules.html",
+      "sha256": "d283e6ae5baf7e248ab817350cb4f1eda689363598249ef811f49f0238c81b68",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/py-modindex.html",
+      "member": "uniseg/docs/html/py-modindex.html",
+      "sha256": "1f1cf3ba4a7aeaff641a519dc938d4c8980abe37a48914e7498193bffa9f600a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/samples.html",
+      "member": "uniseg/docs/html/samples.html",
+      "sha256": "3490615122235ccfeedf7ee45beffc526a8d409d0d9d95c68c82ab60e61ff5b1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/search.html",
+      "member": "uniseg/docs/html/search.html",
+      "sha256": "6ea35d0cef84745149f28319c5b3ec1557c84857191aa13fa5d59c7e948d90ac",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/searchindex.js.tmp",
+      "member": "uniseg/docs/html/searchindex.js.tmp",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/sentencebreak.html",
+      "member": "uniseg/docs/html/sentencebreak.html",
+      "sha256": "4aee528dfec69531476b5499415efbf28235d8276d5ba1edb611beb324096308",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/unibreak.html",
+      "member": "uniseg/docs/html/unibreak.html",
+      "sha256": "6dbbda29ade348bd3bd8478d5e6bf3233906505dc92066d1ba2fa84381dda16a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/uniwrap.html",
+      "member": "uniseg/docs/html/uniwrap.html",
+      "sha256": "130c44af59cb7f2a853f03e8635a028a6cdbc4e3aa79de32402e9bc2f552a7b7",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/wordbreak.html",
+      "member": "uniseg/docs/html/wordbreak.html",
+      "sha256": "ead0a8d8df35cb5f4325ba6f1d68f7928de8fe4fb4d0ea4a0084fa27dc76740f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/wrap.html",
+      "member": "uniseg/docs/html/wrap.html",
+      "sha256": "3143cf5d0016b00f9162a6a55380a1c8519497320d67dee5e3b6d135d4f87eaa",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/wxwrapdemo.html",
+      "member": "uniseg/docs/html/wxwrapdemo.html",
+      "sha256": "0d63aeb4a15e531a7fb4ee0ae94416c44693587e2c55fce8187730ef8c107507",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_images/wxwrapdemo-osx.png",
+      "member": "uniseg/docs/html/_images/wxwrapdemo-osx.png",
+      "sha256": "1122f53d4f505d7c4ba7417ca4b55ac17c585cc301d6044303383030d7f7398f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_images/wxwrapdemo-ubuntu.png",
+      "member": "uniseg/docs/html/_images/wxwrapdemo-ubuntu.png",
+      "sha256": "3ff0ad98f41ee4ace2f1e7604f865fa8e92bc0bf117c9ec8ad44924a5175713e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_images/wxwrapdemo-windows.png",
+      "member": "uniseg/docs/html/_images/wxwrapdemo-windows.png",
+      "sha256": "264972995924f5784ace7cbf7ed9343be3fb2cb63160e83306dc53f205d4baa1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/codepoint.rst.txt",
+      "member": "uniseg/docs/html/_sources/codepoint.rst.txt",
+      "sha256": "a0e003302f54e10817d49ad085535f112f740950ecfe423cb643c0eaca9e856b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/graphemecluster.rst.txt",
+      "member": "uniseg/docs/html/_sources/graphemecluster.rst.txt",
+      "sha256": "7dd35cd67bec1b43c7afb7cea201f3934cc4ec02f3175032445b30f82fd84f2c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/index.rst.txt",
+      "member": "uniseg/docs/html/_sources/index.rst.txt",
+      "sha256": "195d864008a84b56b08fa54cecba99b81043ee8f74a449e33faf54a94b0b4d57",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/introduction.rst.txt",
+      "member": "uniseg/docs/html/_sources/introduction.rst.txt",
+      "sha256": "9516bc3cf468633a1b8ed541fde1bb283605b832e388f641f0b7fb591a1cdd81",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/license.rst.txt",
+      "member": "uniseg/docs/html/_sources/license.rst.txt",
+      "sha256": "e2c8085adb95ce4e398807602688bbad309cf5c58ea495cf34e7c33c212a014d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/linebreak.rst.txt",
+      "member": "uniseg/docs/html/_sources/linebreak.rst.txt",
+      "sha256": "d4e5f29842c8edc81ffe60ae8c87d3f92c8e02fc02fc85f2a73a09c8e006486f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/modules.rst.txt",
+      "member": "uniseg/docs/html/_sources/modules.rst.txt",
+      "sha256": "4ef3c4217b71a695dc67be4e2bf5a232ebcd72bffeb11218227ccba25da8c9aa",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/samples.rst.txt",
+      "member": "uniseg/docs/html/_sources/samples.rst.txt",
+      "sha256": "6daf4b6be1842d59bef5aa8d249084fa27d51beefc52e7bc4504e0a4fceab411",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/sentencebreak.rst.txt",
+      "member": "uniseg/docs/html/_sources/sentencebreak.rst.txt",
+      "sha256": "53a803bfec0517bee14cb91f696f0c529e2f92a5b2e5a15c98e5809965b33a66",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/unibreak.rst.txt",
+      "member": "uniseg/docs/html/_sources/unibreak.rst.txt",
+      "sha256": "e0f7f8ccb63a87f555c2cd0040b9c5780eaf703168cd8d5582e3456a15dcb18a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/uniwrap.rst.txt",
+      "member": "uniseg/docs/html/_sources/uniwrap.rst.txt",
+      "sha256": "fe7b631e7d53636f47b7c9f37e73e50105c8e8ac0dcb257687a32c8b3ab8e2af",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/wordbreak.rst.txt",
+      "member": "uniseg/docs/html/_sources/wordbreak.rst.txt",
+      "sha256": "34c8c8a33b1c22cd53b854f1a94aa27a5ad4fdc7276b41832e552b011e9ed1ff",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/wrap.rst.txt",
+      "member": "uniseg/docs/html/_sources/wrap.rst.txt",
+      "sha256": "f32b2076b35b7fd44970de9224331d50c35993d176f5d63dc1a6e07e6015e21f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_sources/wxwrapdemo.rst.txt",
+      "member": "uniseg/docs/html/_sources/wxwrapdemo.rst.txt",
+      "sha256": "e7347b660c29cdd69422ef7b7cc16e91d1b4ceeea48438d1b5819a445c302084",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/_sphinx_javascript_frameworks_compat.js",
+      "member": "uniseg/docs/html/_static/_sphinx_javascript_frameworks_compat.js",
+      "sha256": "480a2c7377252c14a11bca4d3a49dfa16ea540a998fa637fae0189aee1b89113",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/basic.css",
+      "member": "uniseg/docs/html/_static/basic.css",
+      "sha256": "80b2240539b36d344e7c9aa5090995a773ffae1dd90f21cc043e6057d9543c3d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/doctools.js",
+      "member": "uniseg/docs/html/_static/doctools.js",
+      "sha256": "81cb2da3c284e429a1a63ab28a20b7e30bceb8eb1556a154c8cbac0b4ce7795b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/documentation_options.js",
+      "member": "uniseg/docs/html/_static/documentation_options.js",
+      "sha256": "6c476d0316c9820c9f68d26769f2ad5b48e506d831397266a31afddba0aba674",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/file.png",
+      "member": "uniseg/docs/html/_static/file.png",
+      "sha256": "5c4bc9a16aebf38c4b950f59b8e501ca36495328cb9eb622218bce9064a35e3e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/jquery.js",
+      "member": "uniseg/docs/html/_static/jquery.js",
+      "sha256": "ff1523fb7389539c84c65aba19260648793bb4f5e29329d2ee8804bc37a3fe6e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/language_data.js",
+      "member": "uniseg/docs/html/_static/language_data.js",
+      "sha256": "dba8b1d8dce11dadb39bd24d2babdb617a57f8f27e04c614269c937b785df00a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/minus.png",
+      "member": "uniseg/docs/html/_static/minus.png",
+      "sha256": "47e7fc50db3699f1ca41ce9a2ffa202c00c5d1d5180c55f62ba859b1bd6cc008",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/plus.png",
+      "member": "uniseg/docs/html/_static/plus.png",
+      "sha256": "54115199b96a130cba02147c47c0deb43dcc9b9f08b5162bba8642b34980ac63",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/pygments.css",
+      "member": "uniseg/docs/html/_static/pygments.css",
+      "sha256": "1accd27ffdaa3456771214dbc2f4d841d9ebe9324da2b23ac0333d35756f25e5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/searchtools.js",
+      "member": "uniseg/docs/html/_static/searchtools.js",
+      "sha256": "8abac35df3630c203fad510e66f2f9e0725a79080b8be96111e238a071500805",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/sphinx_highlight.js",
+      "member": "uniseg/docs/html/_static/sphinx_highlight.js",
+      "sha256": "096231e9c87df80ec3273da9c5b71bc81503206726a07a4dd4de44c256ff859c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/uniseg.ja.html",
+      "member": "uniseg/docs/html/_static/uniseg.ja.html",
+      "sha256": "71e07320ce3c2d116b332fee2cb6b66acb4714a45cbe03895a2b2cb71e61b441",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/wxwrapdemo-osx.png",
+      "member": "uniseg/docs/html/_static/wxwrapdemo-osx.png",
+      "sha256": "1122f53d4f505d7c4ba7417ca4b55ac17c585cc301d6044303383030d7f7398f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/wxwrapdemo-ubuntu.png",
+      "member": "uniseg/docs/html/_static/wxwrapdemo-ubuntu.png",
+      "sha256": "3ff0ad98f41ee4ace2f1e7604f865fa8e92bc0bf117c9ec8ad44924a5175713e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/wxwrapdemo-windows.png",
+      "member": "uniseg/docs/html/_static/wxwrapdemo-windows.png",
+      "sha256": "264972995924f5784ace7cbf7ed9343be3fb2cb63160e83306dc53f205d4baa1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/badge_only.css",
+      "member": "uniseg/docs/html/_static/css/badge_only.css",
+      "sha256": "f1399e4fc48c3ff17b5037d3512fcc451fb0abc2c95b4b8d12aab50cdd9d1d6f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/theme.css",
+      "member": "uniseg/docs/html/_static/css/theme.css",
+      "sha256": "73c4334fefad3ea9a5dbb91709cfb8561cac96571946eae127516a496e4ff99c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/Roboto-Slab-Bold.woff",
+      "member": "uniseg/docs/html/_static/css/fonts/Roboto-Slab-Bold.woff",
+      "sha256": "9fec87cadbe2413b255f1ec577573a83f1ca2e1c37aa023dbebcd3a7b864636a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/Roboto-Slab-Bold.woff2",
+      "member": "uniseg/docs/html/_static/css/fonts/Roboto-Slab-Bold.woff2",
+      "sha256": "1a0c024dd1a267c52d5575469ffe8570d1e84164de7d393cf3414bafd17d7a0c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/Roboto-Slab-Regular.woff",
+      "member": "uniseg/docs/html/_static/css/fonts/Roboto-Slab-Regular.woff",
+      "sha256": "9f32630e2c0c5135bf1e86e36cb65b3932e4410644235bc2bd995e9c7f6ff117",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/Roboto-Slab-Regular.woff2",
+      "member": "uniseg/docs/html/_static/css/fonts/Roboto-Slab-Regular.woff2",
+      "sha256": "874e42222856d7af03b3f438d21d923a4280d47fe67c48510e2174a1579795ef",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/fontawesome-webfont.eot",
+      "member": "uniseg/docs/html/_static/css/fonts/fontawesome-webfont.eot",
+      "sha256": "7bfcab6db99d5cfbf1705ca0536ddc78585432cc5fa41bbd7ad0f009033b2979",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/fontawesome-webfont.svg",
+      "member": "uniseg/docs/html/_static/css/fonts/fontawesome-webfont.svg",
+      "sha256": "ad6157926c1622ba4e1d03d478f1541368524bfc46f51e42fe0d945f7ef323e4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/fontawesome-webfont.ttf",
+      "member": "uniseg/docs/html/_static/css/fonts/fontawesome-webfont.ttf",
+      "sha256": "aa58f33f239a0fb02f5c7a6c45c043d7a9ac9a093335806694ecd6d4edc0d6a8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/fontawesome-webfont.woff",
+      "member": "uniseg/docs/html/_static/css/fonts/fontawesome-webfont.woff",
+      "sha256": "ba0c59deb5450f5cb41b3f93609ee2d0d995415877ddfa223e8a8a7533474f07",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/fontawesome-webfont.woff2",
+      "member": "uniseg/docs/html/_static/css/fonts/fontawesome-webfont.woff2",
+      "sha256": "2adefcbc041e7d18fcf2d417879dc5a09997aa64d675b7a3c4b6ce33da13f3fe",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/lato-bold-italic.woff",
+      "member": "uniseg/docs/html/_static/css/fonts/lato-bold-italic.woff",
+      "sha256": "980c8592e5488df256192c999e92db8fd302db8cd8909b7fa266a684e37e45f8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/lato-bold-italic.woff2",
+      "member": "uniseg/docs/html/_static/css/fonts/lato-bold-italic.woff2",
+      "sha256": "c0916a33340d063f7b05679e08031e729d1888444706f04804705da5966d895d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/lato-bold.woff",
+      "member": "uniseg/docs/html/_static/css/fonts/lato-bold.woff",
+      "sha256": "0e56b17d142eb366c8007031d14e34da48c70b4a9d9a0ca492e696a7bae45e1e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/lato-bold.woff2",
+      "member": "uniseg/docs/html/_static/css/fonts/lato-bold.woff2",
+      "sha256": "ae88fc0d7a961832f809527d30bd3983a6866d42f66a56ade23f543681594db6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/lato-normal-italic.woff",
+      "member": "uniseg/docs/html/_static/css/fonts/lato-normal-italic.woff",
+      "sha256": "26318a1467a5e5caf10b04cfa942d079632560cd7a29cec565fd1dc9f7ec5081",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/lato-normal-italic.woff2",
+      "member": "uniseg/docs/html/_static/css/fonts/lato-normal-italic.woff2",
+      "sha256": "4465765f2f6eddcdad34ffd7cab559e56bc0e75e45e192f85e9562b0771481dc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/lato-normal.woff",
+      "member": "uniseg/docs/html/_static/css/fonts/lato-normal.woff",
+      "sha256": "5b9025dda4d7688e3311b0c17eddc501133b807def33effaef6593843cf5416e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/css/fonts/lato-normal.woff2",
+      "member": "uniseg/docs/html/_static/css/fonts/lato-normal.woff2",
+      "sha256": "983b0caf336e8542214fc17019a4fc5e0360864b92806ca14d55c1fc1c2c5a0f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-bold.eot",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-bold.eot",
+      "sha256": "b91fc1ca55df440dc11354b32a39b45db663d24bb17b16dcb2e706330955b0d1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-bold.ttf",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-bold.ttf",
+      "sha256": "f71f833c099f450606f8107b83ef208ae918c0ea00779466d45e9be96b0bc7cc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-bold.woff",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-bold.woff",
+      "sha256": "0e56b17d142eb366c8007031d14e34da48c70b4a9d9a0ca492e696a7bae45e1e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-bold.woff2",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-bold.woff2",
+      "sha256": "ae88fc0d7a961832f809527d30bd3983a6866d42f66a56ade23f543681594db6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-bolditalic.eot",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-bolditalic.eot",
+      "sha256": "b3d585879a02f48c5d43d8f91d06b167e367a31934bb3b8147c0a90b5ca32bfc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-bolditalic.ttf",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-bolditalic.ttf",
+      "sha256": "f98d040631714eabffd0ffb747576674fa78c2910f6d9e3dc0c58481d03c1898",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-bolditalic.woff",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-bolditalic.woff",
+      "sha256": "980c8592e5488df256192c999e92db8fd302db8cd8909b7fa266a684e37e45f8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-bolditalic.woff2",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-bolditalic.woff2",
+      "sha256": "c0916a33340d063f7b05679e08031e729d1888444706f04804705da5966d895d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-italic.eot",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-italic.eot",
+      "sha256": "bc24dbe04f5b2415678f978e7e2f630cc6610670d684e088e73ad29c439eafe3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-italic.ttf",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-italic.ttf",
+      "sha256": "12d825af88eafea1ce3aa469f83c03acaecd0d03f690f409c8643529f1205b4f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-italic.woff",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-italic.woff",
+      "sha256": "26318a1467a5e5caf10b04cfa942d079632560cd7a29cec565fd1dc9f7ec5081",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-italic.woff2",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-italic.woff2",
+      "sha256": "4465765f2f6eddcdad34ffd7cab559e56bc0e75e45e192f85e9562b0771481dc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-regular.eot",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-regular.eot",
+      "sha256": "e735410675eacc363b257112f39eb819a854b03077d7b1f0caa6e7660ffbd8b3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-regular.ttf",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-regular.ttf",
+      "sha256": "089ab6d4a57e0e6c4dd3b681b6fd50a5184f1b902429d35e1227e52d6ccad1bd",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-regular.woff",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-regular.woff",
+      "sha256": "5b9025dda4d7688e3311b0c17eddc501133b807def33effaef6593843cf5416e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/Lato/lato-regular.woff2",
+      "member": "uniseg/docs/html/_static/fonts/Lato/lato-regular.woff2",
+      "sha256": "983b0caf336e8542214fc17019a4fc5e0360864b92806ca14d55c1fc1c2c5a0f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.eot",
+      "member": "uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.eot",
+      "sha256": "4438991a12ff951cc8d0e83348ec06d9f910591b1b014c476e9595d4da099e48",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.ttf",
+      "member": "uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.ttf",
+      "sha256": "ba12d2eab1fa765b6b05398fa7e047dd76293f0c051ce57a8f7b0c591c14d42b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.woff",
+      "member": "uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.woff",
+      "sha256": "9fec87cadbe2413b255f1ec577573a83f1ca2e1c37aa023dbebcd3a7b864636a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.woff2",
+      "member": "uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-bold.woff2",
+      "sha256": "1a0c024dd1a267c52d5575469ffe8570d1e84164de7d393cf3414bafd17d7a0c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.eot",
+      "member": "uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.eot",
+      "sha256": "b3809b71d417c6c225e77a55880aa7915b4e4b4f77a5e2d243f3563731e7f55c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.ttf",
+      "member": "uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.ttf",
+      "sha256": "13aa5f54c6f2fa2e388fe0e675cdbcc6a81f6270a8bf9c03a5df8af9cb022810",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.woff",
+      "member": "uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.woff",
+      "sha256": "9f32630e2c0c5135bf1e86e36cb65b3932e4410644235bc2bd995e9c7f6ff117",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.woff2",
+      "member": "uniseg/docs/html/_static/fonts/RobotoSlab/roboto-slab-v7-regular.woff2",
+      "sha256": "874e42222856d7af03b3f438d21d923a4280d47fe67c48510e2174a1579795ef",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/js/badge_only.js",
+      "member": "uniseg/docs/html/_static/js/badge_only.js",
+      "sha256": "f0a4808d04c4d55378751ac096a8376b64b1a704c82584b0ee590212cf413013",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/js/theme.js",
+      "member": "uniseg/docs/html/_static/js/theme.js",
+      "sha256": "536ad2d746e944c5570cc15badaeccc3c0582a1b66e45511fe4edce32b6da510",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg/docs/html/_static/js/versions.js",
+      "member": "uniseg/docs/html/_static/js/versions.js",
+      "sha256": "6628a490e18532809fd816e566b700a38601d1edfc15b03daebf9288b25d2208",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg-0.10.1.dist-info/licenses/LICENSE",
+      "member": "uniseg-0.10.1.dist-info/licenses/LICENSE",
+      "sha256": "0c0ddab80a905b027143e7befa117c7bab53f7f3f606e8d20cf1a78a79472062",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg-0.10.1.dist-info/METADATA",
+      "member": "uniseg-0.10.1.dist-info/METADATA",
+      "sha256": "285a96ef5fb9e66ea0436abf2389505fcdca1cc6ef7047048d99a1b5c87a4768",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg-0.10.1.dist-info/WHEEL",
+      "member": "uniseg-0.10.1.dist-info/WHEEL",
+      "sha256": "ff309ddcdd65ebd02bc724dbf2bcc4a0ff53a5b61792a44548d383e4ebb19d3b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg-0.10.1.dist-info/top_level.txt",
+      "member": "uniseg-0.10.1.dist-info/top_level.txt",
+      "sha256": "079c6151da4dcd2f8da1900fd198e93b07f36e63dca90a3092b31e0d0034bfe3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/uniseg-0.10.1.dist-info/RECORD",
+      "member": "uniseg-0.10.1.dist-info/RECORD",
+      "sha256": "031e6aef086fc353538a4c769af0da5a22a89174b7af9916bf47d44f1b2355a9",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "74fe3f7b4ee46bbd703a70ea1e5cd28e04f63eee5af9a10388d93316c554e358",
+  "wheel": "uniseg-0.10.1-py3-none-any.whl"
+}

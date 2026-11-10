@@ -1,0 +1,49 @@
+{
+  "files": [
+    {
+      "path": "grants/apache-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "source_url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    },
+    {
+      "path": "grants/cms-readme.txt",
+      "sha256": "279211a02ae388bfb1053f8453d77c0eeee261d002d4b235ed66d740e52677c1",
+      "source_url": "https://raw.githubusercontent.com/RustCrypto/formats/5821a21553509dbd03eae593b0a1fad4e2083d4e/cms/README.md"
+    },
+    {
+      "path": "grants/enum-assoc-manifest.txt",
+      "sha256": "ac76a8e989ded142df50e3b796c8926e90c7e0f42d2428ff9ef62a359d38f582",
+      "source_url": "https://raw.githubusercontent.com/Eolu/enum-assoc/351b306939b150601451df752a183b077b0de85a/Cargo.toml"
+    },
+    {
+      "path": "grants/windows-build-script.txt",
+      "sha256": "736737779b52c66c38d1d0f37b4be8d53a4efbd5c44c96f81601e80955a714b8",
+      "source_url": "https://raw.githubusercontent.com/astral-sh/python-build-standalone/c0aa3bbdc2fff56a77ad1ecec68b1e47794d8779/cpython-windows/build.py"
+    },
+    {
+      "member": "r-efi-5.2.0/README.md",
+      "path": "grants/r-efi-README.md",
+      "sha256": "420f65fec3ba2e89d49da51b222d2881d26959037a7b7d3794143db4bd4627b1",
+      "source_archive_sha256": "74765f6d916ee2faa39bc8e68e4f3ed8949b48cccdac59983d287a7cb71ce9c5"
+    },
+    {
+      "member": "r-efi-5.2.0/AUTHORS",
+      "path": "grants/r-efi-AUTHORS",
+      "sha256": "c42285aa32440c3b5358fd4805b817cd8d6e1795111d2e4c547530be41896b2d",
+      "source_archive_sha256": "74765f6d916ee2faa39bc8e68e4f3ed8949b48cccdac59983d287a7cb71ce9c5"
+    },
+    {
+      "member": "r-efi-5.2.0/Cargo.toml.orig",
+      "path": "grants/r-efi-Cargo.toml.orig",
+      "sha256": "6f63737b3d7385972ee926cb88db53c039c2ead17dfa0e5e56b2a084cb5bbeac",
+      "source_archive_sha256": "74765f6d916ee2faa39bc8e68e4f3ed8949b48cccdac59983d287a7cb71ce9c5"
+    },
+    {
+      "member": "r-efi-5.2.0/src/lib.rs",
+      "path": "grants/r-efi-src-lib.rs",
+      "sha256": "289fdfa8384062616aa39b49c4094b93849ff0a2e5f6d7125b40124299a0837e",
+      "source_archive_sha256": "74765f6d916ee2faa39bc8e68e4f3ed8949b48cccdac59983d287a7cb71ce9c5"
+    }
+  ],
+  "status": "unreviewed"
+}

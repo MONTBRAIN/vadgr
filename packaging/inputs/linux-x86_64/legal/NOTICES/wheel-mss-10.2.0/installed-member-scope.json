@@ -1,0 +1,156 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/__init__.py",
+      "member": "mss/__init__.py",
+      "sha256": "e3533b25bd4ae0e3d8535242176db2f25ab41b1ff023b1ad5b3c62222f70b6f9",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/__main__.py",
+      "member": "mss/__main__.py",
+      "sha256": "d9f937378d201a198fa16104bde26fd924dafdeb6772e78cbd338f4c33481772",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/base.py",
+      "member": "mss/base.py",
+      "sha256": "7948ea2b678a0af1150df6ddf00122a42a097a5884b2867b8a92271e995d997e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/darwin.py",
+      "member": "mss/darwin.py",
+      "sha256": "4868b9809f468a38a49b29e89b32da4de85e64fd15c805278fd0c053090531f5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/exception.py",
+      "member": "mss/exception.py",
+      "sha256": "b6d987a62f3ff5037b0a7c5df47efb76f8ad633811939c2c5df84c805858fb5a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/factory.py",
+      "member": "mss/factory.py",
+      "sha256": "b0c4a29aaa4e6bc32e5613df1bdec04b782875372fd523c71ca6408c435cdb5c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/models.py",
+      "member": "mss/models.py",
+      "sha256": "3cf54ea90da76fd55b596af61877d475562556640eef97b5dbd0fc0918c3dfe1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/py.typed",
+      "member": "mss/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/screenshot.py",
+      "member": "mss/screenshot.py",
+      "sha256": "ee93c66cdb68b1ffd0959ea79062019dd20005003b19735bafa8fc13e0f03491",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/tools.py",
+      "member": "mss/tools.py",
+      "sha256": "c0e749cd6a5d4eb9bc7d019fa0b1e5e1dc7b83c867dd673ae1e18c2e2e25dedf",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/linux/__init__.py",
+      "member": "mss/linux/__init__.py",
+      "sha256": "59ce5b75a832304790a423edb511a165c951c9535792ac949de483a8b9bc9ffa",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/linux/base.py",
+      "member": "mss/linux/base.py",
+      "sha256": "266557943e027c60dceb9384d189ed388675464dc4471b292cfb00d4e154dfb4",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/linux/xcb.py",
+      "member": "mss/linux/xcb.py",
+      "sha256": "9b1881a4718eef4669bbc15f52f1da1637d7e77bb0baa4962737ec0ae3e6fae1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/linux/xcbgen.py",
+      "member": "mss/linux/xcbgen.py",
+      "sha256": "4245e67dd1b086522f4d50eaf0fe6f0f930e05f285c3e659fa87d4e63b2967a0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/linux/xcbhelpers.py",
+      "member": "mss/linux/xcbhelpers.py",
+      "sha256": "7629c1575a4522dc5d55e17c9c869ff664d8ce45b9ab510b2194ce2c3a194e98",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/linux/xgetimage.py",
+      "member": "mss/linux/xgetimage.py",
+      "sha256": "c8ca7aa3878eb9679ea373332ab2e32bc0c7c899bdab5ed2cd21b70b68c615d3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/linux/xlib.py",
+      "member": "mss/linux/xlib.py",
+      "sha256": "48bc43fcc41b57eb434314e76f5cffcb20fe35cb77772f0e98f2fe9c1479972c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/linux/xshmgetimage.py",
+      "member": "mss/linux/xshmgetimage.py",
+      "sha256": "97c512daf68fc5cafef6916f60b1037b64cd257d399d4dcf0079c4d1a7901732",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/windows/__init__.py",
+      "member": "mss/windows/__init__.py",
+      "sha256": "260f113f75cc900aad16cba8ceb9ef1f21dcea37fe5b095e91738bb0599f74e7",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss/windows/gdi.py",
+      "member": "mss/windows/gdi.py",
+      "sha256": "59a28d5cc641f903d1a638e17d972bc18fdfedf84551045be2a5162de17c4b9c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss-10.2.0.dist-info/METADATA",
+      "member": "mss-10.2.0.dist-info/METADATA",
+      "sha256": "570451fb9a2941d374ebb47d7e79f0c1f13d9a0ba87121379ac27d2b37e49805",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss-10.2.0.dist-info/WHEEL",
+      "member": "mss-10.2.0.dist-info/WHEEL",
+      "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss-10.2.0.dist-info/entry_points.txt",
+      "member": "mss-10.2.0.dist-info/entry_points.txt",
+      "sha256": "b74290f5e176b538d53d50eb064f5ccb82d823de055722cd03aef9b04b7cc26a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss-10.2.0.dist-info/licenses/LICENSE.txt",
+      "member": "mss-10.2.0.dist-info/licenses/LICENSE.txt",
+      "sha256": "479b38354134f96c0b5f84e5449ae3497c1c585594bcca48a1164e8b819c8c38",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/mss-10.2.0.dist-info/RECORD",
+      "member": "mss-10.2.0.dist-info/RECORD",
+      "sha256": "782ce8aed1d213440f85e13ca8b9be497333e084f47945aea2ec2e453414493f",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "e79f428899280e7e64e38365b5bfed683851ebea807eeaeadaf06eb8e0d67197",
+  "wheel": "mss-10.2.0-py3-none-any.whl"
+}

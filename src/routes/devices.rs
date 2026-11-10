@@ -8,9 +8,37 @@ use axum::{Extension, Json};
 use serde_json::{Value, json};
 
 pub async fn list_devices(State(state): State<AppState>) -> ApiResult<Json<Vec<Value>>> {
-    crate::db::devices::list_all(&state.db)
-        .map(Json)
-        .map_err(ApiError::internal)
+    let mut devices = crate::db::devices::list_all(&state.db).map_err(ApiError::internal)?;
+    for device in &mut devices {
+        let Some(id) = device.get("id").and_then(Value::as_str) else {
+            continue;
+        };
+        let connected = state.ws.device_connected(id);
+        let bound =
+            crate::db::devices::transport_names(&state.db, id).map_err(ApiError::internal)?;
+        let transports =
+            bound
+                .into_iter()
+                .filter_map(|name| {
+                    state.transports.iter().find(|item| item.name() == name).map(|item| {
+                    let diagnostics = item.diagnostics(crate::transport::Scope::Full);
+                    let available = diagnostics
+                        .get("available")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(false);
+                    json!({
+                        "kind": item.name(),
+                        "label": item.label(),
+                        "status": if available { "available" } else { "unavailable" },
+                        "detail": diagnostics.get("path").or_else(|| diagnostics.get("mode")),
+                    })
+                })
+                })
+                .collect::<Vec<_>>();
+        device["transports"] = json!(transports);
+        device["connected"] = json!(connected);
+    }
+    Ok(Json(devices))
 }
 
 /// Adopt the transport this request arrived on: bind the identity

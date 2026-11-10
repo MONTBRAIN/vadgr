@@ -1,0 +1,36 @@
+{
+  "archive_sha256": "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4",
+  "basis": [
+    {
+      "accounted_grants": [
+        "Apache-2.0",
+        "MIT",
+        "Unicode-DFS-2016"
+      ],
+      "archive_sha256": "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4",
+      "expression": "Apache-2.0 AND Unicode-DFS-2016",
+      "observed_cargo_features": [
+        "default",
+        "std",
+        "unicode",
+        "unicode-age",
+        "unicode-bool",
+        "unicode-case",
+        "unicode-gencat",
+        "unicode-perl",
+        "unicode-script",
+        "unicode-segment"
+      ],
+      "reason": "The retained license in the Unicode table source subtree adds the Unicode data grant to the crate's Apache-or-MIT terms.",
+      "source_files": [
+        {
+          "path": "regex-syntax-0.8.11/src/unicode_tables/LICENSE-UNICODE",
+          "sha256": "74db5baf44a41b1000312c673544b3374e4198af5605c7f9080a402cec42cfa3",
+          "size": 2847
+        }
+      ],
+      "status": "source-scope-proposal-not-package-approval"
+    }
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

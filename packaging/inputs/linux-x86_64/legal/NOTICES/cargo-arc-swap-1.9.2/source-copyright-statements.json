@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c049c0be4daef0b145cb3555416b3b8ef5b7888a38aea1a3a155801fe7b0810b",
+  "original_statement_files": [
+    {
+      "path": "arc-swap-1.9.2/LICENSE-MIT",
+      "sha256": "ff3f1cd12af8866d9bde961d6cc40df774cd131d484de31d3170c4b02b21a7b5",
+      "size": 1063,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 arc-swap developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

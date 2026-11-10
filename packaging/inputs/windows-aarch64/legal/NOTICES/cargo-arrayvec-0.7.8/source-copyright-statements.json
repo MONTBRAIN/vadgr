@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56",
+  "original_statement_files": [
+    {
+      "path": "arrayvec-0.7.8/LICENSE-MIT",
+      "sha256": "4da95ec4ecb65b738d470b7d762894ad9c97da93e6cbfb18b570fc2c96f4b871",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) Ulrik Sverdrup \"bluss\" 2015-2023"
+        }
+      ]
+    },
+    {
+      "path": "arrayvec-0.7.8/src/char.rs",
+      "sha256": "1de50e1d6045af2b3496426492315ba774986f9bc8301ffa391de861a08cc9cb",
+      "size": 3315,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2016 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

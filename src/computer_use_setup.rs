@@ -133,7 +133,7 @@ fn parse_enabled(value: &str) -> Result<bool> {
     }
 }
 
-fn config_home() -> Result<PathBuf> {
+pub(crate) fn config_home() -> Result<PathBuf> {
     config_home_from(
         std::env::var_os("VADGR_CONFIG_HOME"),
         std::env::var_os("XDG_CONFIG_HOME"),

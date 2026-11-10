@@ -1,0 +1,29 @@
+{
+  "archive_sha256": "446ba717509524cb3f22f17ecc096f10f4822d76ab5c0b9822c5f9c284e825f4",
+  "original_statement_files": [
+    {
+      "path": "sha2-0.11.0/LICENSE-MIT",
+      "sha256": "831e0f43ad0bf014c1c4fec5767aae470434c1d66d6e671be2d823e729063e25",
+      "size": 1196,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016-2026 The RustCrypto Project Developers"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2016 Artyom Pavlov"
+        },
+        {
+          "line": 3,
+          "text": "Copyright (c) 2009-2013 Mozilla Foundation"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2006-2009 Graydon Hoare"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

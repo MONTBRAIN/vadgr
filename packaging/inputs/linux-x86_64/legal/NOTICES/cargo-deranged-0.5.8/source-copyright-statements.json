@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "7cd812cc2bc1d69d4764bd80df88b4317eaef9e773c75226407d9bc0876b211c",
+  "original_statement_files": [
+    {
+      "path": "deranged-0.5.8/LICENSE-Apache",
+      "sha256": "edd65bdd88957a205c47d53fa499eed8865a70320f0f03f6391668cb304ea376",
+      "size": 11349,
+      "statements": [
+        {
+          "line": 190,
+          "text": "Copyright 2024 Jacob Pratt et al."
+        }
+      ]
+    },
+    {
+      "path": "deranged-0.5.8/LICENSE-MIT",
+      "sha256": "231c837c45eb53f108fb48929e488965bc4fcc14e9ea21d35f50e6b99d98685b",
+      "size": 1062,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2024 Jacob Pratt et al."
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,456 @@
+{
+  "component_sha256": "c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398",
+  "original_statement_files": [
+    {
+      "path": "Xlib/X.py",
+      "sha256": "84a214be84339621204c0f025dc7e158312fc4a998e82be1b413ac6804231c0b",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/XK.py",
+      "sha256": "d6499ee973ebb90e57fbfae5eadefaa1350e7e35cdc3bbc60d9e575c895aad5b",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/Xatom.py",
+      "sha256": "551234bbc295f8bf834ae50749ec68161f0405bd089f603f92b92898e602b680",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/Xcursorfont.py",
+      "sha256": "9fe00c22a4c1661b8d552954e0517bf5eee9830616fe75fda90e09163cdf56bc",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/Xutil.py",
+      "sha256": "eb90c8ac810d8624b3fd57eea35d877fb74158934a8ed5bdc1d057bb87f072c9",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/__init__.py",
+      "sha256": "f585e519798e6c288b95f44b440e14d87b1a320a69b567f56322ec73798238b8",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000-2002 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/display.py",
+      "sha256": "36282189fe078f9a6770e67d53f74c8b9223f9567e7adaa40db995f6f4760d4b",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/error.py",
+      "sha256": "8b4941c9461d8177efba2b31fb686a8de736fcede3c1a9ea925cce84e099fccb",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/rdb.py",
+      "sha256": "5a34fc29e9be597a973efd681f3d03ea55409e9bbf32c07fc71178168f6dba4b",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/threaded.py",
+      "sha256": "0f9802ef171827a2a1af938a70c65d7969c3f5dda104d475de54605a2245c15e",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/xauth.py",
+      "sha256": "3a81d921a24c7133f5549de1da3dabca1f8b20ea8d3a9e5673a8c4dde625d2e2",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/__init__.py",
+      "sha256": "988b97f8be73c5b8068e076736577112d38c1bbe8ed735a4131c10abb8c3c785",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/composite.py",
+      "sha256": "b3599b97682d7399eb808ff284e5bfd18ed2b7c4c051c51eb194fada1b98a94b",
+      "statements": [
+        {
+          "line": 5,
+          "text": "#    Copyright (C) 2007 Peter Liljenberg <peter.liljenberg@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/damage.py",
+      "sha256": "6cbabe4ba8b31af7079bdb25dc191bd4cb9020d0c2d03359593d80428bf9166e",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2018 Joseph Kogut <joseph.kogut@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/dpms.py",
+      "sha256": "a124eef81d52934551152254c94366e1376b6b80e23cd0f63021a775d23e82f8",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2020 Thiago Kenji Okada <thiagokokada@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/ge.py",
+      "sha256": "ffc99877367268901e4d5e4b2b1b594123bed401f384e26aaa6cd172b5a6cd60",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2012 Outpost Embedded, LLC"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/nvcontrol.py",
+      "sha256": "bb285832bd89b0611bfb5bf874d0c0eb72c612a2fd0a4f70abe6a5fa6bb1ed4b",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2019 Roberto Leinardi <roberto@leinardi.com>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/randr.py",
+      "sha256": "1ccd5d084c14435697b554a944302f4f8740cc54f1fcf3b119925ddfa285fd3d",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2006 Mike Meyer <mwm@mired.org>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/record.py",
+      "sha256": "eea47d551ea434a351fdca3496d18793b88a3905bbe4be67c8daba0e700118f4",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2006 Alex Badea <vamposdecampos@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/res.py",
+      "sha256": "3464c86eafc8664fd76b43b0e80721b8974fea8a203852475b269f0a5e470a94",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2021 Aleksei Bavshin <alebastr89@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/screensaver.py",
+      "sha256": "03eec876b98f6395a3fb39ba3fe0e74e4ee88b1f42d01ae747b28fc9ec63c49b",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2022 Vladimir Panteleev <git@cy.md>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/security.py",
+      "sha256": "91dc9685dc9de4a83c44986bed1680be513b325fb4b05c015aabca67b4335b68",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2010-2013 Outpost Embedded, LLC"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/xfixes.py",
+      "sha256": "0e75c693744d1aa4708110b446be354fcfaf4fa5119a6de2279791fb736681ea",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2010-2011 Outpost Embedded, LLC"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/xinerama.py",
+      "sha256": "a9fd83ee618e08237b4d7856ea60882199b6e4c8aa913dbdc41b9d23173ac865",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2006 Mike Meyer <mwm@mired.org>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/xinput.py",
+      "sha256": "f0fd842ca2b4c3dd90555e921578beca26321d57c6e746ac140d0d9cd3fa7106",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2012 Outpost Embedded, LLC"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/ext/xtest.py",
+      "sha256": "76bfa649b77a3dde19f1e59ee74e81a2792e32a91dd8acd9afefc4c14cf08611",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/keysymdef/__init__.py",
+      "sha256": "bfafb7efe0f800e59414c568579a9a1982c9d8f1ac66e71aeb5720a7d64b08f6",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2001 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/protocol/__init__.py",
+      "sha256": "a1f0f5e67f1603f89245686cdeb8811444bf607e3fdccae03fbb413b2aa31eff",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/protocol/display.py",
+      "sha256": "bdbd503f1f523cda1244bead1c20c5a4bfe826669e1e1ee41fd1f3c8d32bdb13",
+      "statements": [
+        {
+          "line": 5,
+          "text": "#    Copyright (C) 2000-2002 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/protocol/event.py",
+      "sha256": "9523cfbfe3d3b4d635ca04e5414703ec947be6e7a14dc7b88f0acf952accd9de",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000-2002 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/protocol/request.py",
+      "sha256": "e3b39c5b617801a92fc1c7bf838b64c32acf1341754fd4180b165da6f308ce08",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000-2002 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/protocol/rq.py",
+      "sha256": "50dc0337a18cea67c8f5de9827c87e230d7d037e5de38687fc4ff05365ab4f51",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000-2002 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/protocol/structs.py",
+      "sha256": "574c5f1ce101fd963be433c4cc4143ef3383db6f39c8521b8c3614a760507536",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/support/__init__.py",
+      "sha256": "c4f7b8c076a68a4def037aa8a73a2c2524cb6aa7fd8e83b394198856fd126503",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/support/connect.py",
+      "sha256": "017e4a24d882098b418ec80dc0de99cc817eb034c0b4301cb9475b74962afb31",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/support/lock.py",
+      "sha256": "546cefccf2544be76dfd6c16238b19a9d313311b9c450fffb6d1d91a739e33f6",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/support/unix_connect.py",
+      "sha256": "353a268e88270bdac07e986242a5d48947ba81bd37713259c3319be1cff23397",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000,2002 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/support/vms_connect.py",
+      "sha256": "828e65c524e38e91e1d9f4a2fb2b3c8f767e54744a4e446e424f344d8433a166",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/xobject/__init__.py",
+      "sha256": "925c8f09d2856af0dcab82ebf7e1e1ae77e8ae0dfc1ecf02e19056163983f613",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/xobject/colormap.py",
+      "sha256": "b6e39db79a48981feb0f8dbc929eb79ec0d6797fb91ee3754b850698c1883140",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/xobject/cursor.py",
+      "sha256": "585f3eb2cc8375b7a3e6a53a365ad1005918afe19841bbc74e2ea0a2695670be",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/xobject/drawable.py",
+      "sha256": "deb06b1cf97e7db66afcecf621ba37538a4593ed7d4106b0a232a2bdfc2812b4",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/xobject/fontable.py",
+      "sha256": "e78c35acc60891a7137aff3f0b0f9e7dfae7508d960338aef508f9108fc9e036",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/xobject/icccm.py",
+      "sha256": "468ccafa0441b138936c74cc55bb9f35d65ba5f024d94b426678ac945199fff5",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    },
+    {
+      "path": "Xlib/xobject/resource.py",
+      "sha256": "7221672bfccfb6d51b98392d249214143b5ed097afe8f712e4a4ac7963a39007",
+      "statements": [
+        {
+          "line": 3,
+          "text": "#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

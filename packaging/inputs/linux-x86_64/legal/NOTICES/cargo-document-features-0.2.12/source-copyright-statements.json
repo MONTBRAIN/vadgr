@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "d4b8a88685455ed29a21542a33abd9cb6510b6b129abadabdcef0f4c55bc8f61",
+  "original_statement_files": [
+    {
+      "path": "document-features-0.2.12/Cargo.toml.orig",
+      "sha256": "ceb05b892692c4ae03c10a95ae4c40739b947e974cbbeb56a6b079e91883b1a8",
+      "size": 714,
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright \u00a9 SixtyFPS GmbH <info@sixtyfps.io>"
+        }
+      ]
+    },
+    {
+      "path": "document-features-0.2.12/LICENSE-MIT",
+      "sha256": "aa893340d14b9844625be6a50ac644169a01b52f0211cbf81b09e1874c8cd81d",
+      "size": 1082,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020 Olivier Goffart <ogoffart@sixtyfps.io>"
+        }
+      ]
+    },
+    {
+      "path": "document-features-0.2.12/lib.rs",
+      "sha256": "4b137510dcedb04a4c630fbb3ecd98f8cf5695ae22b17b6d52c6cc2d8028538c",
+      "size": 30266,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 SixtyFPS GmbH <info@sixtyfps.io>"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

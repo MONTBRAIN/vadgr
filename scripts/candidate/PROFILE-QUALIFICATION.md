@@ -114,22 +114,21 @@ one-use signing transaction and paired receipts.
 
 Development tests do not authorize signing. Before protected profile work runs,
 the coordinator, verifier and signer changes must be reviewed and landed on the
-default branch through a separate trusted-tooling bootstrap. Current schema-2
-tooling cannot run feature-supplied schema-3 policy with credentials.
+default branch through a separate trusted-tooling bootstrap. Credentialed jobs
+must execute only trusted default-branch tooling.
 
-CUA's development qualification precedes its implementation PR. Its trusted
-producer can package that exact open-PR source without executing feature code
-with credentials. Actual reviewed native build/adoption inputs pin the landed
-signer/tooling commits. Put the resulting held catalog, locks, policy and legal
-proposal on the Vadgr feature branch, not in a new trusted-tooling commit. This
-keeps the adopted signer commit stable. Complete independent provenance and
-inventory checks, obtain protected approval of the exact authorization, then
-run paired signing qualification. Signing/adoption acceptance gates CUA merge
-and publication; the development pass does not replace it. Publishing those retained
-CUA bytes and binding their real publication record on the feature precedes final Vadgr
-release qualification. The full Vadgr implementation PR still follows a formal
-real-target pass; no bootstrap, synthetic test or inert signing smoke substitutes
-for that pass.
+CUA functional qualification uses exact release-equivalent unsigned artifacts
+and gates its implementation merge. After that merge, its protected producer
+packages and signs the exact merged default-branch commit. Actual reviewed
+native build and adoption inputs pin the landed signer and tooling commits.
+Complete independent provenance and inventory checks, obtain protected approval
+of the exact authorization, then run only the targeted signing, attestation and
+adoption assertions that need held bytes. Those trust assertions gate tag and
+publication; they are not a second full functional host E2E pass. Publishing
+the retained CUA bytes and binding their real publication record precedes final
+Vadgr release qualification. Vadgr follows the same lifecycle: functional E2E
+gates merge, then protected CD signs the exact merged commit. No bootstrap,
+synthetic test or inert signing smoke substitutes for either required lane.
 
 ## Tooling regression qualification
 

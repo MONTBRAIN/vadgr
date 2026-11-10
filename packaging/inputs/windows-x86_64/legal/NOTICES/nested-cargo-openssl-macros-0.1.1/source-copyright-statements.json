@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "a948666b637a0f465e8564c73e89d4dde00d72d4d473cc972f390fc3dcee7d9c",
+  "original_statement_files": [
+    {
+      "path": "openssl-macros-0.1.1/LICENSE-MIT",
+      "sha256": "ea5ab440900ab271811d5c2dc02a9de6e03a6956ac5727e85c11d76df5883d30",
+      "size": 1058,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2022 Steven Fackler"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

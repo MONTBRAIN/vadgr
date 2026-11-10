@@ -1,0 +1,31 @@
+{
+  "archive_sha256": "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7",
+  "basis": [
+    {
+      "accounted_grants": [
+        "Apache-2.0",
+        "BSD-3-Clause",
+        "ISC"
+      ],
+      "archive_sha256": "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7",
+      "expression": "Apache-2.0 AND ISC",
+      "observed_cargo_features": [
+        "alloc",
+        "default",
+        "dev_urandom_fallback",
+        "std",
+        "wasm32_unknown_unknown_js"
+      ],
+      "reason": "Upstream explicitly separates Go test-suite and Chromium build-infrastructure grants from linked BoringSSL code. The Apache and ISC runtime grants remain concluded.",
+      "source_files": [
+        {
+          "path": "ring-0.17.14/LICENSE-BoringSSL",
+          "sha256": "005fc765ddc5115da796cca915baa9557abae13ff35e0a47c47affc56f6c414d",
+          "size": 14870
+        }
+      ],
+      "status": "source-scope-proposal-not-package-approval"
+    }
+  ],
+  "status": "source-conclusion-not-package-approval"
+}

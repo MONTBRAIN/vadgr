@@ -87,6 +87,20 @@ pub fn default_model(db: &Db) -> Result<Option<(String, String)>> {
     .map_err(Into::into)
 }
 
+/// Restore the machine default after a larger configuration write fails.
+pub fn restore_default(db: &Db, value: Option<(&str, &str)>) -> Result<()> {
+    Ok(db.with(|conn| {
+        let (provider, model) = value
+            .map(|(provider, model)| (Some(provider), Some(model)))
+            .unwrap_or((None, None));
+        conn.execute(
+            "UPDATE machine_settings SET default_provider=?1, default_model=?2 WHERE id=1",
+            params![provider, model],
+        )?;
+        Ok(())
+    })?)
+}
+
 pub fn connection(db: &Db, provider_id: &str) -> Result<Option<Connection>> {
     db.with(|conn| {
         conn.query_row(

@@ -1,0 +1,27 @@
+Metadata-Version: 2.4
+Name: dbus-fast
+Version: 5.0.22
+Summary: A faster version of dbus-next
+License: MIT
+License-File: LICENSE
+Author: Bluetooth Devices Authors
+Author-email: bluetooth@koston.org
+Requires-Python: >=3.10
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Topic :: Software Development :: Libraries
+Project-URL: Bug Tracker, https://github.com/bluetooth-devices/dbus-fast/issues
+Project-URL: Changelog, https://github.com/bluetooth-devices/dbus-fast/blob/main/CHANGELOG.md
+Project-URL: Documentation, https://dbus-fast.readthedocs.io
+Project-URL: Repository, https://github.com/bluetooth-devices/dbus-fast
+Description-Content-Type: text/markdown
+

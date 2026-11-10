@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb",
+  "original_statement_files": [
+    {
+      "path": "foldhash-0.2.0/LICENSE",
+      "sha256": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744",
+      "size": 856,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2024 Orson Peters"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

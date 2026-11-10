@@ -1,0 +1,318 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/__init__.py",
+      "member": "dbus_fast/__init__.py",
+      "sha256": "94740a40b9b07955cc468e6e52720d92f7511a3cb4670fd25bf7ddca1350ddb5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/__version__.py",
+      "member": "dbus_fast/__version__.py",
+      "sha256": "6264b5e4603292710ffd9d145bb0a48b7f930731264cbc24d27df8de697ae939",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/annotations.py",
+      "member": "dbus_fast/annotations.py",
+      "sha256": "6059364d125045b40ecdeca5e023589088bc79cd6c9fda6aa663b0a8a201e2db",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/auth.py",
+      "member": "dbus_fast/auth.py",
+      "sha256": "cfd85992d823e84ed82a732080f60f1a7301e59d87f6e3d8f7c817dcbcac8910",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/constants.py",
+      "member": "dbus_fast/constants.py",
+      "sha256": "41d05d713d466b705f13fa31d5358445fb7100b3b9a2cf2766e9de87fc1f32ca",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/errors.py",
+      "member": "dbus_fast/errors.py",
+      "sha256": "e0c9139d8d323aa06e13d7924287118e9d0ffbc28ca7d4ef47aafba6384f1eca",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/introspection.py",
+      "member": "dbus_fast/introspection.py",
+      "sha256": "04f50d72b7f639d8deb0519ef3dc8b9e18fe27c68e69447762031f8f6d5b5812",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/message.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/message.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "2e746927f105c855b13625648460cb0bb20ac13412c9c0040dfee1d31cc9c35c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/message.pxd",
+      "member": "dbus_fast/message.pxd",
+      "sha256": "1623c19891061de4906299efe6a6d16b8a8340c8649d018f2e3b8b38067016a2",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/message.py",
+      "member": "dbus_fast/message.py",
+      "sha256": "1d769971c62e961b16f44bb27058b35b7fec5c4cd2574ff2e13d5b8ad03743bc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/message_bus.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/message_bus.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "910fcbf153f8df3dfaa6a18852b459f52966ec54ef9766709a1337f7ce94bab8",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/message_bus.pxd",
+      "member": "dbus_fast/message_bus.pxd",
+      "sha256": "58ed88ece3203ccf37b4cc83af628c6d95baebc2af60bc809993dfa2b15c55f1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/message_bus.py",
+      "member": "dbus_fast/message_bus.py",
+      "sha256": "77812620ecbfd74ba29b9657fe555b85d7fd298e0d3fd9e409d34b9508c5b2f5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/proxy_object.py",
+      "member": "dbus_fast/proxy_object.py",
+      "sha256": "a829223d31fd1762294b9840a9f02180c194adcb22fabc3b9c3ff56bb9d216ac",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/py.typed",
+      "member": "dbus_fast/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/send_reply.py",
+      "member": "dbus_fast/send_reply.py",
+      "sha256": "3af7006cde2917cb5b1a730bd987b2f36f4dc0f73fdd97f04a001deed8223c57",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/service.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/service.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "8edf075b999e7d3440912aca365353627e0c06910ef168ec74f01e4f11ce1503",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/service.pxd",
+      "member": "dbus_fast/service.pxd",
+      "sha256": "22319b6111953747c9ebf5dba7efa2d680ab54b06df3b036980ab1c47312ac96",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/service.py",
+      "member": "dbus_fast/service.py",
+      "sha256": "0445ae71d84ff3fb4733ee17e826c2e13f2172b15a659b8189eb0f3df968fbcf",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/signature.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/signature.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "910772d79e14a4e1bdf66f27046076f3fb23a35363435661185916d626b3773b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/signature.pxd",
+      "member": "dbus_fast/signature.pxd",
+      "sha256": "b01db1a37d53d2a11d320d8bb1dee88b17f05c01fd4b016f837dd094e6f6e4ed",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/signature.py",
+      "member": "dbus_fast/signature.py",
+      "sha256": "4d935d730b3765793c2b86f44739ecff9477d0edfc4d49b52a418c7dc91cf77e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/unpack.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/unpack.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "01c80274e6a039bce4605faebaab60065e21c6522e0e66d83ab4ae75ef1b2e5f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/unpack.pxd",
+      "member": "dbus_fast/unpack.pxd",
+      "sha256": "8f0ad63f5968140e584fd0c235bd1366e6c9002260724cee359097b65ae0741f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/unpack.py",
+      "member": "dbus_fast/unpack.py",
+      "sha256": "3f013214a782e9697681185574dfd166177f4639e1056121bf153126ccc71710",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/validators.py",
+      "member": "dbus_fast/validators.py",
+      "sha256": "3000391b37c0a5440f46c2a9c6a963a70337c2f76da1d6e8a56c45da9d1766b7",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/__init__.py",
+      "member": "dbus_fast/_private/__init__.py",
+      "sha256": "5384bfdb2df380b6557cc7a71d16891415bccaa87699406e236f752c6415389f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/_cython_compat.py",
+      "member": "dbus_fast/_private/_cython_compat.py",
+      "sha256": "b346b8f72ae1bd7796f46c1523f51ba6c73e5edd20fc66bf510ca8d40a60b66f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/address.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/_private/address.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "625c9409e717de14176e524bf3ed0b8451c590626b8f6f71637225923ec6347e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/address.pxd",
+      "member": "dbus_fast/_private/address.pxd",
+      "sha256": "d512880932b4d473a4db9deb442aa6805083dcd0d75c76c428fc90bd422fb4b5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/address.py",
+      "member": "dbus_fast/_private/address.py",
+      "sha256": "ea267c18dfbefe1a6787017f941e0982bdbd8fdab9e1ff658a431d28dca51ef9",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/constants.py",
+      "member": "dbus_fast/_private/constants.py",
+      "sha256": "52e1e47ef6f20e000cfe0c6f597ea0a637225f4993a33baa242248333759822d",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/marshaller.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/_private/marshaller.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "e5c129bc4cbd21774a34648dd9b5f8095d622e1e271e702da39008be17aa949f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/marshaller.pxd",
+      "member": "dbus_fast/_private/marshaller.pxd",
+      "sha256": "a20d61dbfe412f63de5583583bbeec8d32809f635a8d75eabaf084da2a75f15f",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/marshaller.py",
+      "member": "dbus_fast/_private/marshaller.py",
+      "sha256": "3cc5710a2fb4390dbccc6f85a7f03c35c36666e18f5587d846509038d619892c",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/unmarshaller.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/_private/unmarshaller.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "2dfeb642e18053339320f548f535e6b2ef166dcc30b0978562c38fd09c824feb",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/unmarshaller.pxd",
+      "member": "dbus_fast/_private/unmarshaller.pxd",
+      "sha256": "af60f343f3addb84821ffdb3cf7d85d81c592ef4457ebf67d7c56f63a696ce12",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/unmarshaller.py",
+      "member": "dbus_fast/_private/unmarshaller.py",
+      "sha256": "c8119d371f6cf511d26dd88fe25d54d9ea4875bd152817ebeec74136cfef939e",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/_private/util.py",
+      "member": "dbus_fast/_private/util.py",
+      "sha256": "c1cf6e189ca0e2a4604cf8e2d8be0fcb20df3078f6596b38cd0ebb8fdca0d1d3",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/aio/__init__.py",
+      "member": "dbus_fast/aio/__init__.py",
+      "sha256": "1946c933c3f78e8c57befe93384f5a938e6d881d6b27ebe30bdc57be4fbc5f7a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/aio/message_bus.py",
+      "member": "dbus_fast/aio/message_bus.py",
+      "sha256": "4eac05150fea61d442105b78367fa1540511574fe0dab70f1b2a4be8e245a4cc",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/aio/message_reader.cpython-312-x86_64-linux-gnu.so",
+      "member": "dbus_fast/aio/message_reader.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "99e6dd27feb6b8abfb5a1b87f2cb03b53fa51becba0cd2a43e6481fe8b16c8f9",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/aio/message_reader.pxd",
+      "member": "dbus_fast/aio/message_reader.pxd",
+      "sha256": "682e525cf2c971a27e511d2ad512cd6797f8438aa02561f915e813f716a7243a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/aio/message_reader.py",
+      "member": "dbus_fast/aio/message_reader.py",
+      "sha256": "ddb7ba144e17ddb28fb5eb4c156fb056cf5f6454ffcd8f6a520acdc6e4d2e45b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/aio/proxy_object.py",
+      "member": "dbus_fast/aio/proxy_object.py",
+      "sha256": "8607d54d5665c6fe709013327c6c02c8aa8fc15439c41d1c57b025de1eff8c03",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/glib/__init__.py",
+      "member": "dbus_fast/glib/__init__.py",
+      "sha256": "04e401cf2082f6ca5fc759b8b97bf5a036aa0e700ff2afad6ac61d3795963293",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/glib/message_bus.py",
+      "member": "dbus_fast/glib/message_bus.py",
+      "sha256": "68b40e79d4a2c04d9fd2ad24ae40ed9f79da2d1713b876577e391da08fb8f74b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast/glib/proxy_object.py",
+      "member": "dbus_fast/glib/proxy_object.py",
+      "sha256": "dbb62311a51a78e03066d4780f82a27037635257bfc257a064a10b095746a8e5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast-5.0.22.dist-info/METADATA",
+      "member": "dbus_fast-5.0.22.dist-info/METADATA",
+      "sha256": "f766e7fa81b3d5cf0f69e62f1d9fb308129293c55a3d345fb438b9d4a265d3b1",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast-5.0.22.dist-info/WHEEL",
+      "member": "dbus_fast-5.0.22.dist-info/WHEEL",
+      "sha256": "4cebd9b86679b55bb98a1a384ac2e97e1348ee8f7b5e704e022bcebaa28d9b73",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast-5.0.22.dist-info/RECORD",
+      "member": "dbus_fast-5.0.22.dist-info/RECORD",
+      "sha256": "746dc08548cb2a553e61ee068e560ac027448d91ae71db0e055acd2955122b58",
+      "status": "installer-regenerated-RECORD"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/dbus_fast-5.0.22.dist-info/licenses/LICENSE",
+      "member": "dbus_fast-5.0.22.dist-info/licenses/LICENSE",
+      "sha256": "c37e9c75110e01d1f0c5360dc7d7776a30ac5f70d2440db214423e4b7a77a6af",
+      "status": "retained-exact"
+    }
+  ],
+  "sha256": "4ffcf16034f71a801bd2108aeffb6337d104c9459e8b1a218d16a917c8a2d2e9",
+  "wheel": "dbus_fast-5.0.22-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
+}

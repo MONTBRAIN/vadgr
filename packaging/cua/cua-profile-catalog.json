@@ -1,0 +1,298 @@
+{
+  "cua_version": "0.7.9",
+  "producer": {
+    "attempt": 1,
+    "event": "workflow_dispatch",
+    "owner_id": 165305289,
+    "ref": "refs/heads/master",
+    "repository": "MONTBRAIN/vadgr-computer-use",
+    "repository_id": 1215350293,
+    "run_id": 37648581485,
+    "runner_environment": "github-hosted",
+    "source_commit": "cdc3adea617ed83e95782fe61d67ebf384dabd50",
+    "tooling_commit": "a8d42142228ffe0128cd048ec3edfacad969bab1",
+    "workflow": ".github/workflows/profile-wheels.yml",
+    "workflow_id": 365935050
+  },
+  "profiles": {
+    "linux-aarch64": {
+      "evidence": {
+        "artifacts": [
+          {
+            "id": 11495726964,
+            "sha256": "4f78ff1d442e7effc68c7061be675e97eb5984c309d130eb8aadc1b7e58ce24e"
+          }
+        ],
+        "build_sha256": "2ab1e72241da3f79753a64b5155dc8ebef37e384997467417f49c73b01a3e276",
+        "native_job_ids": [
+          112885954400
+        ],
+        "sbom_sha256": "d6103f88435756b6811b1954ca9f9bb24e15f879618d56480f65c57141a74677",
+        "test_sha256": "316501c731e6b4d7d906e96cbb56a670bcc29cb5ab091cf995db39ec57af5612"
+      },
+      "input_role_manifest": {
+        "filename": "linux-aarch64-cua-profile-manifest.json",
+        "sha256": "c833bcb17a2792465c45aa12ad19b1d2fcb96900e2d344720d8dba870be22ee3",
+        "size": 58065
+      },
+      "interpreter": {
+        "abi": "none",
+        "platform": "manylinux_2_28_aarch64",
+        "python": "py3"
+      },
+      "wheel": {
+        "filename": "vadgr_computer_use-0.7.9-1linuxaarch64-py3-none-manylinux_2_28_aarch64.whl",
+        "sha256": "c825f92be9bb2412b75ef739a1f5a184c686682dcda2fcde0704d5c114e2039e",
+        "size": 1004277
+      }
+    },
+    "linux-x86_64": {
+      "evidence": {
+        "artifacts": [
+          {
+            "id": 11496071036,
+            "sha256": "f804718576e742e037a90cef29d1ef31c48866aac502577850c5b5d3e8b48336"
+          }
+        ],
+        "build_sha256": "9f44f8f48dc04fa7e7b8904a2ae9c549eecc78015f53281cc665440c92ba458c",
+        "native_job_ids": [
+          112885954423
+        ],
+        "sbom_sha256": "6a9359fbe386e823faf300bf56167221b7d4de86a70b0e4be40bb717d2767699",
+        "test_sha256": "316501c731e6b4d7d906e96cbb56a670bcc29cb5ab091cf995db39ec57af5612"
+      },
+      "input_role_manifest": {
+        "filename": "linux-x86_64-cua-profile-manifest.json",
+        "sha256": "989e2be6304418d04e35aa4407e753afe5a1278e0680101646721cb7ade418c7",
+        "size": 57871
+      },
+      "interpreter": {
+        "abi": "none",
+        "platform": "manylinux_2_28_x86_64",
+        "python": "py3"
+      },
+      "wheel": {
+        "filename": "vadgr_computer_use-0.7.9-1linuxx8664-py3-none-manylinux_2_28_x86_64.whl",
+        "sha256": "9379a4cbc0fc4e9584fe0917448fe557427dfc11b3038a6e1c1fbc6aa6951ad2",
+        "size": 1004075
+      }
+    },
+    "macos-aarch64": {
+      "evidence": {
+        "artifacts": [
+          {
+            "id": 11495726964,
+            "sha256": "4f78ff1d442e7effc68c7061be675e97eb5984c309d130eb8aadc1b7e58ce24e"
+          }
+        ],
+        "build_sha256": "2ab1e72241da3f79753a64b5155dc8ebef37e384997467417f49c73b01a3e276",
+        "native_job_ids": [
+          112885954400
+        ],
+        "sbom_sha256": "d6103f88435756b6811b1954ca9f9bb24e15f879618d56480f65c57141a74677",
+        "test_sha256": "316501c731e6b4d7d906e96cbb56a670bcc29cb5ab091cf995db39ec57af5612"
+      },
+      "input_role_manifest": {
+        "filename": "macos-aarch64-cua-profile-manifest.json",
+        "sha256": "e7172690dc24461403fc5a0653c56259436e4e45c3ac3fdbfb9b549cb747e108",
+        "size": 58060
+      },
+      "interpreter": {
+        "abi": "none",
+        "platform": "macosx_11_0_arm64",
+        "python": "py3"
+      },
+      "wheel": {
+        "filename": "vadgr_computer_use-0.7.9-1macosaarch64-py3-none-macosx_11_0_arm64.whl",
+        "sha256": "cefde562494b5f9f3adeb158d4f42c149f0c641baf59f11b7b6d37a9f8c9185c",
+        "size": 1004267
+      }
+    },
+    "macos-x86_64": {
+      "evidence": {
+        "artifacts": [
+          {
+            "id": 11496071036,
+            "sha256": "f804718576e742e037a90cef29d1ef31c48866aac502577850c5b5d3e8b48336"
+          }
+        ],
+        "build_sha256": "9f44f8f48dc04fa7e7b8904a2ae9c549eecc78015f53281cc665440c92ba458c",
+        "native_job_ids": [
+          112885954423
+        ],
+        "sbom_sha256": "6a9359fbe386e823faf300bf56167221b7d4de86a70b0e4be40bb717d2767699",
+        "test_sha256": "316501c731e6b4d7d906e96cbb56a670bcc29cb5ab091cf995db39ec57af5612"
+      },
+      "input_role_manifest": {
+        "filename": "macos-x86_64-cua-profile-manifest.json",
+        "sha256": "5a666ddb665ed876f5c0416b3ae97199fbe95832d67a7d625d6dc389ad2696a2",
+        "size": 57869
+      },
+      "interpreter": {
+        "abi": "none",
+        "platform": "macosx_10_15_x86_64",
+        "python": "py3"
+      },
+      "wheel": {
+        "filename": "vadgr_computer_use-0.7.9-1macosx8664-py3-none-macosx_10_15_x86_64.whl",
+        "sha256": "20b5609fb5222daa00680644022df250b78799fd09d0b07d9e7051d6a232b39c",
+        "size": 1004071
+      }
+    },
+    "windows-aarch64": {
+      "evidence": {
+        "artifacts": [
+          {
+            "id": 11495726964,
+            "sha256": "4f78ff1d442e7effc68c7061be675e97eb5984c309d130eb8aadc1b7e58ce24e"
+          }
+        ],
+        "build_sha256": "2ab1e72241da3f79753a64b5155dc8ebef37e384997467417f49c73b01a3e276",
+        "native_job_ids": [
+          112885954400
+        ],
+        "sbom_sha256": "d6103f88435756b6811b1954ca9f9bb24e15f879618d56480f65c57141a74677",
+        "test_sha256": "316501c731e6b4d7d906e96cbb56a670bcc29cb5ab091cf995db39ec57af5612"
+      },
+      "input_role_manifest": {
+        "filename": "windows-aarch64-cua-profile-manifest.json",
+        "sha256": "95088576d12bc578a9863ad8ea112ea77946a401bd90bc92c78e2d4371cfd39a",
+        "size": 107894
+      },
+      "interpreter": {
+        "abi": "none",
+        "platform": "win_arm64",
+        "python": "py3"
+      },
+      "wheel": {
+        "filename": "vadgr_computer_use-0.7.9-1windowsaarch64-py3-none-win_arm64.whl",
+        "sha256": "8d80a7e39b6c42ab42489e306dc76c4fda5a88a7e7ad3e5d906da90c4f1d049d",
+        "size": 29116635
+      }
+    },
+    "windows-x86_64": {
+      "evidence": {
+        "artifacts": [
+          {
+            "id": 11496071036,
+            "sha256": "f804718576e742e037a90cef29d1ef31c48866aac502577850c5b5d3e8b48336"
+          }
+        ],
+        "build_sha256": "9f44f8f48dc04fa7e7b8904a2ae9c549eecc78015f53281cc665440c92ba458c",
+        "native_job_ids": [
+          112885954423
+        ],
+        "sbom_sha256": "6a9359fbe386e823faf300bf56167221b7d4de86a70b0e4be40bb717d2767699",
+        "test_sha256": "316501c731e6b4d7d906e96cbb56a670bcc29cb5ab091cf995db39ec57af5612"
+      },
+      "input_role_manifest": {
+        "filename": "windows-x86_64-cua-profile-manifest.json",
+        "sha256": "23506f77d80629c503f1fd8ebc742bb70ac859d5eaecdea676edd520b35330ac",
+        "size": 108276
+      },
+      "interpreter": {
+        "abi": "none",
+        "platform": "win_amd64",
+        "python": "py3"
+      },
+      "wheel": {
+        "filename": "vadgr_computer_use-0.7.9-1windowsx8664-py3-none-win_amd64.whl",
+        "sha256": "f1ac5336956bc2fe26c7973fe32640fd0f1acc0075b3d235a9f57f60b35cbf81",
+        "size": 27365847
+      }
+    },
+    "wsl-aarch64": {
+      "evidence": {
+        "artifacts": [
+          {
+            "id": 11495726964,
+            "sha256": "4f78ff1d442e7effc68c7061be675e97eb5984c309d130eb8aadc1b7e58ce24e"
+          }
+        ],
+        "build_sha256": "2ab1e72241da3f79753a64b5155dc8ebef37e384997467417f49c73b01a3e276",
+        "native_job_ids": [
+          112885954400
+        ],
+        "sbom_sha256": "d6103f88435756b6811b1954ca9f9bb24e15f879618d56480f65c57141a74677",
+        "test_sha256": "316501c731e6b4d7d906e96cbb56a670bcc29cb5ab091cf995db39ec57af5612"
+      },
+      "input_role_manifest": {
+        "filename": "wsl-aarch64-cua-profile-manifest.json",
+        "sha256": "e2d6b4094e913bf9a10ca7768c410c62f41a4f27f221ff552e66d84ee3fc7c93",
+        "size": 107231
+      },
+      "interpreter": {
+        "abi": "none",
+        "platform": "manylinux_2_28_aarch64",
+        "python": "py3"
+      },
+      "wheel": {
+        "filename": "vadgr_computer_use-0.7.9-1wslaarch64-py3-none-manylinux_2_28_aarch64.whl",
+        "sha256": "2388197016d589c589686471ff33de620e75b215a094bf863600c55c66e337a7",
+        "size": 29115961
+      }
+    },
+    "wsl-x86_64": {
+      "evidence": {
+        "artifacts": [
+          {
+            "id": 11496071036,
+            "sha256": "f804718576e742e037a90cef29d1ef31c48866aac502577850c5b5d3e8b48336"
+          }
+        ],
+        "build_sha256": "9f44f8f48dc04fa7e7b8904a2ae9c549eecc78015f53281cc665440c92ba458c",
+        "native_job_ids": [
+          112885954423
+        ],
+        "sbom_sha256": "6a9359fbe386e823faf300bf56167221b7d4de86a70b0e4be40bb717d2767699",
+        "test_sha256": "316501c731e6b4d7d906e96cbb56a670bcc29cb5ab091cf995db39ec57af5612"
+      },
+      "input_role_manifest": {
+        "filename": "wsl-x86_64-cua-profile-manifest.json",
+        "sha256": "12a2dd67f2532a10a88d7eb6f7f8a23c2d7280545ab186487120aece8f82d86f",
+        "size": 107608
+      },
+      "interpreter": {
+        "abi": "none",
+        "platform": "manylinux_2_28_x86_64",
+        "python": "py3"
+      },
+      "wheel": {
+        "filename": "vadgr_computer_use-0.7.9-1wslx8664-py3-none-manylinux_2_28_x86_64.whl",
+        "sha256": "b92723c297c50db8cc85c8464af612a5a632e9bfcef5f19f848126af3eb5831a",
+        "size": 27365167
+      }
+    }
+  },
+  "schema": 1,
+  "source_commit": "cdc3adea617ed83e95782fe61d67ebf384dabd50",
+  "standalone": {
+    "adoption": {
+      "aarch64": {
+        "policy_sha256": "bcd76021f6e83cc79624e1315b1f184168e80b805d38dc56a231e5a20cd2c8b6",
+        "root_sha256": "3c2cc7f357dc064ec527fdcd78da6e9245c21a381e1abaa0f2b62b186bcac1a1",
+        "verifier_sha256": "2995dd1357d11bd82f7e90aa6b8bf5ca0e2f2bfa726184b161e557d7bf962f51"
+      },
+      "x86_64": {
+        "policy_sha256": "aa8a77bcc98fb28c10eb1d5c9adb5c07fe01f47d285ef7cb72b6fa19a23dc49b",
+        "root_sha256": "3c2cc7f357dc064ec527fdcd78da6e9245c21a381e1abaa0f2b62b186bcac1a1",
+        "verifier_sha256": "cfefbc730f2ef7dc0352d6a5435b72fe6afce7fc56d61c90eb7703cd5d97b149"
+      }
+    },
+    "manifest_sha256": {
+      "linux-aarch64": "c833bcb17a2792465c45aa12ad19b1d2fcb96900e2d344720d8dba870be22ee3",
+      "linux-x86_64": "989e2be6304418d04e35aa4407e753afe5a1278e0680101646721cb7ade418c7",
+      "macos-aarch64": "e7172690dc24461403fc5a0653c56259436e4e45c3ac3fdbfb9b549cb747e108",
+      "macos-x86_64": "5a666ddb665ed876f5c0416b3ae97199fbe95832d67a7d625d6dc389ad2696a2",
+      "windows-aarch64": "95088576d12bc578a9863ad8ea112ea77946a401bd90bc92c78e2d4371cfd39a",
+      "windows-x86_64": "23506f77d80629c503f1fd8ebc742bb70ac859d5eaecdea676edd520b35330ac",
+      "wsl-aarch64": "e2d6b4094e913bf9a10ca7768c410c62f41a4f27f221ff552e66d84ee3fc7c93",
+      "wsl-x86_64": "12a2dd67f2532a10a88d7eb6f7f8a23c2d7280545ab186487120aece8f82d86f"
+    },
+    "wheel": {
+      "filename": "vadgr_computer_use-0.7.9-py3-none-any.whl",
+      "sha256": "7e064bad032e037cb2f611ce3c300d5734c421d2c714c55a850b8d00baf49635",
+      "size": 135666092
+    }
+  }
+}

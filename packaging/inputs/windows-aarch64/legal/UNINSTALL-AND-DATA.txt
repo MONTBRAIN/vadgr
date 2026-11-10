@@ -1,0 +1,38 @@
+Vadgr uninstall and data
+Version 1.0
+
+You can stop Vadgr, revoke paired devices, disconnect providers, disable launch
+at login or uninstall without contacting the Publisher.
+
+The native console's Settings page provides Uninstall. Uninstall removes the
+installed package and its launch registration. It keeps your settings,
+credentials, pairings and journals by default. Reinstalling can therefore use
+the retained machine data. Copy any legal notices you want to retain before
+uninstall removes the package-owned copies.
+
+Deleting owner data is a separate choice. In the uninstall confirmation, select
+"Also delete settings, credentials, pairings and journals" only if you want to
+remove them. Type DELETE OWNER DATA when requested. This deletion cannot be
+undone by Vadgr. Make a backup first if you need the data or machine identity.
+
+Default owner data locations are:
+
+- Windows: %LOCALAPPDATA%\vadgr
+- macOS: ~/Library/Application Support/vadgr/state
+- Linux and WSL: $XDG_STATE_HOME/vadgr, or ~/.local/state/vadgr when
+  XDG_STATE_HOME is not set to an absolute path
+
+Custom locations set with VADGR_STATE_HOME, VADGR_DB or VADGR_RUNS_DIR need
+separate attention. The package uninstaller refuses to purge an overridden
+state root. A database or journals stored outside the default owner data
+directory are not removed by deletion of that directory. Confirm each custom
+location before deleting any data yourself.
+
+Uninstall and local data deletion do not revoke accounts with external
+providers, cancel their charges or delete copies held by other services,
+paired devices or backups. Use those services' controls to revoke credentials
+or request deletion. Files that tasks created outside Vadgr's owner data
+directory remain where the tasks put them.
+
+Stopping use or uninstalling does not remove rights granted by the Apache
+License 2.0. See TERMS.txt and LICENSE.txt for the applicable terms.

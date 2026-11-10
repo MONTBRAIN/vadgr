@@ -5,8 +5,9 @@
 > **<repository> <version> evidence PR:**
 > `<resolved private evidence PR URL>`.
 >
-> Resolve the branch, head and evidence link before the first live cell. The
-> evidence link names the one private evidence branch for this minor. Every host
+> Resolve the branch and head before the first development cell. Resolve the
+> evidence link before any captured artifact leaves its host and before the first
+> formal candidate cell. The evidence link names the one private evidence branch for this minor. Every host
 > adds its boundary to that pull request; it does not open another evidence pull
 > request. After the first real target OS passes and branch checks are green,
 > replace the branch/head line with the implementation PR URL before handing the
@@ -29,7 +30,7 @@
 <One sentence: what a reader is being convinced of. Not what changed - what is
 now demonstrably true that was not before.>
 
-> **Status: <not started | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
+> **Status: <not started | development qualification on \<OS\>, \<date\> | partially run on \<OS\>, \<date\> | run on \<OS\>, \<date\>>.**
 > Automated gate <green/red> (engine N, api N), **and the pull request's own
 > checks finished and read**. <Which parts pass, which are open.> **N findings**, listed below. Nothing is marked pass that was not
 > executed and read back.
@@ -42,6 +43,70 @@ now demonstrably true that was not before.>
 bracket notes as you go; a leftover placeholder is the tell that a runbook was
 written and never run. The cross-cutting rules are in
 [`../README.md`](../README.md) and are not repeated here.>
+
+## Development qualification before the candidate
+
+<Keep this section when the implementation can run before final signing,
+publishing or dependency release. Delete only statements that do not apply.>
+
+Development qualification starts as soon as an exact implementation commit can
+run safely in isolated state. It does not wait for signing identities, a signed
+tag, immutable release assets, a published dependency or a final evidence PR.
+Use the latest available released dependency when it can exercise the behavior,
+and record its exact version. A dependency source commit intended for the next
+release may also be tested from a separate clean worktree when the runbook names
+that provenance. Never touch an existing dirty dependency worktree.
+
+Mark these results `development`, not `pass`. Signing, notarization, package
+identity, immutable artifact, clean-host and final bundled-version assertions
+wait only when their required subject does not exist. Run every unaffected
+action and oracle now. A missing release-only input does not block console,
+daemon, API, accessibility, provider, device or currently available computer-use
+behavior. Development findings are real defects: fix them, add the failing test,
+rebuild and rerun the affected development cell.
+
+### Qualification lanes
+
+<Fill both ledgers before the first live cell. Put each assertion in the lane
+required by its actual oracle, not by the cell number that happens to contain
+it. A mixed cell appears in both rows with its assertion slices named.>
+
+| lane | assertions in this minor | execution rule | completion meaning |
+|---|---|---|---|
+| unsigned development qualification | <cell ids and exact non-signing assertion slices> | run immediately on every available host; signing is not a blocker | development evidence only; never a signed-candidate pass |
+| signing-only acceptance | <cell ids and exact publisher/chain/timestamp/notarization/designated-requirement/trust/update assertion slices> | run when the immutable signed subject exists | required for release acceptance |
+
+Do not park an entire mixed cell behind signing. Terms decline, ordinary
+install/launch, console and daemon behavior, accessibility, phone transports,
+isolated repair/uninstall/data deletion, offline operation and cleanup remain
+development-runnable unless their individual oracle consumes a signed subject.
+Keep the signed assertion in the second ledger and preserve its original
+expected result.
+
+### Package production before merge
+
+Functional qualification consumes the exact release-equivalent **unsigned**
+installation vehicle registered by the approved design and distribution
+matrix. Producing that vehicle is implementation work, not post-merge signing
+work. If the vehicle, its credential-free producer, its reviewed non-secret
+package inputs, or its pinned private payload is missing, record an
+implementation finding and fix or create the packaging on the existing
+implementation branch. Run the affected source gates, build the vehicle,
+record its inventory and digest, and continue the functional cells.
+
+Do not wait for a protected post-merge workflow artifact merely because that
+workflow is the final producer. Do not substitute a source checkout, loose
+binary, system runtime, package from an earlier commit, another operating
+system's vehicle, or a different package format. A missing production signing,
+notarization, timestamping, attestation or catalog identity blocks only the
+assertions whose oracle consumes that identity. Protected CD after merge must
+sign, attest and hold the exact final product shape; it must not be the first
+time ordinary packaging is exercised.
+
+When the missing input is genuinely owner-supplied, finish every independent
+repair first, then name the exact non-secret file or approval and the precise
+resume action. Never ask the owner for a signing credential during the
+pre-merge lane.
 
 ## The rules
 
@@ -62,10 +127,22 @@ present in a given runbook, the entry is all there is.
    not.**
    [How a pass is run] [../README.md]
 
+   For a phone QR cell, the agent uses ADB/accessibility to launch the mobile
+   app, select the intended machine and transport, reach the live scanner, and
+   handle every automatable permission or dialog. The owner's row contains only
+   the physical camera aim and its exact visible stop condition. Never ask the
+   owner to open the app, navigate, choose a transport, type a code, inspect the
+   result, or report an oracle the agent can read. A pass uses that physical
+   scan once. Every later pairing, including revoke and re-pair, is driven by
+   the agent through ADB and the `vadgr://pair` operating-system link. A cell
+   that would need any other owner action on the handset is `not run` with
+   that reason.
+
    A VM-hosted phone is checked through the host ADB server before it is called
-   unavailable. Stop the guest-local server before setting a remote socket. For
-   VirtualBox NAT, derive the guest default gateway and set
-   `ADB_SERVER_SOCKET=tcp:<gateway>:5037`; `10.0.2.2` is the usual gateway. Use
+   unavailable. Detect the current hypervisor and network mode first; never
+   inherit a previous host label or assume its gateway. Stop the guest-local
+   server before setting a remote socket. For verified VirtualBox NAT, derive
+   the guest default gateway and set `ADB_SERVER_SOCKET=tcp:<gateway>:5037`. Use
    that same socket for every ADB command. The runbook gives the temporary host
    server start and restore commands, requires an authorized `device` state,
    forbids network-service mutation, and redacts the device serial.
@@ -174,6 +251,23 @@ present in a given runbook, the entry is all there is.
     without requiring focus, inspect it against the approved mockup, and verify
     each effect with an independent machine oracle. [Native console driving]
 
+    On Linux, use the latest released Vadgr CUA MCP server in an isolated test
+    environment, not the subject's bundled payload. This Linux-only rule
+    overrides older direct-helper instructions. Use real MCP `ui_tree`,
+    `ui_find` and `ui_act` calls with fresh references and structured readback.
+    Record the driver identity separately from the product identity. No provider
+    API key is needed for these local tool calls. Do not import product modules.
+
+    Use `PrintWindow(PW_CLIENTONLY)` under a per-monitor-aware DPI context on
+    Windows. Use `SCScreenshotManager` with an
+    `SCContentFilter(desktopIndependentWindow:)` on macOS. On native Linux, use
+    one XDG Desktop Portal ScreenCast WINDOW source and its PipeWire stream on
+    Wayland, or the target window ID and XComposite window pixmap on X11. Prove
+    once per host that capture works while another application has focus. A
+    focused capture, desktop capture, monitor capture or crop is not a
+    substitute. An unavailable exact unfocused capture leaves the visual
+    assertion owed. [Native console driving]
+
 22. **A native console has no silent dead controls.** Invoke every enabled
     control through accessibility. Each future control is disabled and visibly
     names the exact registered minor that enables it. A current-state limitation
@@ -194,7 +288,14 @@ present in a given runbook, the entry is all there is.
     VM does not turn WSL, a container or a host-mounted checkout into native
     coverage.
 
-25. **Desktop visual inspection is a separate, mandatory oracle.** Open and
+25. **Missing unsigned packaging is an implementation defect, not a signing
+    blocker.** Repair or create the credential-free producer and required
+    reviewed package inputs on the implementation branch, build the registered
+    vehicle, and continue the host pass. Do not wait for protected CD or replace
+    the registered vehicle with a more convenient format. [Package production
+    before merge]
+
+26. **Desktop visual inspection is a separate, mandatory oracle.** Open and
     inspect the actual application-only captures of every installer and console
     state in the visual checklist. A correct accessibility tree, backend result,
     screenshot file, or owner report does not establish a visual pass. Raw
@@ -660,11 +761,27 @@ have failed to bind, and the cause would have looked like the host.
 ## Native console driving
 
 <Delete this section only when the minor has no native graphical surface. Name
-the exact accessibility backend and the command or tool used to inspect it. Name
-the exact application-only capture method and prove that it does not require
-focus. The driver opens every capture and compares the complete view with the
-approved mockup. Screenshots confirm rendering but never locate controls or
-drive the structured tier.>
+the exact accessibility backend and the command or tool used to inspect it. Use
+the standard host-native application-only capture path named in doctrine and
+prove that it works while another application has focus. A focused capture,
+desktop capture, monitor capture or crop is not a substitute. If exact unfocused
+capture is unavailable, leave the visual assertion owed. The driver opens every
+capture and compares the complete view with the approved mockup. Screenshots
+confirm rendering but never locate controls or drive the structured tier.
+If the owner explicitly authorizes a temporary Linux focused-region exception,
+record that ruling and its affected visual assertions in the current runbook.
+Focus the exact owned test window through accessibility and independently verify
+fresh display-space crop geometry. Never interpret untrusted Wayland or
+window-relative accessibility bounds as global screen coordinates. If supported
+window maximization supplies that geometry, record and restore its prior state.
+Verify structured focus immediately before and after the public MCP
+`screenshot_region` call. Exclude occlusion, other applications and secrets.
+Inspect the returned image before retaining it. Reject changed focus, uncertain
+bounds or unsafe pixels. Label qualifying output `focused region`, never
+`unfocused window`. This exception can satisfy only its authorized visual
+inspection slice; the exact unfocused capture assertion remains unproven.
+Keep the missing capability assigned to its approved future minor. Do not
+generalize this exception to other platforms or use pixels for ordinary input.>
 
 <Inventory every console control before the first live cell. An enabled control
 must work in this minor. A future control must be disabled and show the exact
@@ -687,11 +804,203 @@ Keep this checklist in every desktop minor. Read the docs engineering section
 "Native desktop cold-start procedure" before the first GUI cell. Fill in exact
 helper commands and supported interfaces; a pointer alone is not a procedure.
 
-- Record host/session, virtualization, artifact and process identities, plus
+For Linux, record the verified released CUA installation, doctor and MCP server
+launch commands before the first call. Inspect its advertised schemas over the
+real MCP connection. Do not assume checkout or bundled-payload tools are the
+released tools. Windows UIA and macOS Accessibility keep their existing drivers.
+Direct Linux accessibility helpers are diagnostic only, not the primary driver.
+Register the verified installed entry point with
+`codex mcp add <name> -- <absolute-installed-entry> --transport stdio`.
+Reload the client tool catalog only when needed to expose the new server.
+Inspect startup side effects before launch: isolate driver-owned writes and
+preserve existing browser-registration manifests and other owner configuration.
+Keep the real desktop bus available. Driver write isolation is not evidence
+that the tested application ran natively inside a container. The subject still
+runs through its registered native vehicle. Ordinary setup is the agent's job;
+ask the owner only for a genuinely protected permission. Successful MCP
+initialization or a reachable accessibility bus is not full application coverage.
+
+Isolate the tested application's child HOME as well as its XDG state, data,
+configuration and cache roots. Bundled native-host registration can use HOME
+directly. Preserve the real desktop session bus, runtime directory and display;
+do not replace the external MCP driver's environment. Before a bundled task,
+verify the installed daemon's actual environment and private-runtime identity,
+and confirm that owner browser registrations remain unchanged.
+
+Measure installation readiness from the spawned daemon's process identity, not
+from the earlier installer-window launch. A failed or timed-out installation
+must leave no late daemon, dangling command registration or selected deleted
+generation. Observe the failed state again after its startup interval, preserve
+the failed attempt and verify rollback independently. A healthy API without an
+admitted bundled runtime is not successful package qualification. Owner-disabled
+computer use is distinct from missing runtime admission.
+
+Do not treat a successful stop command as proof of process exit. Before rollback
+or removal deletes an installed generation, verify that its exact daemon and
+bundled child processes have exited. A reused PID, changed process identity or
+unrelated port listener must not be stopped. A stop failure must preserve the
+generation and report the failure instead of continuing destructive cleanup.
+
+#### Session-tool preflight
+
+Prove three separate facts: the server starts, the client discovers its tools,
+and the current agent session can call them. A configured server, a tool count
+in `/mcp`, or a successful standalone Python MCP probe proves neither the last
+fact nor a GUI cell. Use an actual exposed `get_platform_info` tool call before
+ordinary accessibility actions. Inspect any authorized visual smoke result
+returned by the exposed screenshot tool; full-desktop output is not app-only
+capture evidence. Do not replace a missing agent tool with a shell wrapper.
+
+For Codex, record the CLI and background-server versions and whether Remote
+Control is active. A terminal restart can leave the shared server running.
+Check the effective server configuration, tool allow/deny lists and current
+thread inventory. An `unknown` status alone does not identify the failure.
+When discovery succeeds but the session lacks the tools, use the client's
+documented MCP reload. The app-server protocol provides
+`config/mcpServer/reload`, which reloads configuration and queues refreshes for
+loaded threads. Verify the request against the installed version's schema;
+version 0.159.3 accepts `{"id":1,"method":"config/mcpServer/reload","params":null}`
+after its normal initialized connection handshake. Send it through the existing
+local control connection, not a newly exposed network listener. Recheck the
+agent's callable tools and perform an actual tool call after the refresh.
+Do not repeatedly restart the VM, reinstall CUA or change networking to repair
+session discovery. Coordinate any necessary shared-server restart so it cannot
+interrupt unrelated work. Reference: the official Codex app-server and MCP
+documentation; recheck it for the installed version.
+
+Installing repaired wheel bytes does not replace code already loaded by an
+MCP server. An unchanged configuration reload can retain that process. After an
+authorized driver repair, bind a nonsecret source identity in the server-specific
+configuration and request the supported reload. Verify a new process and the
+exact installed artifact, reacquire the exposed tools, and make an actual tool
+call before rerunning the cell. A reload acknowledgement alone proves neither
+process replacement nor tool readiness. Keep the development driver identity
+separate from the released baseline and the subject's bundled payload.
+
+Accessibility remains the primary Linux control tier. Reproduce CUA failures
+through the exact released public tool before filing an issue. Check for an
+existing issue and include the release, host class, safe minimal steps,
+expected and actual results, and independent oracle. Exclude owner data,
+private paths, credentials and unsafe captures. Record the issue reference
+with the affected assertion. A client reload problem is not a CUA defect.
+Filing the issue does not complete the work. Fix confirmed defects, add a
+regression that fails without the fix, rebuild and rerun the affected public
+MCP actions and assertions. Identify a repaired development driver separately
+from the released baseline; never relabel its bytes as the released artifact.
+Keep driver-fix qualification separate from qualification of the subject's
+bundled CUA payload. Record an exact external or protected-owner boundary only
+when it genuinely prevents completion.
+
+#### Close a CUA driver repair through its release
+
+A development repair or an open CUA PR does not close the dependency finding.
+Qualify the appropriate patch release and required version-plan realignment.
+Before assigning a version, fetch the latest published tag and default branch,
+compare the version register, and inspect all unreleased default-branch changes
+that the release would include. A merged feature is not a released dependency.
+Never publish unqualified unrelated work to obtain one fix. If those changes
+conflict with a maintenance release, record the exact scope and obtain the
+owner's route decision before renumbering or proceeding.
+Merge any version-plan realignment as one consistent change before tagging.
+Preserve required reviews and branch protection without administrative bypass.
+
+Complete the repair's negative regression, required live cells and source/CI
+gates. Obtain the applicable owner merge and release approvals, then follow the
+CUA protected candidate and publication gates without bypasses. This procedure
+does not authorize unrelated merges or releases. After publication, install the
+verified released artifact in the isolated driver environment. Record its tag,
+source and artifact digest, reload into a verified new MCP process, and confirm
+the current session can call its tools. Rerun every affected consuming Vadgr
+assertion from its stated precondition and preserve the earlier failures.
+Only that released-driver rerun closes the finding. Development-driver proof
+and the subject's bundled-CUA qualification remain separate. Continue independent
+cells while a specific owner approval or producer prerequisite remains owed.
+
+#### Continue the cold-start checklist
+
+- Probe the current host/session and virtualization; do not carry a historical
+  hypervisor label across a resumed pass. Record artifact and process identities, plus
   original accessibility and screen-reader settings, including unset values.
+- Keep a passive launch observer separate from product lifecycle control.
+  When a user service hosts an installer observer and its surviving console or
+  daemon, use `RemainAfterExit=yes` if the observer can finish first. Otherwise,
+  service completion can kill the remaining control group. Keep normal explicit
+  cleanup protection; do not disable it globally. Verify the actual unit settings
+  before launch, and do not stop the unit until public product shutdown has been
+  observed. Record direct-child exit and inherited-pipe completion separately.
+  After a reboot, reacquire process identities and check retained state before
+  resuming. Never infer successful product shutdown from observer termination.
+- Prove actual screen-reader readiness before its state matrix. A speech-server
+  initialization message is not an active accessibility event loop or application
+  speech. Bound startup and shutdown, record the exact reader PID/start identity,
+  and retain only allowlisted nonsecret utterances. Focus each tested control and
+  wait for its actual utterance before dismissing it; a quick focus-and-close
+  sequence can remove the control before speech is produced.
+  On Linux, first record Orca, libatspi and toolkit versions. If bounded probes
+  reproduce synchronous desktop-discovery starvation before the event loop,
+  inspect those exact upstream sources and compare a controlled cache-enabled
+  startup. Where supported, an isolated `orca-customizations.py` may call
+  `Atspi.get_desktop(0).set_cache_mask(Atspi.Cache.DEFAULT)` before normal Orca
+  startup. Use the installed reader's supported customization loader, isolated
+  XDG configuration and the real desktop bus. Record the customization digest;
+  do not modify system packages, owner configuration, application discovery or
+  speech generation. Preserve the failing default and control probes. This is
+  a conditional environment workaround, not a product fix or an upstream-release
+  claim. Require actual application speech and terminal reader exit separately;
+  a successful observer unit or collected unit's default properties prove neither.
+  For readers with this supported loader, put the customization at
+  `$XDG_DATA_HOME/orca/orca-customizations.py` inside the isolated test root.
+  Import `gi`, call `gi.require_version('Atspi', '2.0')`, import `Atspi` from
+  `gi.repository`, then make the cache call above. Verify the installed loader's
+  path before launch; a file merely present elsewhere does not enable it.
+  Use an external process-group or user-service deadline as well as the
+  observer's deadline. A synchronous discovery stall can prevent an in-process
+  timer from running. Record the bounded shutdown and the exact reader's
+  absence, including after a failed probe. Restore only the assistive settings
+  changed by the pass, and never replace the owner's reader configuration.
 - Prove bounded accessible-window readiness and exact control discovery. Use a
   fresh process-scoped tree, supported native action, fresh readback and an
   independent machine oracle for each step. Action dispatch is not success.
+  On Linux, obtain these through released MCP `ui_tree`, `ui_find` and `ui_act`;
+  reacquire references after changes rather than reusing stale nodes.
+  Inspect the actual schemas: an application-name filter is not a PID filter.
+  Match `ui_windows` discovery to the independently known launch PID and start
+  identity, then use the exact application filter and refuse ambiguity. Retain
+  only bounded, reviewed nonsecret fields; do not invent safe-filter arguments
+  or save an unfiltered owner-window list or accessibility tree.
+  An action can remove its own control, such as Save closing an editor. Preserve
+  a post-action `element_gone` reply, reacquire fresh semantic state and check the
+  independent machine oracle before deciding whether the mutation occurred.
+  Do not replay a potentially completed action or rewrite its reply as success.
+  If a transient layout change invalidates a reference before dispatch,
+  reacquire the exact named control rather than reuse its old reference.
+- Verify native focus after asynchronous in-place actions, not only before
+  dispatch. While the same control remains on the same page, loading,
+  completion and error notices must not silently replace its accessible
+  identity or lose keyboard focus. Pair the settled tree with the saved-value
+  oracle and actual reader output. A successful save alone does not pass this
+  check. Also verify that a late completion never takes focus back after the
+  user has moved to another control or page. Dialog closure has its own
+  deliberate focus destination; do not require the removed control to survive.
+- Exercise focus across every dialog family, not only the first confirmation.
+  Opening a dialog must establish a meaningful safe focus destination once;
+  later frames must not take focus from the user's selected control. Destructive
+  dialogs must not initially focus their destructive action. Test nested
+  transitions, cancellation, Escape, outside dismissal and successful or failed
+  completion. Preserve the original opener across a nested dialog chain. Return
+  to that enabled surviving control, or a deliberate same-view fallback when
+  it no longer exists. A late result must not reopen a dismissed dialog or take
+  focus after navigation. Verify settled native focus, actual reader output and
+  unchanged state separately. A frame-only focus state is not a control-focus
+  pass, and a cancelled operation is not evidence for its unrun success path.
+- When another operation is pending, an unavailable submission must stay
+  disabled and state its reason inside the dialog. Verify that the draft
+  remains intact and cancellation remains available. Conditional waiting text
+  must not change surviving control identities or lose focus. After completion,
+  verify the submission's actual state and independent outcome. A dialog that
+  closes without dispatching its requested operation fails. Exercise this
+  through an ordinary installed operation where available; do not manufacture
+  timing or infer installed coverage from a source regression.
 - Prove enabled/disabled semantics and native text replacement on isolated
   ordinary fields before settings, credentials or typed purge. On Linux,
   `EditableText.SetTextContents` must actually work; an editable flag or click
@@ -702,6 +1011,10 @@ helper commands and supported interfaces; a pointer alone is not a procedure.
   portal WINDOW source and scoped PipeWire stream. A missing row action or
   refused Selection is a recorded capability failure, not automatically an
   owner-only permission prompt. Cancel the owned chooser after a bounded probe.
+  Linux visual checks use the release's public MCP capture tools. A release
+  exposing only full-screen screenshot/crop does not satisfy this exact
+  app-only oracle. Leave it owed if unavailable; never invent window capture or
+  count a desktop crop as equivalent. Helper probes remain diagnostic records.
 - Name helper dependencies, safe tree filtering, exact new output paths and
   cleanup commands. Never retain private window titles or secret-bearing trees.
 - Move each assertion no existing tool can execute to the minor that delivers
@@ -710,11 +1023,61 @@ helper commands and supported interfaces; a pointer alone is not a procedure.
   processes after testing. After
   a reboot, rediscover readiness and identities before resuming.
 
+#### Conditional Wayland chooser and unfocused capture probe
+
+This section describes a diagnostic capability probe. It does not override the
+released MCP driver requirement or turn direct-helper captures into MCP proof.
+
+The portal contract does not prescribe a chooser layout or focus order. Verify
+the installed portal backend, desktop and toolkit versions and their matching
+source before using a backend-specific selection path. The agent chooses each
+action from a fresh native tree; a helper must not implement this journey.
+An absent accessible portal application before its first chooser is created is
+normal preflight, not permission denial. After creation, require the exact
+owned application and chooser frame before any action.
+
+If a bounded ordinary selection probe fails, retain it. A missing row action
+or refused Selection does not establish an owner-only protected prompt. Where
+the verified backend supports the following sequence, use two separately
+identified, bounded ScreenCast requests, each restricted to one WINDOW:
+
+1. Open request A and leave its chooser open. Launch a new test-owned target
+   window, then open request B. Distinguish both chooser instances from fresh
+   process and window identities; never select by a shared title alone.
+2. Inspect B. Continue only if its first candidate is the exact target window,
+   is `FOCUSED` and `SENSITIVE`, and is not defunct. Never infer the target from
+   ordering alone. If these predicates fail, cancel the owned requests.
+3. Invoke the chooser root's observed `default.activate` action only when
+   **Share**, the current default control, is insensitive and the matching
+   backend source establishes that this fallback activates the exact focused,
+   sensitive, non-defunct target row. Reacquire B and require the target to be
+   the sole `SELECTED` window and **Share** to be sensitive.
+4. Select B's exact **Share** control with role `button`, `SENSITIVE` and
+   non-defunct. GTK may omit `ENABLED`; do not require both flags. Invoke its
+   observed action. A same-named label is not a button.
+   Cancel A through its exact **Cancel** button, scoped to A, not B.
+5. Launch a fresh, harmless test-owned cover window. A `window.present` request
+   alone does not prove Wayland focus. Independently record the target inactive
+   and the cover active before image acquisition, and recheck afterward.
+6. Require one returned WINDOW stream and reject any exposed non-WINDOW source
+   type. Read only that request's scoped PipeWire stream. Inspect the image,
+   then close both owned requests and stop only test-owned cover processes.
+   Retain the full stream image and its dimensions, including any black padding;
+   do not crop it into an apparent success or substitute a desktop image.
+
+Stop on ambiguity, unexpected focus, selection or stream identity. Keep every
+failed probe; do not retry indefinitely, bypass the chooser, capture a monitor
+or desktop, crop, or present a focused image as unfocused. This is a conditional
+capability probe, not a guarantee for every GNOME or Wayland version. The
+[ScreenCast interface](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.ScreenCast.html)
+defines source types and stream/session scope, not this chooser sequence.
+
 ### Desktop visual acceptance
 
 Keep this gate for every native desktop release. Before the first GUI cell,
 enumerate its installer, console, dialog and lifecycle states. Map each state
-to its existing functional cell and approved mockup. Capture the exact installed
+to its functional cell, a dedicated Part V cell and approved mockup. Do not
+replace the dedicated visual cells with a general accessibility row. Capture the exact installed
 artifact through the required native application-only path, then open and
 inspect each image at its intended reading size. Record the artifact digest,
 host/session, window size, display scale, theme, capture digest and observation.
@@ -787,6 +1150,26 @@ leave it `partial`, `blocked` or owed.>
 |---|---|---|---|
 | <id: assertion> | <exact missing tool, version or interface> | `<X.Y.Z>` | <recorded workaround and its cell, or none> |
 
+Verify how the installed toolkit exposes size, scale and system appearance
+before attempting alternate configurations. A configured minimum size is not
+an observed minimum-size pass. Do not invent unsupported accessibility methods
+or substitute X11 or GTK environment overrides for Wayland compositor scaling.
+Record the actual appearance preference: no preference is not explicit light.
+An isolated session bus can change appearance discovery, so record that scope.
+Use only authorized, reversible native settings changes and restore their exact
+original values. Leave only the unsupported assertion owed, with its proved
+interface boundary, rather than blocking independent work.
+
+For failure states, inspect the visible message as well as preservation of
+installed state. The message must identify failure and a safe recovery action;
+an operation label alone does not explain failure. Never expose raw error
+chains containing private URLs, paths or credentials to make the message useful.
+
+Keep reusable procedures here. Put dated attempts, real host identifiers,
+private paths, process identities and captures only in the approved evidence
+boundary after its privacy checks, not in this template. Use placeholders in
+examples and never copy secret-bearing trees, pairing material or account data.
+
 ## Owner and environment requirements
 
 <Complete this table before the first live cell. Tell the owner what is needed
@@ -815,6 +1198,19 @@ catalog on the execution date. Pick the least expensive model that supports the
 exact cell. An automatic onboarding model is tested once as shipped; repeated
 provider-neutral tasks name an explicit cost-effective model. Do not start a
 billed call with a blank ceiling or an unrecorded escalation path.>
+
+<Use live internet access on the execution date to read current official model
+and pricing pages, then intersect those results with the authenticated catalog.
+Routine cost targets today are the Claude Sonnet, GPT Luna at medium reasoning
+and Gemini Flash families; GPT Terra is the next OpenAI lane only when Luna
+lacks a required capability. They are examples, not frozen ids or a permanent
+allowlist. A newly launched cheaper capable model replaces them. Never infer
+price from catalog order or model naming. Fable, Sol, Opus and equivalent
+frontier tiers are prohibited for setup, navigation, screenshots, smoke tasks
+and ordinary provider-neutral cells. A frontier row is valid only when it names
+the captured lower-cost capability failure from the same cell, the prewritten
+escalation condition that fired and a separate hard cost ceiling. A persisted
+expensive default must be changed before routine billed work.>
 
 | cells | provider/auth | required capabilities | selected model | official source and date | input/output price | hard iterations/tokens/cost | escalation condition |
 |---|---|---|---|---|---|---|---|
@@ -911,6 +1307,11 @@ because on every runbook so far, the defects were in the seams the unit tests
 stop at.>
 
 - `cargo test` -> **N passed**
+  Use one explicit build root whose resolved path is below this checkout's
+  ignored `target/` directory. The source-workspace protection regression
+  identifies its checkout from the test executable's actual ancestors.
+  An external build root does not satisfy that precondition. Do not remove or
+  weaken the regression to accommodate a misplaced build cache.
 - `cargo clippy --all-targets -- -D warnings`, `cargo fmt --check` -> exit `0`
 
 **The gate is not green until the pull request's checks have finished.** The
@@ -1084,6 +1485,185 @@ evidence is a claim.>
 usually: the journal is the proof and the status is not, because a run ends
 `completed` on the legacy path too.>
 
+### Complete uninstall outcomes
+
+For uninstall cells, observe the complete user-visible outcome, not only file removal.
+Successful removal must close the product console and stop its owned runtime.
+Verify process exit and package, launch-entry and listener absence independently.
+Cancellation must preserve the usable installation. Pending removal must not
+announce completion or close early. A failed removal must keep the console open
+with a specific error and available recovery action. Never count a stale console
+showing a missing-daemon error as successful uninstall UX.
+
+## Part B: installed bundled computer use
+
+Unsigned qualification proves the complete installed product before release.
+Include real runs, provider connections, bundled CUA, mobile pairing, transports
+and lifecycle operations on every supported OS and applicable shipped surface.
+Signing must not be the step that enables these features for the first time.
+The release pipeline adds signatures and distribution trust metadata, then
+verifies final identity, integrity and promotion. Those checks do not replace
+the unsigned functional pass or erase an outstanding functional finding.
+
+Keep B01 whenever Vadgr ships a bundled computer-use runtime. Expand its result
+by every supported host, architecture and applicable desktop session.
+Do not infer one platform's pass from another platform or a hosted producer.
+Inventory, private-Python startup, tools/list and truthful unavailability are
+separate assertions. None proves a real task through the installed product.
+The external testing MCP never substitutes for the subject's bundled runtime.
+
+Run the functional task before merge on Linux, macOS, Windows and WSL.
+If the unsigned package cannot execute it, record and fix that implementation
+finding. Missing development admission is not a signing-only blocker.
+Provide an explicit, integrity-checked, non-publishable development execution path.
+Never fabricate adoption metadata, disable production verification or substitute
+another runtime. Keep final signing, attestation and adoption assertions separate.
+Each supported host requires its own installed-artifact task result.
+Do not call bundled computer use qualified until the task passes.
+
+Prepare an isolated nonsecret fixture window with a fresh visible test marker.
+Submit this goal through the installed Vadgr CLI or API:
+"Use computer use to capture only the prepared test window and report its visible test marker."
+Freeze the exact command, artifact, image-capable model and hard budget first.
+Follow the billed-model and capture rules in this runbook. No phone is required.
+Require a successful bundled tool call, its returned image, a model continuation
+reading the marker, and terminal success in the same run journal.
+Inspect the returned image and compare the marker with the independent fixture.
+Bind the executing child and private interpreter to the installed payload hashes.
+Check that no system Python, checkout, external MCP or runtime override was used.
+Keep private paths and secret-bearing outputs out of retained evidence.
+
+| cell | platform | precondition and setup | action | independent oracle | evidence boundary | cleanup | result |
+|---|---|---|---|---|---|---|---|
+| B01 | <each supported host, architecture and desktop> | <exact installed artifact, pinned bundled runtime, approved authorization, safe fixture, image-capable provider and budget> | run the bounded screenshot-and-marker task through installed Vadgr | journal tool call, image and continuation; fixture match; installed process, interpreter and payload identities | private exact-source/artifact/run evidence and inspected safe output | remove only task-owned run, fixture and processes after filing | not run: populate exact runtime and provider prerequisites before execution |
+
+## Part V: native lists and dialogs visual qualification
+
+Keep these nine cells in every minor with native graphical surfaces. Replace
+the surface examples with the complete shipped inventory; do not sample only
+the first model, provider or dialog. Delete this part only when the product has
+no native GUI, and state that reason. These are pre-merge functional cells;
+production signatures do not block their unsigned qualification. WSL is
+`Not-Needed` for this part because its product is CLI-only. It does not inherit
+the Windows GUI result. Expand supported architectures and desktop sessions
+inside each host ledger; a result on one variant never qualifies another.
+
+### Visual matrix and independent oracles
+
+Before execution, list every shipped surface in these three groups:
+
+1. Provider cards, the provider chooser, authentication-method choices and every
+   model/default-model list or chooser.
+2. Every other list, including devices, grants, skills, MCP servers and any
+   shipped legal, diagnostics or settings list.
+3. Every dialog and installer frame, including edit, connection, cancellation,
+   destructive confirmation, terms, progress, error and success views.
+
+For every surface, enumerate each reachable empty, populated, loading, error,
+selected, unselected, focused and disabled state. Add the shipped confirmation,
+success and cancellation states. Record an exact reason when a state does not
+exist for that surface. A shipped state that cannot be reached with available
+prerequisites stays `not run` or `blocked`; do not remove it from the matrix.
+Use isolated nonsecret data, including long labels and multiline text where
+the public product permits them. For provider/model lists, use actual catalog
+entries; do not invent a model or rewrite the catalog to manufacture a pass.
+Include enough real entries to exercise scrolling and inspect the first,
+middle and last entries, selected state and action row.
+
+Cross that inventory with default/full-window and minimum supported sizes,
+both supported themes and every supported scale required by the platform
+design. Record actual native dimensions, scale and appearance, not requested
+values. Name every combination in a ledger before execution and count them.
+Configured minimums, offscreen tests and screenshots at another scale are not
+native visual results. If the interface cannot safely set a supported variant,
+record the exact capability probe and leave that variant owed. Never modify
+host networking or owner data to manufacture loading, failure or empty states.
+
+Drive ordinary controls through native accessibility: Windows UIA, macOS AX,
+and the released external CUA MCP accessibility tier on Linux. Reacquire state
+after every action. Use the native application-only capture policy and the
+current runbook's explicit Linux exception, if one exists, without expanding
+it. Open and inspect each actual image at its intended reading size against
+the approved mockup for that surface. A saved image, accessible tree, source
+review, unit test or backend success alone never establishes a visual pass.
+
+Inspect hierarchy, grouping, row and section spacing, padding, alignment,
+contrast, text wrapping and control reachability. Compare measured geometry
+and contrast with the approved design's values where specified. Record visible
+deviations; do not invent a new aesthetic threshold. Check long names, selected
+and disabled contrast, clipped or overlapping text, horizontal overflow,
+scroll containment, stable dialog/footer placement and reachable actions at
+both ends of long content. Installer frames must retain their approved brand,
+progress and content hierarchy. An accessible but visually hidden action fails.
+
+**Contrast is checked on the installed rendering, in both light and dark.**
+For each shipped control, inspect normal, hover, keyboard-focus, pressed,
+selected and disabled states wherever implemented. Record the actual painted
+text/icon foreground and adjacent control/background, including focus and
+selection indicators. Check these against the approved design and applicable
+accessibility contrast floors. Theme constants, accessibility names and source
+regressions cannot establish the colors a user actually sees. Black text on a
+dark button, or another visibly unreadable foreground/background combination,
+is a **FAIL** and blocks the affected visual verdict even when activation works.
+
+Use the approved disabled-state styling and readable explanatory copy; disabled
+controls must remain distinguishable from enabled controls. Do not invent a
+mandatory contrast ratio for inactive controls where the applicable standard
+exempts them. Mark a state not applicable only when the product does not
+implement it. A supported state that the available interface did not exercise
+remains owed with the exact boundary, not implicitly passed.
+
+Measure the final painted foreground and adjacent background after opacity and
+compositing. Source regressions must use the renderer's actual blend operation;
+a different color-space calculation can falsely pass unreadable installed text.
+Check the required boundaries of empty enabled text fields and checkboxes, plus
+visible focus indicators, separately from text. Do not impose a control-boundary
+ratio on decorative card borders or a selection fill whose state is conveyed
+by readable text. Inspect all shipped semantic status colors on their actual
+surfaces, not only the first failed button.
+
+Retain the failing installed image with its artifact identity. A source repair
+or green widget test does not change that result. Rebuild, verify the new
+installed bytes, and inspect the affected state/theme combinations again before
+recording a repaired visual pass. Keep the failed and repaired subjects separate.
+
+
+Corroborate the displayed rows, selection and enabled states with the public
+API, CLI, package receipt or filesystem. After selection/save, verify the
+independent persisted value; after cancellation, verify it is unchanged.
+Do not submit a billed task merely to inspect a model choice. Any required
+provider validation still obeys the model-selection and cost ceilings above.
+Never capture credentials, account identifiers, pairing material or private
+endpoints. An unsafe required image remains an explicit evidence boundary,
+not a reason to retain it or pretend a partial image proves the whole view.
+
+Record each image digest, exact artifact and source, mockup revision, host,
+surface/state, actual size/scale/theme, inspected observations and independent
+oracle. Preserve failed images and failed actions, then fix, rebuild and rerun
+every affected combination. A shared picker, dialog or theme change requires
+affected native Windows, macOS and Linux reruns. Historical O2 or functional
+results do not automatically pass these cells. Restore selected models, test
+data, window state, appearance, scale and assistive settings after each group.
+
+| cell | platform | precondition and setup | action and expected visual result | independent oracle | evidence and cleanup | result |
+|---|---|---|---|---|---|---|
+| VW01 | native Windows, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | UIA drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: this minor's Windows provider/model matrix must execute |
+| VM01 | macOS, supported architectures | exact installed artifact; safe provider/catalog state and complete group 1 matrix | AX drives provider/model lists; inspect actual app-only images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: this minor's macOS provider/model matrix must execute |
+| VL01 | native Linux, supported architectures and sessions | exact installed artifact; external MCP driver; safe provider/catalog state and complete group 1 matrix | MCP accessibility drives provider/model lists; inspect authorized images against the approved grouping, spacing, contrast and overflow rules | provider/catalog API plus persisted default; cancellation preserves it | private per-combination records; restore provider/default state | not run: this minor's Linux provider/model matrix must execute |
+| VW02 | native Windows, supported architectures | exact artifact and complete group 2 matrix; isolate list data | UIA drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: this minor's Windows other-list matrix must execute |
+| VM02 | macOS, supported architectures | exact artifact and complete group 2 matrix; isolate list data | AX drives every other shipped list, including long and scrollable content; inspect actual images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: this minor's macOS other-list matrix must execute |
+| VL02 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 2 matrix; isolate list data | MCP accessibility drives every other shipped list, including long and scrollable content; inspect authorized images at every required variant | corresponding public API, CLI or owned-file inventory | private per-combination records; remove only test entries and restore settings | not run: this minor's Linux other-list matrix must execute |
+| VW03 | native Windows, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | UIA opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: this minor's Windows dialog/frame matrix must execute |
+| VM03 | macOS, supported architectures | exact artifact and complete group 3 matrix; isolated lifecycle state | AX opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: this minor's macOS dialog/frame matrix must execute |
+| VL03 | native Linux, supported architectures and sessions | exact artifact, external MCP driver and complete group 3 matrix; isolated lifecycle state | MCP accessibility opens every dialog and installer frame; inspect hierarchy, wrapping, focus, disabled states, footer reachability and cancellation | independent state before/after; package/process oracle for lifecycle frames | private per-combination records; restore preserved state and owned settings | not run: this minor's Linux dialog/frame matrix must execute |
+
+Each row is independently runnable from its named setup. Only an unavoidable
+protected permission or physical device step requires the owner; prepare it
+first. Continue independent surfaces while that exact assertion is pending.
+Include Part V in Coverage, the per-OS table and the completion ledger. Count
+nine cells plus the minor's other cells; separately report the expanded matrix
+combinations actually observed. A partial combination matrix is not a cell pass.
+
 ## Repeatability - **three independent passes**
 
 <Three agents, concurrently, each with its own port, database and daemon. See
@@ -1158,6 +1738,8 @@ actually driven on that OS.
 | automated gate: build, test, lint | | | | | |
 | surface coverage | | | | | |
 | Part <X> | | | | | |
+| Part B | not run: exact installed bundled task owed | not run: exact installed bundled task owed | not run: exact installed bundled task owed | not run: exact installed bundled task owed | name B01 and the exact runtime, artifact, authorization and provider prerequisites; no external-driver substitution |
+| Part V | not run: native list/dialog matrix owed | not run: native list/dialog matrix owed | not run: native list/dialog matrix owed | Not-Needed: CLI-only product | name VL01-VL03, VM01-VM03 and VW01-VW03; retain unavailable variant reasons |
 | installed product on the host | | | | | name `OS-L`, `OS-M`, `OS-W`, `OS-Q` |
 | **Overall** | | | | | |
 

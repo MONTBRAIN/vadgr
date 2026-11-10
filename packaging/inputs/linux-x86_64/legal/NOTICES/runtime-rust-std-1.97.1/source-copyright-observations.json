@@ -1,0 +1,966 @@
+{
+  "original_statement_files": [
+    {
+      "path": "backtrace/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "core/src/slice/memchr.rs",
+      "sha256": "c2bc761de734a9e25e02b45b199be8ec4cf3d8730da70b0d6847e4a02745eae7",
+      "statements": [
+        {
+          "line": 2,
+          "text": "// Copyright 2015 Andrew Gallant, bluss and Nicolas Koch"
+        }
+      ]
+    },
+    {
+      "path": "portable-simd/LICENSE-MIT",
+      "sha256": "eb07d497d26e6d68fbc76e793f5e5c9cfa197df2a580e47383569c287a55edf9",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "portable-simd/crates/core_simd/LICENSE-MIT",
+      "sha256": "eb07d497d26e6d68fbc76e793f5e5c9cfa197df2a580e47383569c287a55edf9",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "portable-simd/crates/test_helpers/src/array.rs",
+      "sha256": "0bde11a4108b06210fcd0d25c9fc5498f2c2c578badc4ce0a38183d1a8bd0da0",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2017 Jason Lingle"
+        }
+      ]
+    },
+    {
+      "path": "std/src/sync/mpmc/mod.rs",
+      "sha256": "8b036a1bc72996e4e0859301425141b67d790ed8c18474a24361c2974b1136fb",
+      "statements": [
+        {
+          "line": 114,
+          "text": "// Copyright (c) 2019 The Crossbeam Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "std/src/sys/sync/mutex/fuchsia.rs",
+      "sha256": "14c61d34b1e925c443a0065b91f19802a74096982a9780249b43c3c7463f3ff5",
+      "statements": [
+        {
+          "line": 13,
+          "text": "//! Copyright 2016 The Fuchsia Authors."
+        }
+      ]
+    },
+    {
+      "path": "stdarch/LICENSE-MIT",
+      "sha256": "29662666b44dff84977b46e05642cdef910bc3a93a17b5fd86e632bafa59cf21",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "stdarch/ci/docker/x86_64-unknown-linux-gnu/cpuid.def",
+      "sha256": "d94d3493cbcfc5d07acc5c315e4b2b3c340e292325bbab41a172f285b0eb6371",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright (C) 2017-2026 Intel Corporation."
+        }
+      ]
+    },
+    {
+      "path": "stdarch/crates/core_arch/LICENSE-MIT",
+      "sha256": "29662666b44dff84977b46e05642cdef910bc3a93a17b5fd86e632bafa59cf21",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2017 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "stdarch/crates/stdarch-gen-loongarch/lasxintrin.h",
+      "sha256": "1ca80c0dc7b3b7d8b228b9a4ea4dc8bb4bf410dc0411ff61ac09c1de42b93c61",
+      "statements": [
+        {
+          "line": 7,
+          "text": "Copyright (C) 2018-2025 Free Software Foundation, Inc."
+        }
+      ]
+    },
+    {
+      "path": "stdarch/crates/stdarch-gen-loongarch/lsxintrin.h",
+      "sha256": "d519a8cb8536f0f1c4487056457879af0446eed1ab13704d87bfae5e6fb2e92d",
+      "statements": [
+        {
+          "line": 7,
+          "text": "Copyright (C) 2018-2025 Free Software Foundation, Inc."
+        }
+      ]
+    },
+    {
+      "path": "vendor/addr2line-0.25.1/LICENSE-MIT",
+      "sha256": "e99d88d232bf57d70f0fb87f6b496d44b6653f99f8a63d250a54c61ea4bcde40",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016-2018 The gimli Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/adler2-2.0.1/LICENSE-0BSD",
+      "sha256": "861399f8c21c042b110517e76dc6b63a2b334276c8cf17412fc3c8908ca8dc17",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (C) Jonas Schievink <jonasschievink@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "vendor/cc-1.2.0/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "vendor/cc-1.2.0/src/windows/com.rs",
+      "sha256": "a2800ddb81215fff2bf618336f5c4ff8e8bdb746dd18b795873c7304b3f2a5e3",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2017 winapi-rs developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/cc-1.2.0/src/windows/find_tools.rs",
+      "sha256": "0ff410bd71f08ee88e99609c15be5f1bc16ad7bd07a83918d13a70c8465642e2",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "vendor/cc-1.2.0/src/windows/registry.rs",
+      "sha256": "c521b72c825e8095843e73482ffa810ed066ad8bb9f86e6db0c5c143c171aba1",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "vendor/cc-1.2.0/src/windows/setup_config.rs",
+      "sha256": "754439cbab492afd44c9755abcbec1a41c9b2c358131cee2df13c0e996dbbec8",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2017 winapi-rs developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/cc-1.2.0/src/windows/winapi.rs",
+      "sha256": "250d51c1826d1a2329e9889dd9f058cfce253dbf2a678b076147c6cdb5db046c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright \u00a9 2015-2017 winapi-rs developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/cfg-if-1.0.4/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "vendor/dlmalloc-0.2.13/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "vendor/foldhash-0.2.0/LICENSE",
+      "sha256": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2024 Orson Peters"
+        }
+      ]
+    },
+    {
+      "path": "vendor/fortanix-sgx-abi-0.6.1/src/lib.rs",
+      "sha256": "98c8ccfa99b181358c31e67b9f964588493e1684e7d8d40a228693b6ac206bd2",
+      "statements": [
+        {
+          "line": 1,
+          "text": "/* Copyright (c) Fortanix, Inc."
+        }
+      ]
+    },
+    {
+      "path": "vendor/getopts-0.2.24/LICENSE-MIT",
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/getopts-0.2.24/src/lib.rs",
+      "sha256": "0efe982ce0fbbecc555f5376388d932fe0e60deeb3c74b3174ec38802c27b8d6",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    },
+    {
+      "path": "vendor/gimli-0.32.3/LICENSE-MIT",
+      "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/gimli-0.32.3/src/constants.rs",
+      "sha256": "40d3e2684774dbffd0f27cdfa0ee6f378d04dc74b2adb821fa7a68acd0772313",
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright 2016 The rust-dwarf Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/hashbrown-0.17.1/LICENSE-MIT",
+      "sha256": "ff8f68cb076caf8cefe7a6430d4ac086ce6af2ca8ce2c4e5a2004d4552ef52a2",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016 Amanieu d'Antras"
+        }
+      ]
+    },
+    {
+      "path": "vendor/libc-0.2.185/LICENSE-MIT",
+      "sha256": "123a331b5dbf04c30097fa43b8f858bc85df671fe776de498d01f3d6b7c1f69e",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/memchr-2.7.6/LICENSE-MIT",
+      "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f",
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Andrew Gallant"
+        }
+      ]
+    },
+    {
+      "path": "vendor/miniz_oxide-0.8.9/LICENSE",
+      "sha256": "4108245a1f2df9d4e94df8abed5b4ba0759bb2f9b40a6b939f1be141077ae50b",
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright 2013-2014 RAD Game Tools and Valve Software"
+        },
+        {
+          "line": 4,
+          "text": "Copyright 2010-2014 Rich Geldreich and Tenacious Software LLC"
+        },
+        {
+          "line": 5,
+          "text": "Copyright (c) 2017 Frommi"
+        },
+        {
+          "line": 6,
+          "text": "Copyright (c) 2017-2024 oyvindln"
+        }
+      ]
+    },
+    {
+      "path": "vendor/miniz_oxide-0.8.9/LICENSE-MIT.md",
+      "sha256": "799e9ca9d179295ef372f25d3769cdda7d25bb2668add6a6a1e22d1e4c678b8d",
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright 2013-2014 RAD Game Tools and Valve Software"
+        },
+        {
+          "line": 4,
+          "text": "Copyright 2010-2014 Rich Geldreich and Tenacious Software LLC"
+        },
+        {
+          "line": 5,
+          "text": "Copyright (c) 2017 Frommi"
+        },
+        {
+          "line": 6,
+          "text": "Copyright (c) 2017-2024 oyvindln"
+        }
+      ]
+    },
+    {
+      "path": "vendor/miniz_oxide-0.8.9/LICENSE-ZLIB.md",
+      "sha256": "0a54e647fe54104658b5e563c04c6f9edf251710e47bce692e0bd990a4ddaa39",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2013-2014 RAD Game Tools and Valve Software"
+        },
+        {
+          "line": 2,
+          "text": "Copyright 2010-2014 Rich Geldreich and Tenacious Software LLC"
+        },
+        {
+          "line": 3,
+          "text": "Copyright (c) 2020 Frommi"
+        },
+        {
+          "line": 4,
+          "text": "Copyright (c) 2017-2024 oyvindln"
+        }
+      ]
+    },
+    {
+      "path": "vendor/moto-rt-0.16.0/LICENSE-APACHE",
+      "sha256": "69fef7b0f322a65554156141f2bc6256ed0bb78cba7e49f0d8829d7ec4ee62cd",
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2023 The Motor OS Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/moto-rt-0.16.0/LICENSE-MIT",
+      "sha256": "a7c936ff1ed8fa340172d42a98185afee078f818e907da69f3a8e336b1623b4b",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2023 The Motor OS Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/moto-rt-0.16.0/src/mutex.rs",
+      "sha256": "535753cff7a143a7adeef12877fdbfcdacb49c6b5e6a131eac55e6351db697f4",
+      "statements": [
+        {
+          "line": 13,
+          "text": "// Locks by Mara Bos (O\u2019Reilly). Copyright 2023 Mara Bos,"
+        }
+      ]
+    },
+    {
+      "path": "vendor/moto-rt-0.16.0/src/spinlock.rs",
+      "sha256": "a490e4d116455f8309febd86e18c90a88003bba714501645edab625f4fe7a82c",
+      "statements": [
+        {
+          "line": 13,
+          "text": "// Locks by Mara Bos (O\u2019Reilly). Copyright 2023 Mara Bos,"
+        }
+      ]
+    },
+    {
+      "path": "vendor/object-0.37.3/LICENSE-MIT",
+      "sha256": "0b74dfa0bcee5c420c6b7f67b4b2658f9ab8388c97b8e733975f2cecbdd668a6",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2015 The Gimli Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/r-efi-5.3.0/AUTHORS",
+      "sha256": "ff92bed461f50338dd703a9ba9aee496a425957873df1d91192776e4bdf5dda7",
+      "statements": [
+        {
+          "line": 54,
+          "text": "Copyright (C) 2017-2023 Red Hat, Inc."
+        },
+        {
+          "line": 55,
+          "text": "Copyright (C) 2019-2023 Microsoft Corporation"
+        },
+        {
+          "line": 56,
+          "text": "Copyright (C) 2022-2023 David Rheinsberg"
+        }
+      ]
+    },
+    {
+      "path": "vendor/r-efi-alloc-2.1.0/AUTHORS",
+      "sha256": "fba3318d0c600380177edf7ba4778ff6588faa8d106c679ac5dfee620011239c",
+      "statements": [
+        {
+          "line": 54,
+          "text": "Copyright (C) 2017-2022 Red Hat, Inc."
+        },
+        {
+          "line": 55,
+          "text": "Copyright (C) 2022-2025 David Rheinsberg"
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/LICENSE-MIT",
+      "sha256": "209fbbe0ad52d9235e37badf9cadfe4dbdc87203179c0899e738b39ade42177b",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2018 Developers of the Rand project"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/bernoulli.rs",
+      "sha256": "8e11cf18fd021abeac46675def322bd004839c830241ae3ea6143fe809ce64d1",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/distribution.rs",
+      "sha256": "3f5904afd9d0f7492b1746b9cc45759a477a5dd2cc5802dbc4f09f1391eaeb96",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2013-2017 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/float.rs",
+      "sha256": "486f2c8ead197d283593689e7b9026626ca83ab3fe7ebf9a89c8e701a4767c2e",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/integer.rs",
+      "sha256": "69ac205b6fed57ae09e2f8f1b15ae3d2049b85874bc4da3f246a18188b42d8ea",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/mod.rs",
+      "sha256": "de901e07e7ee11f4375a02fff29d77ac26d1df2721214b162dafcec1e47b2d67",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2013-2017 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/other.rs",
+      "sha256": "b98748667af9415d65c8eaa6e51aee2d42a1d31c7970c22be7491adcb18a45a7",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/slice.rs",
+      "sha256": "e29eb71308f30aee13a4b1454da1ab70c2cc307738445172a27246df2dfa75ce",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2021 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/uniform.rs",
+      "sha256": "04efcc061e1904b824e3feb68541c4e8259a46ecd2c118af6fb383b3ad37f73c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2020 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2017 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/uniform_float.rs",
+      "sha256": "62271f5fb4be087538d1fae743ad95027c66589740762521f97d20d358463d6b",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2020 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2017 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/uniform_int.rs",
+      "sha256": "1fb3ade156995a45b33853c04eb28c4031d7b0f73e731145182adb69de0c5880",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2020 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2017 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/uniform_other.rs",
+      "sha256": "2e8eb7e10b3a052b784da842c0f1999d6ec73acb1eec849fb243ee44d6c3e8f1",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2020 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2017 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/utils.rs",
+      "sha256": "a631940e728257c9b0cb753bc64fa631958c92ce52d5b2265c7ed06a46567b8f",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/weighted/mod.rs",
+      "sha256": "52379f09ea06c8ac54bdb4ecaed93fd7fc08f85866b5e3fcb4e40d0f1576bdfe",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/distr/weighted/weighted_index.rs",
+      "sha256": "b4559037354bcb9e0b1eab569c867dd70053de382232c7ed4d9aef3d5b049003",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/lib.rs",
+      "sha256": "2e3f24aa60f62454780ea30a5652568518f97d7c5e2884adf632c60a38ac3352",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2013-2017 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/prelude.rs",
+      "sha256": "ba69a78b5ebf3f7acb648ee57b8a8aa5403868852e6da082e8d87869d9dd18ce",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rng.rs",
+      "sha256": "19a29d58ea169c50ae7fea0a941c405e4a8f3a9b2ac0dc0edd9f7a55e9431703",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2013-2017 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rngs/mock.rs",
+      "sha256": "330e6d7d7f30c6c9f6d64fe3f3a493b6c9574b075599b34b4871ebd4a9061015",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rngs/mod.rs",
+      "sha256": "3868d87e88892a30ae0a8f2cbafdca299cea02d2aa6b3589300751cd8840a530",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rngs/reseeding.rs",
+      "sha256": "23b45039f4184c556db85154a9e564aa6c14f55ea03276a0f4fd27f0a22d6347",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2013 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rngs/small.rs",
+      "sha256": "d043d5c8f11aa8c5e9f8cbdaf7812486a1ccd64133a0721b8bf7d0f2097b651a",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rngs/std.rs",
+      "sha256": "7d804c97f1633fc0928de4ceb77292e8b3f630158a4922ee82d0dd6633bcfcc0",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rngs/thread.rs",
+      "sha256": "4f8b9472d0140d4d729b8188f73849acca5d45967992ca6e3aec58b95c524fad",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rngs/xoshiro128plusplus.rs",
+      "sha256": "4d5dcad38c9126ea133055d49953549e50063a1f8385e05b9434911358c2fcca",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/rngs/xoshiro256plusplus.rs",
+      "sha256": "3f386364f569f5b2dc7fb8f5b58152e075abeefb2ad5af86f715657f2bece0fd",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/seq/coin_flipper.rs",
+      "sha256": "db57ebb4679144df94a6714d3fb1a9b5cb3dae7355d337d98ebc8dafbcf959c3",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2023 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/seq/increasing_uniform.rs",
+      "sha256": "73b1bf2b30c4e5972f2e902dbb30b90518006bae7eb2628d1ab2547eaeca8ea3",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2023 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/seq/index.rs",
+      "sha256": "d4f80b1dcb643cbec7caf8bf36d6dabd9c65d2db39bbf0b62d839aea79c553e1",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/seq/iterator.rs",
+      "sha256": "e19443f5ca4cd02d9cad97706626cc3e5efe9bc21c0c578d08d1edb75f34406c",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2024 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/seq/mod.rs",
+      "sha256": "04511fff0b199d84c6ff2ca7a394ad87197bcf6a9f2ba4fa2d139dae63f64913",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2023 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand-0.9.2/src/seq/slice.rs",
+      "sha256": "8212a23bbc284b74b981ef8d5fc177c460926415f9d747a5a127453b7fa0f9e2",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2023 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand_core-0.9.3/LICENSE-MIT",
+      "sha256": "209fbbe0ad52d9235e37badf9cadfe4dbdc87203179c0899e738b39ade42177b",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2018 Developers of the Rand project"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand_core-0.9.3/src/block.rs",
+      "sha256": "105cb275cd8f38f5d4f51ea574beb2263ae1d510a8b1737a41d8d622f730ddbb",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand_core-0.9.3/src/impls.rs",
+      "sha256": "145ec30e733af5aa0fd8556a706aa932723de45cfa964aacf284bc59e951ca5a",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand_core-0.9.3/src/le.rs",
+      "sha256": "e1d01e111ce8d2b6fdc8c85e1fcf400b490b302db5c5f32e040c5b9e6b528013",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand_core-0.9.3/src/lib.rs",
+      "sha256": "d72f3328eb8ddd4a289a38ec8dfe61ced7d59c4c1b65ffb61c251e42d9e165ef",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018 Developers of the Rand project."
+        },
+        {
+          "line": 2,
+          "text": "// Copyright 2017-2018 The Rust Project Developers."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand_core-0.9.3/src/os.rs",
+      "sha256": "10ef59c924aa6286b4ded0dd03086fb1b6b0b7a2fd106aada70d3270ee135fea",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2019 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand_xorshift-0.4.0/LICENSE-MIT",
+      "sha256": "209fbbe0ad52d9235e37badf9cadfe4dbdc87203179c0899e738b39ade42177b",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2018 Developers of the Rand project"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2014 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "vendor/rand_xorshift-0.4.0/src/lib.rs",
+      "sha256": "6770c3aa0f5476f28b8a721156e670035818b0786cd9bbee1b155fb1d31f3ef8",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2018-2023 Developers of the Rand project."
+        }
+      ]
+    },
+    {
+      "path": "vendor/rustc-demangle-0.1.27/LICENSE-MIT",
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Alex Crichton"
+        }
+      ]
+    },
+    {
+      "path": "vendor/shlex-1.3.0/LICENSE-APACHE",
+      "sha256": "553fffcd9b1cb158bc3e9edc35da85ca5c3b3d7d2e61c883ebcfa8a65814b583",
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2015 Nicholas Allegra (comex)."
+        }
+      ]
+    },
+    {
+      "path": "vendor/shlex-1.3.0/LICENSE-MIT",
+      "sha256": "4455bf75a91154108304cb283e0fea9948c14f13e20d60887cf2552449dea3b1",
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2015 Nicholas Allegra (comex)."
+        }
+      ]
+    },
+    {
+      "path": "vendor/shlex-1.3.0/src/bytes.rs",
+      "sha256": "eadfffcdb7846d341ba451d6118d275b9d0f14a9554984ccfcdbe9a8d77ec5ee",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 Nicholas Allegra (comex)."
+        }
+      ]
+    },
+    {
+      "path": "vendor/shlex-1.3.0/src/lib.rs",
+      "sha256": "44c8fb929e1443f2446d26025a9bcfca0b329811bbc309b4a6afb8ec17d7de8d",
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2015 Nicholas Allegra (comex)."
+        }
+      ]
+    }
+  ],
+  "scope": "Original exact source claims retain their file paths; not an assertion that every source file contributes to the final binary.",
+  "source_archive_sha256": "e9a1e616d04c6845895c827a178b9227f7c7199f3f4a80af81ab3aff7b80156b"
+}

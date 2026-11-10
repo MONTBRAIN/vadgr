@@ -14,6 +14,12 @@ pub const NAMESPACE_SEPARATOR: &str = "__";
 #[async_trait]
 pub trait ToolServer: Send {
     fn namespace(&self) -> &str;
+    /// Work that must finish before the server can start, such as checking
+    /// installed bytes. It takes as long as that work takes, so a caller that
+    /// bounds the handshake runs it first and outside that bound.
+    async fn prepare(&mut self) -> Result<(), McpError> {
+        Ok(())
+    }
     async fn list_tools(&mut self) -> Result<Vec<ToolSpec>, McpError>;
     async fn call_tool(
         &mut self,

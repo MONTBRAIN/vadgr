@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "d381ef313ae70b4da5f95f8a4de773c6aa5cd28f73adec4b4a31df70b66780d8",
+  "original_statement_files": [
+    {
+      "path": "python3-dll-a-0.2.14/LICENSE",
+      "sha256": "c760d1f2e4614d58f2b91cd41b9826457989c09041be0219158b8f7f6d3f8763",
+      "size": 1120,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2022 Sergey Kvachonok, Adam Reichold, messense <messense@icloud.com>"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

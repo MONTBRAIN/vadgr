@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab",
+  "original_statement_files": [
+    {
+      "path": "dirs-sys-0.5.0/LICENSE-MIT",
+      "sha256": "6a2e0ade09a7d5f816f11566fee2b151b32235a7fad52b41d49cce96f833c1a9",
+      "size": 1069,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2018-2019 dirs-rs contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

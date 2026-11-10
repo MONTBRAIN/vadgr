@@ -1,0 +1,32 @@
+{
+  "archive_sha256": "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292",
+  "original_statement_files": [
+    {
+      "path": "subtle-2.6.1/LICENSE",
+      "sha256": "d1fc1bc0d155df60b2e7705b6b2ae02a05c96f948e1cec6e2fb86360b09f346b",
+      "size": 1582,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016-2017 Isis Agora Lovecruft, Henry de Valence. All rights reserved."
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2016-2024 Isis Agora Lovecruft. All rights reserved."
+        }
+      ]
+    },
+    {
+      "path": "subtle-2.6.1/src/lib.rs",
+      "sha256": "ced6ebd3622af527cbbbb09feb57a2894751ff07e7ca8f97f22bad89401e5c8d",
+      "size": 32497,
+      "statements": [
+        {
+          "line": 4,
+          "text": "// Copyright (c) 2016-2018 isis lovecruft, Henry de Valence"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,16 @@
+{
+  "component_sha256": "aed8db4f6d71c51efb89530e12d9464e7bf2923d46c3205dc794a2a93f8c0648",
+  "original_statement_files": [
+    {
+      "path": "cryptography/__about__.py",
+      "sha256": "49425154c5ad66852ef967592df63ba7fb36c66e5842334b163f3462b50ff45d",
+      "statements": [
+        {
+          "line": 17,
+          "text": "__copyright__ = f\"Copyright 2013-2026 {__author__}\""
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

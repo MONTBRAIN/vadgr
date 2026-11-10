@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "12124de845cacfebedff80e877bb37b5b75c34c5a4c89e47e1cdd67fb6041325",
+  "original_statement_files": [
+    {
+      "path": "glutin-0.32.3/LICENSE",
+      "sha256": "a4445427440043e8ce6fadf7a43fb906cb0d7f6c573a560a9f142cf9f9bf8ff4",
+      "size": 11312,
+      "statements": [
+        {
+          "line": 189,
+          "text": "Copyright 2022 Kirill Chibisov"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49",
+  "original_statement_files": [
+    {
+      "path": "scopeguard-1.2.0/LICENSE-MIT",
+      "sha256": "fb77f0a9c53e473abe5103c8632ef9f0f2874d4fb3f17cb2d8c661aab9cee9d7",
+      "size": 1097,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2016-2019 Ulrik Sverdrup \"bluss\" and scopeguard developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

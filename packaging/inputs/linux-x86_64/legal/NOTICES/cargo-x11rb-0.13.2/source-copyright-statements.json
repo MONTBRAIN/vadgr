@@ -1,0 +1,76 @@
+{
+  "archive_sha256": "9993aa5be5a26815fe2c3eacfc1fde061fc1a1f094bf1ad2a18bf9c495dd7414",
+  "original_statement_files": [
+    {
+      "path": "x11rb-0.13.2/LICENSE-MIT",
+      "sha256": "a72561f47c1f665535930f606739d9098a6186802d5e2e8ec491faf00f4add5b",
+      "size": 1058,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright 2019 x11rb Contributers"
+        }
+      ]
+    },
+    {
+      "path": "x11rb-0.13.2/examples/hypnomoire.rs",
+      "sha256": "28d58b8a5a9262125c889de2e577b9b3a326e80b15dc679dc0bd6a989e67a8f8",
+      "size": 7812,
+      "statements": [
+        {
+          "line": 2,
+          "text": "// The original file has Copyright (C) 2001-2002 Bart Massey and Jamey Sharp and is licensed under"
+        }
+      ]
+    },
+    {
+      "path": "x11rb-0.13.2/examples/tutorial.rs",
+      "sha256": "413dd0aef2f023d52d4bcbddd4dd5a5189c4c7a7356b5ebe78b2bbc12d8055b0",
+      "size": 107770,
+      "statements": [
+        {
+          "line": 12,
+          "text": "// applies. The exact situation is a bit unclear (libxcb's COPYING file has \"Copyright (C)"
+        }
+      ]
+    },
+    {
+      "path": "x11rb-0.13.2/src/cursor/find_cursor.rs",
+      "sha256": "847cca675bebd15f658169b3dfaa8c91cbc2bb99a823160d0c1b84433d52abe6",
+      "size": 3259,
+      "statements": [
+        {
+          "line": 5,
+          "text": "//   Copyright \u00a9 2013 Michael Stapelberg"
+        },
+        {
+          "line": 6,
+          "text": "//   Copyright \u00a9 2002 Keith Packard"
+        }
+      ]
+    },
+    {
+      "path": "x11rb-0.13.2/src/cursor/parse_cursor.rs",
+      "sha256": "0c7fede5d2715963e71b6e3935e46257013cf6e349dcb9dffb3e8247a2645cf6",
+      "size": 2701,
+      "statements": [
+        {
+          "line": 4,
+          "text": "//   Copyright \u00a9 2013 Michael Stapelberg"
+        }
+      ]
+    },
+    {
+      "path": "x11rb-0.13.2/tests/resource_manager.rs",
+      "sha256": "646f709677d7f9ab3698db83375607df2fda1a81d654b9f0cdbdb520b761f750",
+      "size": 8973,
+      "statements": [
+        {
+          "line": 20,
+          "text": "// Most tests in here are based on [1], which is: Copyright \u00a9 2016 Ingo B\u00fcrk"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

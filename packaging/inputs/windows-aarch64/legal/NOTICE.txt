@@ -1,0 +1,11 @@
+Vadgr
+Copyright 2026 Victor Santiago Montaño Diaz
+
+Vadgr is a machine daemon that runs tasks on your computer. Its native
+agent loop calls model provider APIs directly and uses connected tools
+to work with files and applications. The CLI and phone app start and
+watch tasks. The local desktop console manages the installed machine.
+
+https://github.com/MONTBRAIN/vadgr
+
+Licensed under the Apache License, Version 2.0.

@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539",
+  "original_statement_files": [
+    {
+      "path": "raw-window-handle-0.6.2/LICENSE-MIT.md",
+      "sha256": "9c5a80639a57c1c945570e7ebbca0706305849ce3c098021325cca9db2f7acc4",
+      "size": 1064,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 Osspial"
+        }
+      ]
+    },
+    {
+      "path": "raw-window-handle-0.6.2/LICENSE-ZLIB.md",
+      "sha256": "ae895c8576e682f310fb70d93d9f99b1dd82872094c54a8f6cdfe2ca5c2d6ecb",
+      "size": 836,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2020 Osspial"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

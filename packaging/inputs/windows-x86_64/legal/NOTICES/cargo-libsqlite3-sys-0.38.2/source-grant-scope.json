@@ -1,0 +1,35 @@
+{
+  "accounted_grants": [
+    "BSD-3-Clause",
+    "MIT"
+  ],
+  "archive_sha256": "f1d20bef17f513b9b3004532233187769cd072d790971f4e4da0e346eb6401e8",
+  "cargo_metadata": {
+    "path": "cargo-metadata.json",
+    "sha256": "7ab76eb1de5fa7437caf6033e8a003133ad2a98f02851e811191a2f1f9424d0d"
+  },
+  "expression": "MIT",
+  "observed_cargo_features": [
+    "bundled",
+    "bundled_bindings",
+    "cc",
+    "default",
+    "min_sqlite_version_3_34_1",
+    "pkg-config",
+    "vcpkg"
+  ],
+  "reason": "Exact observed Cargo features do not enable SQLCipher. The retained build script selects sqlite3 rather than the separately licensed SQLCipher subtree.",
+  "source_files": [
+    {
+      "path": "libsqlite3-sys-0.38.2/build.rs",
+      "sha256": "269acf1864de5046ac5b77814926d41fe24108b0d027f635812a1db3c965f81f",
+      "size": 34354
+    },
+    {
+      "path": "libsqlite3-sys-0.38.2/sqlcipher/LICENSE",
+      "sha256": "ea4fcb309f14a22065e1ea45362d494d320012249ed865fe9c7c0946db754131",
+      "size": 1467
+    }
+  ],
+  "status": "source-scope-proposal-not-package-approval"
+}

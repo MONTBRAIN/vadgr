@@ -1,0 +1,1108 @@
+{
+  "component_sha256": "a2b55dd6b2a4c4b7d87ffa56bdb33fdc5fdb9a462173861a7bc097f17d91cb09",
+  "original_statement_files": [
+    {
+      "path": "PIL/BdfFontFile.py",
+      "sha256": "2c54f5932a79e45789cd0b1fbd64694f2f53009f5485e3fe7bd95e2ddf77cf35",
+      "statements": [
+        {
+          "line": 14,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB."
+        },
+        {
+          "line": 15,
+          "text": "# Copyright (c) 1997-2003 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/BmpImagePlugin.py",
+      "sha256": "e23760527cf54ebb06b6e56d73be70ff896666c04f55fdd1047bf99434f9da63",
+      "statements": [
+        {
+          "line": 20,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB"
+        },
+        {
+          "line": 21,
+          "text": "# Copyright (c) 1995-2003 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/BufrStubImagePlugin.py",
+      "sha256": "3b2a82334b9422e153315099108f4fda20377a83785d540f7c57cdb835bfc9e4",
+      "statements": [
+        {
+          "line": 7,
+          "text": "# Copyright (c) 1996-2003 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ContainerIO.py",
+      "sha256": "23ac8efd814412a30a035724804133176aff224e69fc68ccf91ad63896234a56",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) 1997-2001 by Secret Labs AB"
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) 1995 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/CurImagePlugin.py",
+      "sha256": "3aab7fa3ba3b1d758a01e368073544be1c4a14cbf75b751cf390a73a842e8612",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) Fredrik Lundh 1996."
+        }
+      ]
+    },
+    {
+      "path": "PIL/DcxImagePlugin.py",
+      "sha256": "2f6d5cde0557e883e6938cee7ff96db779807917dcb8209c5e1902569b9e7765",
+      "statements": [
+        {
+          "line": 18,
+          "text": "# Copyright (c) 1997-98 by Secret Labs AB."
+        },
+        {
+          "line": 19,
+          "text": "# Copyright (c) 1995-96 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/EpsImagePlugin.py",
+      "sha256": "3582af51b5623fc766008fa1e3df028a918aaf7073f4f6435fc5d1607f3deb2c",
+      "statements": [
+        {
+          "line": 17,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB."
+        },
+        {
+          "line": 18,
+          "text": "# Copyright (c) 1995-2003 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ExifTags.py",
+      "sha256": "362cafb665044fbf41322a248a3313a7fabc75e596ce9c9db5371305f272f0a1",
+      "statements": [
+        {
+          "line": 7,
+          "text": "# Copyright (c) 2003 by Secret Labs AB"
+        }
+      ]
+    },
+    {
+      "path": "PIL/FitsImagePlugin.py",
+      "sha256": "2ff9142b7f02394b95f65a13e64f4366a12df74a3600245d64f63696fb1ed0bd",
+      "statements": [
+        {
+          "line": 7,
+          "text": "# Copyright (c) 1998-2003 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/FliImagePlugin.py",
+      "sha256": "2f5bdfe108ec68c57479141399fcb5c27a89f65f61195e65bd320b5bbce7cc3f",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) Secret Labs AB 1997-98."
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) Fredrik Lundh 1995-97."
+        }
+      ]
+    },
+    {
+      "path": "PIL/FontFile.py",
+      "sha256": "a424a370fdf10adc8e780110f3e12f9366e0e479ec49c560400e715108ff0554",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) 1997-1998 by Secret Labs AB"
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) 1997-1998 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/FpxImagePlugin.py",
+      "sha256": "b3610e701e56459102379804abd517a576a44e2dfc905322133d8ccd1029c7f5",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) Fredrik Lundh 1997."
+        }
+      ]
+    },
+    {
+      "path": "PIL/GbrImagePlugin.py",
+      "sha256": "21bff2df967334e98ca86d92b8eca3c518773b1b78d90a5c11c80b6ba0619ad0",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) Fredrik Lundh 1996."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) Eric Soroos 2016."
+        }
+      ]
+    },
+    {
+      "path": "PIL/GdImageFile.py",
+      "sha256": "ace96a8ea2945fc25827a18b1b3a8792cf85a4033bdb43b2a1d1c636222e9283",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) 1997 by Secret Labs AB."
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) 1996 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/GifImagePlugin.py",
+      "sha256": "0cf9dd837ba23b412c95765aea4422bbf6e7c2210c6eefde91eab43d4308b0d5",
+      "statements": [
+        {
+          "line": 21,
+          "text": "# Copyright (c) 1997-2004 by Secret Labs AB"
+        },
+        {
+          "line": 22,
+          "text": "# Copyright (c) 1995-2004 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/GimpGradientFile.py",
+      "sha256": "cec216d4c915ea4a39964e072555de8121d4df250fc16d695329d1b39cf48990",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) Fredrik Lundh 1997."
+        }
+      ]
+    },
+    {
+      "path": "PIL/GimpPaletteFile.py",
+      "sha256": "126047710f44c42e1fe3bb5a0fb4bb1ba55a324afd1e3ca7955f0d7535d5e624",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) Secret Labs AB 1997-2004.  All rights reserved."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) Fredrik Lundh 1997-2004."
+        }
+      ]
+    },
+    {
+      "path": "PIL/GribStubImagePlugin.py",
+      "sha256": "73c88f12a40e48171616a756122b9cb9b8da5f061f6520761a365761568f0313",
+      "statements": [
+        {
+          "line": 7,
+          "text": "# Copyright (c) 1996-2003 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/Hdf5StubImagePlugin.py",
+      "sha256": "ac831d7fbb83b248c9ab07ba0af18bc3fb6325f875828e6f2929e67ed05d08a8",
+      "statements": [
+        {
+          "line": 7,
+          "text": "# Copyright (c) 2000-2003 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/IcnsImagePlugin.py",
+      "sha256": "4e8092cb968527bffa9e266ccc53917c232bf3f5393babe0775447315aff27fa",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) 2004 by Bob Ippolito."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) 2004 by Secret Labs."
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) 2004 by Fredrik Lundh."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 2014 by Alastair Houghton."
+        },
+        {
+          "line": 15,
+          "text": "# Copyright (c) 2020 by Pan Jing."
+        }
+      ]
+    },
+    {
+      "path": "PIL/IcoImagePlugin.py",
+      "sha256": "0d9a018f6ccabfbe9293de8f2aaf1e97d69900cd89df050b56a3dea27a3fd33d",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) Fredrik Lundh 1996."
+        },
+        {
+          "line": 20,
+          "text": "# Copyright 2008 Bryan Davis"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImImagePlugin.py",
+      "sha256": "5fd881490e31eeb6aec5b3889fbda3eefe9301481995da580f970073a67530d0",
+      "statements": [
+        {
+          "line": 22,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB."
+        },
+        {
+          "line": 23,
+          "text": "# Copyright (c) 1995-2001 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/Image.py",
+      "sha256": "59f1b98ed7bfd7b516b9f13ffd9dd3bc0aa1a495042accdb5ae4609b41c329d5",
+      "statements": [
+        {
+          "line": 21,
+          "text": "# Copyright (c) 1997-2009 by Secret Labs AB.  All rights reserved."
+        },
+        {
+          "line": 22,
+          "text": "# Copyright (c) 1995-2009 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageChops.py",
+      "sha256": "859f043d43e5408cee82c11e755f2dae4297d230420c66fa0acce66ba65e3194",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) 1997-2000 by Secret Labs AB"
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) 1996-2000 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageCms.py",
+      "sha256": "0effeeecadc71257d6eabcbd4cf43277ff35c6aeda0e7ba4c60ab67676bf49de",
+      "statements": [
+        {
+          "line": 14,
+          "text": "# Copyright (C) 2002-2003 Kevin Cazabon"
+        },
+        {
+          "line": 15,
+          "text": "# Copyright (c) 2009 by Fredrik Lundh"
+        },
+        {
+          "line": 16,
+          "text": "# Copyright (c) 2013 by Eric Soroos"
+        },
+        {
+          "line": 49,
+          "text": "Copyright (C) 2002-2003 Kevin Cazabon"
+        },
+        {
+          "line": 55,
+          "text": "(littleCMS is Copyright (C) 1998-2001 Marti Maria)"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageColor.py",
+      "sha256": "295faeec79d95abacbdf3b8100e2ea7ab23eeef15c5d3c5d2dea1a6158ec9f02",
+      "statements": [
+        {
+          "line": 14,
+          "text": "# Copyright (c) 2002-2004 by Secret Labs AB"
+        },
+        {
+          "line": 15,
+          "text": "# Copyright (c) 2002-2004 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageDraw.py",
+      "sha256": "98aa4388d2629866aad9dd734bec67ad3f9981ab1ed4390281b4c17be9027cf6",
+      "statements": [
+        {
+          "line": 27,
+          "text": "# Copyright (c) 1997-2006 by Secret Labs AB"
+        },
+        {
+          "line": 28,
+          "text": "# Copyright (c) 1996-2006 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageDraw2.py",
+      "sha256": "1b4388cfbb0e5bf4e7af5b431ee8d3c8f54476aa216fb33838e3ade19424550c",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) 2003-2005 by Secret Labs AB"
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 2003-2005 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageEnhance.py",
+      "sha256": "ba00d4d2c963691ff369389bb6e9a54ef7fea851f5c755ba97640ca5cdfce975",
+      "statements": [
+        {
+          "line": 15,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 16,
+          "text": "# Copyright (c) Fredrik Lundh 1996."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageFile.py",
+      "sha256": "e972c9d8785ad1fd44f860a375d8719f3fdff8e46da1cc311950699f93e4f539",
+      "statements": [
+        {
+          "line": 24,
+          "text": "# Copyright (c) 1997-2004 by Secret Labs AB"
+        },
+        {
+          "line": 25,
+          "text": "# Copyright (c) 1995-2004 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageFilter.py",
+      "sha256": "1702a1b8f1c497a99f816a3aa94509b2ba2ce357ec480308c015e406c6bcc15e",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB."
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) 1995-2002 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageFont.py",
+      "sha256": "e9601111f8817e8387fd792b3643e709a5a11febea43cb49de1732e776ba5f60",
+      "statements": [
+        {
+          "line": 22,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB"
+        },
+        {
+          "line": 23,
+          "text": "# Copyright (c) 1996-2003 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageGrab.py",
+      "sha256": "b0df963537d02a3f90a20b6385edd5338efc7b6b28ee2248f30de562d1358530",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) 2001-2002 by Secret Labs AB"
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) 2001-2002 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageMath.py",
+      "sha256": "d39d8fd05608b184178f75263ff0b04a0509de58e8e6945f14dfe4eac85e4496",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) 1999-2005 by Secret Labs AB"
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) 2005 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageMode.py",
+      "sha256": "50b900fa3b02806c31563af62cf48fe367439a3ea759a424f4be142a3eca7d28",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) 2006 by Secret Labs AB."
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) 2006 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageMorph.py",
+      "sha256": "56bd50401e6f198a4655f7d11894287781fbfc095098ede5f81961a5a61e0f22",
+      "statements": [
+        {
+          "line": 6,
+          "text": "# Copyright (c) 2014 Dov Grobgeld <dov.grobgeld@gmail.com>"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageOps.py",
+      "sha256": "ad146c4c218335150d4099e851f1f78c582f5df6c46648893f0ab56dea38a3e4",
+      "statements": [
+        {
+          "line": 14,
+          "text": "# Copyright (c) 2001-2004 by Secret Labs AB"
+        },
+        {
+          "line": 15,
+          "text": "# Copyright (c) 2001-2004 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImagePalette.py",
+      "sha256": "f4a973fbb23a253494a7695f64933a5740f270540a926e91c5fc970d3e14fe7c",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) 1997-2001 by Secret Labs AB"
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 1996-1997 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImagePath.py",
+      "sha256": "6679c9baf40db5b2918429abeb54c4984875bd5579ffdd163043cbf0ea72e65f",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) Fredrik Lundh 1996."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageQt.py",
+      "sha256": "4a9c4778f81687981d8d5206342e061b9bfd577b26426fe73e224372b8671d77",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) 2006 by Secret Labs AB"
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 2006 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageSequence.py",
+      "sha256": "82e64751da56af39f3664718d0e6290f3b85d2e15794212edbad283feedefdf2",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) 1997 by Secret Labs AB."
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) 1997 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageShow.py",
+      "sha256": "d660d3b5502fb540e2d414a9eeefa85541c368deecd916c99196f07d0eb62082",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) Secret Labs AB 2008."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageStat.py",
+      "sha256": "5b4b946bc60d0babe1a3095ead2cd923013b46ef8aa76ad6baa18d2c114b672a",
+      "statements": [
+        {
+          "line": 18,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 19,
+          "text": "# Copyright (c) Fredrik Lundh 1996-97."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageTk.py",
+      "sha256": "4f1d337fd913681b801af66ea342401eb35b9379fa7b0af86677569d6c592b44",
+      "statements": [
+        {
+          "line": 22,
+          "text": "# Copyright (c) 1997-1999 by Secret Labs AB"
+        },
+        {
+          "line": 23,
+          "text": "# Copyright (c) 1996-1997 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageTransform.py",
+      "sha256": "66eea8c925c436dabbd76fa792a14ba9a7d83ef891020b209337cb586d0add5f",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) 2002 by Secret Labs AB"
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) 2002 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImageWin.py",
+      "sha256": "7d018c99917dc076f4f6d33c7697ccb8de5ac75bfe1c3d38389a645ce6b1ddc7",
+      "statements": [
+        {
+          "line": 14,
+          "text": "# Copyright (c) Secret Labs AB 1997-2003."
+        },
+        {
+          "line": 15,
+          "text": "# Copyright (c) Fredrik Lundh 1996-2003."
+        }
+      ]
+    },
+    {
+      "path": "PIL/ImtImagePlugin.py",
+      "sha256": "afe643cf75e38ba10117c7949caea2b8211912d965a74c4b452210d3f875e141",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) Secret Labs AB 1997-2001."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) Fredrik Lundh 1996-2001."
+        }
+      ]
+    },
+    {
+      "path": "PIL/IptcImagePlugin.py",
+      "sha256": "e05b6e7b88dd6bba546342e1dbbd8e0df84e0488893992b4410d9ed0f610c228",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) Secret Labs AB 1997-2002."
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) Fredrik Lundh 1995."
+        }
+      ]
+    },
+    {
+      "path": "PIL/Jpeg2KImagePlugin.py",
+      "sha256": "00e20588471f2455caa9018885d958480c3d23e6d8f087eb421450fc0f6b3c18",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) 2014 Coriolis Systems Limited"
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) 2014 Alastair Houghton"
+        }
+      ]
+    },
+    {
+      "path": "PIL/JpegImagePlugin.py",
+      "sha256": "049fc12cf436b101a5622456a1b83ba8b28b54cf8106d3953aed751bb0c08f3f",
+      "statements": [
+        {
+          "line": 29,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB."
+        },
+        {
+          "line": 30,
+          "text": "# Copyright (c) 1995-1996 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/McIdasImagePlugin.py",
+      "sha256": "3fd77592be12b5ed10564c5faa2c77d6c7c60fcb169fe7959982b4c20e83bc8c",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) Fredrik Lundh 1997."
+        }
+      ]
+    },
+    {
+      "path": "PIL/MicImagePlugin.py",
+      "sha256": "b82c463389652053e37eed8a8e2fb34a73da727aa2194646aacfc3b5bdc992d2",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) Fredrik Lundh 1997."
+        }
+      ]
+    },
+    {
+      "path": "PIL/MpegImagePlugin.py",
+      "sha256": "91e9bdce87ec06d22aeb194c25cb0590e5d370908f1080a4f657214df47da432",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) Fredrik Lundh 1995."
+        }
+      ]
+    },
+    {
+      "path": "PIL/MspImagePlugin.py",
+      "sha256": "bb75dc1140d81926046847543a19e3867a64650264a537520781251e9c4e3e58",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) Fredrik Lundh 1995-97."
+        },
+        {
+          "line": 15,
+          "text": "# Copyright (c) Eric Soroos 2017."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PSDraw.py",
+      "sha256": "eec05f0067c19aa9d958c4e445f2e6e28057b519415c0b984fffcd3f71ad1f0d",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) 1997-2005 by Secret Labs AB.  All rights reserved."
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) 1996 by Fredrik Lundh."
+        },
+        {
+          "line": 155,
+          "text": "# Copyright (c) Fredrik Lundh 1994."
+        },
+        {
+          "line": 185,
+          "text": "# Copyright (c) Fredrik Lundh 1994."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PaletteFile.py",
+      "sha256": "41d11af7d8cb0be3cf844a86cbaff87c3b9af13cca4925339007987029455fb3",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 11,
+          "text": "# Copyright (c) Fredrik Lundh 1997."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PcdImagePlugin.py",
+      "sha256": "819b027170c8a845532b6cfe1962a9b53db9a455350143a0a6bdc9d3a7233c28",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) Fredrik Lundh 1996."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PcfFontFile.py",
+      "sha256": "50f65bca80f8295af7df1b6da0f6a2db5d63ce8f8f0e92386dc9f26cb0eee75e",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 1997-2003 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PcxImagePlugin.py",
+      "sha256": "5e6f1423fe7f01006c89693b07c489add784ffccfb0d20405269cda636e79396",
+      "statements": [
+        {
+          "line": 22,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB."
+        },
+        {
+          "line": 23,
+          "text": "# Copyright (c) 1995-2003 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PdfImagePlugin.py",
+      "sha256": "3c3f19e0ea596e3f572f479bed0d9b18bc3846552d77c74f2c2e14e86ff60036",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) 1997-2004 by Secret Labs AB.  All rights reserved."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 1996-1997 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PixarImagePlugin.py",
+      "sha256": "f919ee2521a1185f0cb14b221d9ab757307157e04d9cadf99018c97e1633c17b",
+      "statements": [
+        {
+          "line": 16,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 17,
+          "text": "# Copyright (c) Fredrik Lundh 1997."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PngImagePlugin.py",
+      "sha256": "26e6495edc516f7589dea911c330d7f16d4ec96eed78af838da00902e77e6040",
+      "statements": [
+        {
+          "line": 28,
+          "text": "# Copyright (c) 1997-2009 by Secret Labs AB"
+        },
+        {
+          "line": 29,
+          "text": "# Copyright (c) 1996 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/PpmImagePlugin.py",
+      "sha256": "22331d42c009691d13c90bb591ddebe28eaad28e49295c2ae21475d0e7804715",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) Secret Labs AB 1997-98."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) Fredrik Lundh 1996."
+        }
+      ]
+    },
+    {
+      "path": "PIL/PsdImagePlugin.py",
+      "sha256": "b3ce408b7129bc190d12ce0db3ad408e114a048b134669021878a7e72afb372d",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) 1997-2001 by Secret Labs AB."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 1995-2001 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/SgiImagePlugin.py",
+      "sha256": "4f0891938baa8e0836d7e3a2154066044d893d63a30c716654f8141fbbce3b75",
+      "statements": [
+        {
+          "line": 16,
+          "text": "# Copyright (c) 2016 by Mickael Bonfill."
+        },
+        {
+          "line": 17,
+          "text": "# Copyright (c) 2008 by Karsten Hiddemann."
+        },
+        {
+          "line": 18,
+          "text": "# Copyright (c) 1997 by Secret Labs AB."
+        },
+        {
+          "line": 19,
+          "text": "# Copyright (c) 1995 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/SpiderImagePlugin.py",
+      "sha256": "b0087770827cbc65aee9619de92721c9ca2aec36a338fa25680a31abbea5b68c",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) 2004 by Health Research Inc. (HRI) RENSSELAER, NY 12144."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) 2004 by William Baxter."
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) 2004 by Secret Labs AB."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 2004 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/SunImagePlugin.py",
+      "sha256": "60a604bee1b84149227acdf838ab5758a4d8499f14deacdc13fbdd4eb3ae46cc",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) 1997-2001 by Secret Labs AB"
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) 1995-1996 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/TarIO.py",
+      "sha256": "2bab4b9050dc69aaf7bdbe84c986fb1b8a15101e35c7f2ccb8625e513f70e434",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) Secret Labs AB 1997."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) Fredrik Lundh 1995-96."
+        }
+      ]
+    },
+    {
+      "path": "PIL/TgaImagePlugin.py",
+      "sha256": "52bbc8363a079783087f2c5fe5b2f75519425af38deee0e92507e6cf7c939588",
+      "statements": [
+        {
+          "line": 13,
+          "text": "# Copyright (c) Secret Labs AB 1997-98."
+        },
+        {
+          "line": 14,
+          "text": "# Copyright (c) Fredrik Lundh 1995-97."
+        }
+      ]
+    },
+    {
+      "path": "PIL/TiffImagePlugin.py",
+      "sha256": "7c7c771b1358c4096239c5973199672870c7e4cc34c4ce33a391695a7e251df7",
+      "statements": [
+        {
+          "line": 36,
+          "text": "# Copyright (c) 1997-2006 by Secret Labs AB.  All rights reserved."
+        },
+        {
+          "line": 37,
+          "text": "# Copyright (c) 1995-1997 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/TiffTags.py",
+      "sha256": "16c76a6c8409388ee2846ecc67f2b8614403678ce8fab6986e28550dee3653d1",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) Secret Labs AB 1999."
+        }
+      ]
+    },
+    {
+      "path": "PIL/WalImageFile.py",
+      "sha256": "70b442298cac9c4d2fe59fd47745ded180de338988c45197a83231f157ae31c6",
+      "statements": [
+        {
+          "line": 10,
+          "text": "# Copyright (c) 2003 by Fredrik Lundh."
+        }
+      ]
+    },
+    {
+      "path": "PIL/WmfImagePlugin.py",
+      "sha256": "136d180c964920aad44327ed3a6ac9ac0b97ba60c6662c231f237620a282c9b8",
+      "statements": [
+        {
+          "line": 12,
+          "text": "# Copyright (c) Secret Labs AB 1997-2004.  All rights reserved."
+        },
+        {
+          "line": 13,
+          "text": "# Copyright (c) Fredrik Lundh 1996."
+        }
+      ]
+    },
+    {
+      "path": "PIL/XbmImagePlugin.py",
+      "sha256": "c1cd0da5f4f3952871f589a2d33c28d1a5598c36b8fc1ecd1221b64e008eeb94",
+      "statements": [
+        {
+          "line": 16,
+          "text": "# Copyright (c) 1997-2004 by Secret Labs AB"
+        },
+        {
+          "line": 17,
+          "text": "# Copyright (c) 1996-1997 by Fredrik Lundh"
+        }
+      ]
+    },
+    {
+      "path": "PIL/XpmImagePlugin.py",
+      "sha256": "232f0ac0e8e7546541c5f4f6c6d0f737050a52dcec0f678753b3aeb48461a9d9",
+      "statements": [
+        {
+          "line": 11,
+          "text": "# Copyright (c) Secret Labs AB 1997-2001."
+        },
+        {
+          "line": 12,
+          "text": "# Copyright (c) Fredrik Lundh 1996-2001."
+        }
+      ]
+    },
+    {
+      "path": "PIL/__init__.py",
+      "sha256": "3fffff8502f4b59ca61d39cce713d55ffef046954262fce1abac3e97f3803734",
+      "statements": [
+        {
+          "line": 9,
+          "text": "Copyright (c) 1999 by Secret Labs AB."
+        }
+      ]
+    },
+    {
+      "path": "PIL/_binary.py",
+      "sha256": "ba6dc47fa221e747297ee81afcbdaef2ea9be664c7a4b51f5382563132e0b20b",
+      "statements": [
+        {
+          "line": 7,
+          "text": "# Copyright (c) 1997-2003 by Secret Labs AB"
+        },
+        {
+          "line": 8,
+          "text": "# Copyright (c) 1995-2003 by Fredrik Lundh"
+        },
+        {
+          "line": 9,
+          "text": "# Copyright (c) 2012 by Brian Crowell"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

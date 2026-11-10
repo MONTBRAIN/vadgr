@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "c87e960f4dca2788eeb86bbdde8dd246be8948790b7618d656e68f9b720a86e8",
+  "original_statement_files": [
+    {
+      "path": "spez-0.1.2/LICENSE",
+      "sha256": "26cdda6660b48c74b37d2ef1babd276de1d73f00f8756b9180448de99713a1a4",
+      "size": 1315,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2020, Mara Bos <m-ou.se@m-ou.se>"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

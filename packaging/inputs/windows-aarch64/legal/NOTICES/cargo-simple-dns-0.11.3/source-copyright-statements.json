@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "7a75cbde1bf934313596a004973e462f9a82caa814dcf1a5f507bdf51597eeb4",
+  "original_statement_files": [
+    {
+      "path": "simple-dns-0.11.3/LICENSE",
+      "sha256": "c6550232507f928b83ef50f4be1e64c434da5ac2f434cdf9a2d89344af33e8fd",
+      "size": 1086,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2021 Ilson Roberto Balliego Junior"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

@@ -1,0 +1,42 @@
+Metadata-Version: 2.5
+Name: pydantic
+Version: 2.13.5
+Summary: Data validation using Python type hints
+Project-URL: Homepage, https://github.com/pydantic/pydantic
+Project-URL: Documentation, https://docs.pydantic.dev
+Project-URL: Funding, https://github.com/sponsors/samuelcolvin
+Project-URL: Source, https://github.com/pydantic/pydantic
+Project-URL: Changelog, https://docs.pydantic.dev/latest/changelog/
+Author-email: Samuel Colvin <s@muelcolvin.com>, Eric Jolibois <em.jolibois@gmail.com>, Hasan Ramezani <hasan.r67@gmail.com>, Adrian Garcia Badaracco <1755071+adriangb@users.noreply.github.com>, Terrence Dorsey <terry@pydantic.dev>, David Montague <david@pydantic.dev>, Serge Matveenko <lig@countzero.co>, Marcelo Trylesinski <marcelotryle@gmail.com>, Sydney Runkle <sydneymarierunkle@gmail.com>, David Hewitt <mail@davidhewitt.dev>, Alex Hall <alex.mojaki@gmail.com>, Victorien Plot <contact@vctrn.dev>
+License-Expression: MIT
+License-File: LICENSE
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Hypothesis
+Classifier: Framework :: Pydantic
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.9
+Requires-Dist: annotated-types>=0.6.0
+Requires-Dist: pydantic-core==2.46.5
+Requires-Dist: typing-extensions>=4.14.1
+Requires-Dist: typing-inspection>=0.4.2
+Provides-Extra: email
+Requires-Dist: email-validator>=2.0.0; extra == 'email'
+Provides-Extra: timezone
+Requires-Dist: tzdata; (python_version >= '3.9' and platform_system == 'Windows') and extra == 'timezone'
+Description-Content-Type: text/markdown
+

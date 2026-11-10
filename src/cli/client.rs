@@ -228,6 +228,15 @@ impl Client {
             .await
     }
 
+    pub async fn patch(
+        &self,
+        path: &str,
+        body: Option<serde_json::Value>,
+    ) -> Result<serde_json::Value, ClientError> {
+        self.request(reqwest::Method::PATCH, path, body, LONG_TIMEOUT)
+            .await
+    }
+
     pub async fn delete(&self, path: &str) -> Result<serde_json::Value, ClientError> {
         self.request(reqwest::Method::DELETE, path, None, TIMEOUT)
             .await

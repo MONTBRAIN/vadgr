@@ -1,0 +1,17 @@
+{
+  "archive_sha256": "5db4be7c075cb421e4b7ee645541604239bd243ba7c357511f4ff3a74b555907",
+  "original_statement_files": [
+    {
+      "path": "zbus-5.19.0/LICENSE",
+      "sha256": "260e4ff3fc493695880c90774283eb1e3d018f898fabe655bbd52dd2cbd2fcad",
+      "size": 1080,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2024 Zeeshan Ali Khan & zbus contributors"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact original statements, with file and line provenance. Test and example statements are not claims of exclusive ownership of the library."
+}

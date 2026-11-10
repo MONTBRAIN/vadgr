@@ -1,0 +1,66 @@
+{
+  "members": [
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core/__init__.py",
+      "member": "pydantic_core/__init__.py",
+      "sha256": "9cad6292b75254af606a970aae9bff6e5ae9f0b08089cd63acafa391b60794d2",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core/_pydantic_core.cpython-312-x86_64-linux-gnu.so",
+      "member": "pydantic_core/_pydantic_core.cpython-312-x86_64-linux-gnu.so",
+      "sha256": "95f68ef2535a5102a03442e073d4906c01211b208902f56e24ec23cea402b5a0",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core/_pydantic_core.pyi",
+      "member": "pydantic_core/_pydantic_core.pyi",
+      "sha256": "1ff946f222a2bf70697dddeb8b163bc73b3aee013eb347a202a25a49b9c5f12b",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core/core_schema.py",
+      "member": "pydantic_core/core_schema.py",
+      "sha256": "d4f337d727ff906a66fc7ec62e734546420f01018f2fdce1eab7f64b1a215718",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core/py.typed",
+      "member": "pydantic_core/py.typed",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core-2.46.5.dist-info/METADATA",
+      "member": "pydantic_core-2.46.5.dist-info/METADATA",
+      "sha256": "29768c038c0bb3564c0a87ef50ef78d18a2372474bdef0ba356a8c0fd4bd6028",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core-2.46.5.dist-info/WHEEL",
+      "member": "pydantic_core-2.46.5.dist-info/WHEEL",
+      "sha256": "71d661618d9b707f61ac372a0d51047692f4339b639a602bfa5c14ab5e4211d6",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core-2.46.5.dist-info/licenses/LICENSE",
+      "member": "pydantic_core-2.46.5.dist-info/licenses/LICENSE",
+      "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core-2.46.5.dist-info/sboms/pydantic-core.cyclonedx.json",
+      "member": "pydantic_core-2.46.5.dist-info/sboms/pydantic-core.cyclonedx.json",
+      "sha256": "4f40c790f0cb384a793663331904117a914a50ef220b112c399d77f1463e3dd5",
+      "status": "retained-exact"
+    },
+    {
+      "installed_path": "lib/cua/environments/0.7.9-14ccc63a4a3f-unix-relative-v1/lib/python3.12/site-packages/pydantic_core-2.46.5.dist-info/RECORD",
+      "member": "pydantic_core-2.46.5.dist-info/RECORD",
+      "sha256": "b20b778300d7e25fdda4f0b835c14837b2057a99ca1434247167ef59a460e978",
+      "status": "installer-regenerated-RECORD"
+    }
+  ],
+  "sha256": "0fc5be0abd4a407e200d844b404e33639a554e7bd0d448e7b9ae181be4789ac2",
+  "wheel": "pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+}

@@ -1,0 +1,47 @@
+Metadata-Version: 2.4
+Name: pywin32
+Version: 312
+Summary: Python for Windows Extensions
+Author: Mark Hammond (et al)
+Author-email: mhammond@skippinet.com.au
+License: PSF
+Project-URL: Homepage, https://github.com/mhammond/pywin32
+Project-URL: Changes, https://github.com/mhammond/pywin32/blob/main/CHANGES.md
+Project-URL: Docs, https://mhammond.github.io/pywin32/
+Project-URL: Bugs, https://github.com/mhammond/pywin32/issues
+Project-URL: Support Requests, https://github.com/mhammond/pywin32/discussions
+Project-URL: Mailing List, https://mail.python.org/mailman/listinfo/python-win32
+Classifier: Environment :: Win32 (MS Windows)
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Python Software Foundation License
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: 3.15
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: adodbapi/license.txt
+License-File: com/License.txt
+License-File: pythonwin/License.txt
+License-File: pythonwin/Scintilla/License.txt
+License-File: pythonwin/pywin/idle/LICENSE.txt
+License-File: win32/License.txt
+License-File: com/win32comext/mapi/src/MAPIStubLibrary/LICENSE
+License-File: isapi/README.txt
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: license
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: requires-python
+Dynamic: summary
+

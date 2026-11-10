@@ -1,0 +1,32 @@
+Pillow FriBiDi shim and _imagingft source and relink materials
+
+The complete Pillow 12.3.0 source contains the LGPL FriBiDi shim, vendored raqm,
+pythoncapi compatibility header, _imagingft and libImaging/Mode.c.
+The LGPL 2.1 text and original shim notices accompany this distribution.
+The original Pillow producer revision and multibuild revision accompany it.
+No libfribidi shared library is bundled. The shim loads a host-provided library.
+
+To build a replacement on native x86_64 Linux, install GCC and use Python 3.12
+from the distribution. Extract this SOURCE-OFFERS directory to a writable place.
+Locate PYTHON_PREFIX (the directory containing bin/python3.12 and include/), and
+PILLOW_LIBS (the installed site-packages/pillow.libs directory). Run:
+
+python3 relink_pillow.py --python-prefix PYTHON_PREFIX --pillow-libs PILLOW_LIBS --archives . --output NEW_OUTPUT_DIRECTORY
+
+To use changed library sources, first extract pillow-12.3.0.tar.gz, make changes,
+then add --pillow-source PATH_TO_MODIFIED_PILLOW to the same command. Original
+notices must be preserved. The script writes only into a new output directory.
+It compiles and explicitly imports that rebuilt module without overwriting the
+installed module. The included proof records a successful native compile/import.
+This is a usable relink route, not a claim of bit-identical reproduction.
+
+After saving a backup, recipients may replace the installed PIL/_imagingft
+module with the output of this command. Keep pillow.libs at its original path
+or rebuild with its new path. The command records the library path in rpath.
+The linked FreeType and HarfBuzz library binaries are replaceable shared files;
+their complete matching sources also accompany these materials.
+
+This component packet provides the linked-module materials. The application
+source volume provides the complete surrounding application and CUA source.
+Redistribution must retain both volumes; no future publisher source offer is
+substituted for actual accompanying source delivery.

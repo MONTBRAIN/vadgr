@@ -4,11 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       source_sha:
-        description: Exact pushed feature commit (40 lowercase hexadecimal characters)
-        type: string
-        required: true
-      source_branch:
-        description: Same-repository implementation branch
+        description: Exact merged protected master commit (40 lowercase hexadecimal characters)
         type: string
         required: true
       candidate_id:
@@ -49,7 +45,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       SOURCE_SHA: ${{ inputs.source_sha }}
-      SOURCE_BRANCH: ${{ inputs.source_branch }}
+      SOURCE_BRANCH: master
       CANDIDATE_ID: ${{ inputs.candidate_id }}
       ARCHITECTURE: ${{ inputs.architecture }}
     steps:
@@ -92,7 +88,7 @@ jobs:
       artifact_digest: sha256:${{ steps.unsigned.outputs.artifact-digest }}
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
-      SOURCE_BRANCH: ${{ inputs.source_branch }}
+      SOURCE_BRANCH: master
       CANDIDATE_ID: ${{ inputs.candidate_id }}
       ARCHITECTURE: ${{ inputs.architecture }}
     steps:
@@ -164,7 +160,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       SOURCE_SHA: ${{ inputs.source_sha }}
-      SOURCE_BRANCH: ${{ inputs.source_branch }}
+      SOURCE_BRANCH: master
       CANDIDATE_ID: ${{ inputs.candidate_id }}
       ARCHITECTURE: ${{ inputs.architecture }}
     steps:
@@ -210,7 +206,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       SOURCE_SHA: ${{ inputs.source_sha }}
-      SOURCE_BRANCH: ${{ inputs.source_branch }}
+      SOURCE_BRANCH: master
       CANDIDATE_ID: ${{ inputs.candidate_id }}
       ARCHITECTURE: ${{ inputs.architecture }}
       RELEASE_PROFILE: ${{ inputs.architecture == 'x64' && 'wsl-x86_64' || 'wsl-aarch64' }}
@@ -1032,7 +1028,7 @@ jobs:
       pull-requests: read
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
-      SOURCE_BRANCH: ${{ inputs.source_branch }}
+      SOURCE_BRANCH: master
       CANDIDATE_ID: ${{ inputs.candidate_id }}
       ARCHITECTURE: ${{ inputs.architecture }}
     steps:
@@ -1074,6 +1070,9 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/cua_wheelhouse.py --source source --target '${{ matrix.rust_target }}' --release-profile '${{ matrix.target }}' --out "$RUNNER_TEMP/vadgr-wheelhouse"
+      - name: Install the read-only Linux AppImage decoder
+        if: startsWith(matrix.target, 'linux-')
+        run: sudo apt-get update && sudo apt-get install -y squashfs-tools
       - name: Build and inspect native Unix vehicles without signing credentials
         if: ${{ !startsWith(matrix.target, 'windows-') }}
         env:

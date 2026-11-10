@@ -1,0 +1,116 @@
+{
+  "component_sha256": "b457f6d628a47e8a7346ce22acb7e1a46a4a78b52e1d17e1af56871bd19a93bc",
+  "original_statement_files": [
+    {
+      "path": "adodbapi/__init__.py",
+      "sha256": "e296417b2fd89cfe289f4a96fee61d2bc18a3dd0cc121b8468cdd4226115bd66",
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (C) 2002 Henrik Ekelund, version 2.1 by Vernon Cole"
+        }
+      ]
+    },
+    {
+      "path": "adodbapi/adodbapi.py",
+      "sha256": "4f5717c2b086ecdb1b047e17caa4644bb3d02827cd2da0e602d9d1e38543081d",
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (C) 2002 Henrik Ekelund, versions 2.1 and later by Vernon Cole"
+        }
+      ]
+    },
+    {
+      "path": "adodbapi/apibase.py",
+      "sha256": "76a7978497af857658cdef11b369d587431244c8ebf255318a30aeff10875f9e",
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (C) 2002 Henrik Ekelund, version 2.1 by Vernon Cole"
+        }
+      ]
+    },
+    {
+      "path": "adodbapi/test/adodbapitest.py",
+      "sha256": "678e2f35232ec761dd782ce9484ff6bfe82b499d48adecab1796f80ec8570e67",
+      "statements": [
+        {
+          "line": 6,
+          "text": "Copyright (C) 2002  Henrik Ekelund"
+        }
+      ]
+    },
+    {
+      "path": "isapi/isapicon.py",
+      "sha256": "8a80c70bb11567b6a0c0074e641a9f01953588b618bfa21989ea8c2c86d75b31",
+      "statements": [
+        {
+          "line": 4,
+          "text": "#  Copyright 2002-2003 by Blackdog Software Pty Ltd."
+        }
+      ]
+    },
+    {
+      "path": "pythonwin/pywin/framework/app.py",
+      "sha256": "1ca9a8f66972347e85040a62090ddb267f2b32406e0ebd2a06b960754d2b2867",
+      "statements": [
+        {
+          "line": 329,
+          "text": "scintilla = \"Scintilla is Copyright 1998-2020 Neil Hodgson (https://www.scintilla.org)\""
+        }
+      ]
+    },
+    {
+      "path": "pythonwin/pywin/framework/stdin.py",
+      "sha256": "6b47f7d29673f049805eb33525f67269ddf9c9fb3dc3655e52223f1f6aa17137",
+      "statements": [
+        {
+          "line": 1,
+          "text": "# Copyright (c) 2000 David Abrahams. Permission to copy, use, modify, sell"
+        }
+      ]
+    },
+    {
+      "path": "win32/lib/_win32verstamp_pywin32ctypes.py",
+      "sha256": "fc0cfc6986d281063f9ae61d3e4849965d441801f7d16156a00d4f114c7e486a",
+      "statements": [
+        {
+          "line": 14,
+          "text": "(C) Copyright 2014 Enthought, Inc., Austin, TX"
+        }
+      ]
+    },
+    {
+      "path": "win32/lib/win32timezone.py",
+      "sha256": "74b177e08a161bfb0ea8062e2602d32a48e9c13c94a71703a53fe727ce4de556",
+      "statements": [
+        {
+          "line": 10,
+          "text": "Copyright \u00a9 2003-2012."
+        }
+      ]
+    },
+    {
+      "path": "win32com/demos/excelAddin.py",
+      "sha256": "334499ea27ad8cf364239d7f899a31fe6909d4e73936ec1633e292a14cb35a9e",
+      "statements": [
+        {
+          "line": 27,
+          "text": "# Copyright (c) 2003 Wavecom Inc.  All rights reserved"
+        }
+      ]
+    },
+    {
+      "path": "win32com/demos/excelRTDServer.py",
+      "sha256": "09a04b25757038e704734fa3f97b15e7105dfd71d8d23dbf63fa208a8dd94896",
+      "statements": [
+        {
+          "line": 9,
+          "text": "# Copyright (c) 2003-2004 by Chris Nilsson <chris@slort.org>"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements from exact retained source members; no exclusive ownership assertion."
+}

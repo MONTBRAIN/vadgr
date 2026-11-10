@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "fe52319a927259afbfa5180c5157cd8167edfd3e8c254f9558c7fef44c5649f2",
+  "original_statement_files": [
+    {
+      "path": "serde_json_canonicalizer-0.3.2/LICENSE",
+      "sha256": "b68d86a60d3619bfd55b89a322e8464d3f9ca1c7e2409cc6035ea290435831e0",
+      "size": 1091,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2023 Attila Mravik"
+        }
+      ]
+    },
+    {
+      "path": "serde_json_canonicalizer-0.3.2/tests/resources/generated-numbers/numgen.js",
+      "sha256": "a05721015370c1cd6366d8b4242f1ca6ce0a4b163bab0ee9dc1bc010e3cee213",
+      "size": 6341,
+      "statements": [
+        {
+          "line": 2,
+          "text": "//  Copyright 2006-2021 WebPKI.org (http://webpki.org)."
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

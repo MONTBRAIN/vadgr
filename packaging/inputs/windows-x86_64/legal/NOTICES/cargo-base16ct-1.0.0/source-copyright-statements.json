@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "fd307490d624467aa6f74b0eabb77633d1f758a7b25f12bceb0b22e08d9726f6",
+  "original_statement_files": [
+    {
+      "path": "base16ct-1.0.0/LICENSE-MIT",
+      "sha256": "54fb6dfe99a6906f862aa40282f0e8e9d9d0f22d57d99ab8acbaf4c8ceaa70e0",
+      "size": 1148,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2014 Steve \"Sc00bz\" Thomas (steve at tobtu dot com)"
+        },
+        {
+          "line": 2,
+          "text": "Copyright (c) 2022-2025 The RustCrypto Project Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

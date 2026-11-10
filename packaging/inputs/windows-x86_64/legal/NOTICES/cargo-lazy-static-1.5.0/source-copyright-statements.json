@@ -1,0 +1,50 @@
+{
+  "archive_sha256": "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe",
+  "original_statement_files": [
+    {
+      "path": "lazy_static-1.5.0/LICENSE-MIT",
+      "sha256": "0621878e61f0d0fda054bcbe02df75192c28bde1ecc8289cbd86aeba2dd72720",
+      "size": 1071,
+      "statements": [
+        {
+          "line": 1,
+          "text": "Copyright (c) 2010 The Rust Project Developers"
+        }
+      ]
+    },
+    {
+      "path": "lazy_static-1.5.0/src/core_lazy.rs",
+      "sha256": "dfb195f44a62b19a32542297edfd281bc40837e48905603dfec20d62b12711d0",
+      "size": 830,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 lazy-static.rs Developers"
+        }
+      ]
+    },
+    {
+      "path": "lazy_static-1.5.0/src/inline_lazy.rs",
+      "sha256": "cd8a9babcc3af7d0d39f9874dc575a1da000f0d6048a66296f3ca197c2c00b46",
+      "size": 1377,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 lazy-static.rs Developers"
+        }
+      ]
+    },
+    {
+      "path": "lazy_static-1.5.0/src/lib.rs",
+      "sha256": "680e2ac624b3000ba17e9c3d49138332c15c5caf3a0143601b4fc6d9fbd5dd85",
+      "size": 6333,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2016 lazy-static.rs Developers"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

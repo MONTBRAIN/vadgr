@@ -1,0 +1,28 @@
+{
+  "archive_sha256": "dd69c5aa8f924c7519d6372789a74eac5b94fb0f8fcf0d4a97eb0bfc3e785f39",
+  "original_statement_files": [
+    {
+      "path": "triomphe-0.1.15/LICENSE-MIT",
+      "sha256": "15656cc11a8331f28c0986b8ab97220d3e76f98e60ed388b5ffad37dfac4710c",
+      "size": 1074,
+      "statements": [
+        {
+          "line": 3,
+          "text": "Copyright (c) 2019 Manish Goregaokar"
+        }
+      ]
+    },
+    {
+      "path": "triomphe-0.1.15/src/lib.rs",
+      "sha256": "0c6645717ca1e541949892b21feba947c69b81c32b1ba6ff3756173b896e9ec5",
+      "size": 2750,
+      "statements": [
+        {
+          "line": 1,
+          "text": "// Copyright 2012-2014 The Rust Project Developers. See the COPYRIGHT"
+        }
+      ]
+    }
+  ],
+  "scope": "Original statements in the exact source archive or separately hash-bound upstream grant; not a claim of exclusive ownership of the whole component."
+}

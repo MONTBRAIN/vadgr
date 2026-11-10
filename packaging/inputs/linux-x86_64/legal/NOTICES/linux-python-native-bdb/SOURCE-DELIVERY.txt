@@ -1,0 +1,5 @@
+This distribution includes Berkeley DB 6.0.19 source, CPython 3.12.14 source, the Python build producer source and its patches, and the native library sources used by the private Python runtime.
+The source archives accompany these notices under legal/SOURCE-OFFERS/linux-python-native-bdb/.
+The build producer revision is c0aa3bbdc2fff56a77ad1ecec68b1e47794d8779. Its docs/building.rst describes the required Linux build environment.
+Build from that producer directory with: uv run --no-dev build.py --python cpython-3.12 --target-triple x86_64-unknown-linux-gnu --options pgo+lto
+The corresponding upstream build metadata is retained with these notices. This command is a source build recipe; it does not claim bit-identical output.
