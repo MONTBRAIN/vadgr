@@ -1,13 +1,13 @@
 {
   "SPDXID": "SPDXRef-DOCUMENT",
   "creationInfo": {
-    "created": "2026-10-09T18:10:56Z",
+    "created": "2026-11-10T19:14:00Z",
     "creators": [
       "Tool: vadgr-package-inputs"
     ]
   },
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-c7d49eef7160caed988dcad2a21c6d1546c7377cf8624e54c0fefa2692cec64a",
+  "documentNamespace": "https://spdx.org/spdxdocs/vadgr-d96cd0830e73e51db8fb0f66e0121135d1bd67589fd1d2cdce32f10604a8efe2",
   "hasExtractedLicensingInfos": [
     {
       "comment": "Exact retained terms; this identifier is not an approval or a claim of SPDX-list equivalence.",
