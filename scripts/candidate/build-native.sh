@@ -62,9 +62,10 @@ if [ "$platform" = linux ]; then
   chmod 0755 "$tool"
   export APPIMAGETOOL="$tool" APPIMAGE_EXTRACT_AND_RUN=1
   runtime="$RUNNER_TEMP/appimage-runtime-$arch"
-  runtime_id=$(python3 -c 'import json,sys; print(json.load(open("packaging/linux/runtime.json"))["targets"][sys.argv[1]]["asset_id"])' "$arch")
-  curl --fail --location --proto '=https' --tlsv1.2 -H 'Accept: application/octet-stream' \
-    "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/$runtime_id" -o "$runtime"
+  # The reviewed runtime bytes are tracked beside their pin. The upstream
+  # continuous release replaces its assets, so a pinned asset ID cannot be
+  # downloaded reliably.
+  cp "packaging/appimage-runtime/runtime-$arch" "$runtime"
   python3 "$trusted/scripts/verify_appimage_runtime.py" --runtime "$runtime" \
     --pins packaging/linux/runtime.json --architecture "$arch"
   export APPIMAGE_RUNTIME="$runtime"

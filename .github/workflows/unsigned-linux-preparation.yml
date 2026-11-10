@@ -79,9 +79,8 @@ jobs:
         run: |
           set -euo pipefail
           tool_id=$(python -c 'import json; print(json.load(open("packaging/toolchain.json"))["appimagetool"]["x86_64"]["asset_id"])')
-          runtime_id=$(python -c 'import json; print(json.load(open("packaging/linux/runtime.json"))["targets"]["x86_64"]["asset_id"])')
           curl --fail --location --proto '=https' --tlsv1.2 -H 'Accept: application/octet-stream' "https://api.github.com/repos/AppImage/appimagetool/releases/assets/$tool_id" -o "$RUNNER_TEMP/appimagetool"
-          curl --fail --location --proto '=https' --tlsv1.2 -H 'Accept: application/octet-stream' "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/$runtime_id" -o "$RUNNER_TEMP/appimage-runtime"
+          cp packaging/appimage-runtime/runtime-x86_64 "$RUNNER_TEMP/appimage-runtime"
           chmod 755 "$RUNNER_TEMP/appimagetool"
           python scripts/prepare_unsigned_linux.py package --source-commit "$SOURCE_COMMIT" --architecture x86_64 --preparation "$RUNNER_TEMP/linux-prepared" --appimagetool "$RUNNER_TEMP/appimagetool" --runtime "$RUNNER_TEMP/appimage-runtime"
       - name: Retain exact development observations without claiming E2E

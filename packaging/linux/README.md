@@ -81,8 +81,13 @@ Packaging rechecks every prepared byte and the appimagetool digest. It verifies
 the runtime's exact size, SHA-256 and architecture against `runtime.json`, then
 passes it explicitly with `--runtime-file`. The AppImage tool must not download
 an untracked runtime implicitly. Direct `build.sh` callers set `APPIMAGE_RUNTIME`
-to these same verified bytes; the candidate builder retrieves the immutable
-asset ID in the pin. Runtime pinning is not native E2E qualification. The producer invokes
+to these same verified bytes. The reviewed runtime is tracked at
+`packaging/appimage-runtime/runtime-<arch>`, outside the delivered
+application source, and the preparation and candidate builders copy it from
+there. The upstream continuous release replaces its
+assets, so the asset ID in the pin records provenance and is not downloaded.
+Only the x86_64 runtime is tracked; an aarch64 build stops until its reviewed
+bytes are added. Runtime pinning is not native E2E qualification. The producer invokes
 the final package builder and its existing approved-input validator. The
 AppImage keeps the registered filename. Its adjacent `.development.json`
 receipt records its size, SHA-256 and full AppDir inventory. Both receipts mark

@@ -20,11 +20,29 @@ def test_linux_builder_requires_pinned_explicit_runtime():
     assert builder.index('verify_appimage_runtime.py') < builder.index('cargo build')
 
 
-def test_candidate_fetches_immutable_runtime_asset():
-    builder = (ROOT / 'scripts/candidate/build-native.sh').read_text()
-    assert 'packaging/linux/runtime.json' in builder
-    assert 'type2-runtime/releases/assets/$runtime_id' in builder
-    assert 'APPIMAGE_RUNTIME="$runtime"' in builder
+BUILDERS = ('scripts/candidate/build-native.sh', '.github/workflows/unsigned-linux-preparation.yml')
+
+
+def test_builders_use_the_tracked_runtime_bytes():
+    # The upstream "continuous" release replaces its assets, so a pinned asset
+    # ID stopped resolving and every Linux build failed with HTTP 404. The
+    # reviewed bytes are tracked beside the pin instead of downloaded.
+    for path in BUILDERS:
+        builder = (ROOT / path).read_text()
+        assert 'type2-runtime/releases' not in builder, path
+        assert 'packaging/appimage-runtime/runtime-' in builder, path
+    native = (ROOT / 'scripts/candidate/build-native.sh').read_text()
+    assert 'APPIMAGE_RUNTIME="$runtime"' in native
+    assert native.index('verify_appimage_runtime.py') < native.index('APPIMAGE_RUNTIME="$runtime"')
+
+
+def test_tracked_runtime_matches_its_pin():
+    pins = json.loads((ROOT / 'packaging/linux/runtime.json').read_bytes())['targets']
+    tracked = ROOT / 'packaging/appimage-runtime/runtime-x86_64'
+    assert tracked.is_file() and not tracked.is_symlink()
+    data = tracked.read_bytes()
+    assert len(data) == pins['x86_64']['size']
+    assert hashlib.sha256(data).hexdigest() == pins['x86_64']['sha256']
 
 
 def test_runtime_digest_and_architecture_are_checked(tmp_path, monkeypatch):
